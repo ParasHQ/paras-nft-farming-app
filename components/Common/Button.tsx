@@ -22,7 +22,7 @@ const Button = ({
 	onClick,
 }: ButtonProps) => {
 	const buttonBaseStyle =
-		'inline-block text-center relative whitespace-nowrap font-medium hover:bg-opacity-80'
+		'inline-block text-center relative whitespace-nowrap font-medium hover:bg-opacity-80 shadow-md'
 	const buttonTransition = 'transition duration-150 ease-in-out'
 	const buttonDisabledStyle = isDisabled
 		? 'cursor-not-allowed opacity-60 saturate-50 hover:bg-opacity-100'

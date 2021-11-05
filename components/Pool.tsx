@@ -22,7 +22,7 @@ interface PoolProps {
 
 const Pool = ({ data }: PoolProps) => {
 	return (
-		<div className="bg-parasGrey text-white rounded-lg overflow-hidden ">
+		<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
 			<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
 				<div className="absolute inset-0 opacity-20">
 					<div className="text-center h-full overflow-hidden">

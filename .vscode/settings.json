@@ -1,5 +1,8 @@
 {
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  "editor.formatOnSave": true,
-  "editor.tabSize": 2
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSave": true,
+	"editor.tabSize": 2,
+	"prettier.semi": false,
+	"prettier.useTabs": true,
+	"prettier.singleQuote": true
 }

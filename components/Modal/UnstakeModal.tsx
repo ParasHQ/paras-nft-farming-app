@@ -13,15 +13,15 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 	return (
 		<Modal isShow={props.show} onClose={props.onClose}>
 			<div className="max-w-sm w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
-				<div className="text-center relative mb-4">
-					<div
-						className="absolute inset-y-0 left-0 flex items-center cursor-pointer"
-						onClick={props.onClose}
-					>
+				<div className="flex items-center mb-4">
+					<div className="w-1/5 cursor-pointer" onClick={props.onClose}>
 						<IconBack />
 					</div>
-					<p className="font-bold text-xl text-white">Unstake</p>
-					<p className="text-white text-sm -mt-1">Pillars of Paras Pool</p>
+					<div className="w-3/5 flex-1 text-center">
+						<p className="font-bold text-xl text-white">Stake</p>
+						<p className="text-white text-sm -mt-1">Pillars of Paras Pool</p>
+					</div>
+					<div className="w-1/5" />
 				</div>
 				<div className="mb-10">
 					<p className="opacity-80 text-right text-white text-sm mb-1">Balance: 1000</p>

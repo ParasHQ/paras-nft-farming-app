@@ -17,7 +17,7 @@ const Modal = ({
 	closeOnBgClick = true,
 	closeOnEscape = true,
 	children,
-	backgroundColor = `rgba(0,0,0,0.86)`,
+	backgroundColor = `rgba(0,0,0,0.5)`,
 	style = {},
 	className,
 }: ModalProps) => {

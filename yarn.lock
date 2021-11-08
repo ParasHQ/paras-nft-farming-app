@@ -2067,6 +2067,11 @@ js-yaml@^3.13.1:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
+jsbi@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/jsbi/-/jsbi-4.0.0.tgz#11ff8b6418e8d0073edcfbe9f7bdf3fca21c31c7"
+  integrity sha512-68RUMweVqu0MevPlF4cjsxTvySzvYx4rMZpH8WhoKJ9yIUd5F4/C4zcrp5ITN9j8ayd8DTH6C/2ZuoW9bsBAEw==
+
 json-parse-even-better-errors@^2.3.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/json-parse-even-better-errors/-/json-parse-even-better-errors-2.3.1.tgz#7c47805a94319928e05777405dc12e1f7a4ee02d"

@@ -1,4 +1,5 @@
 import IconParas from 'components/Icon/IconParas'
+import near from 'services/near'
 
 const Header = () => (
 	<div className="flex items-center p-4 max-w-6xl mx-auto mb-8">
@@ -10,8 +11,16 @@ const Header = () => (
 		</div>
 		<div className="w-1/2 md:w-1/3 text-right">
 			<div>
-				<p className="text-white font-bold">ahnaf.near</p>
-				<p className="text-white text-sm opacity-80">logout</p>
+				{near.wallet?.isSignedIn() ? (
+					<>
+						<p className="text-white font-bold">{near.wallet.getAccountId()}</p>
+						<p className="text-white text-sm opacity-80 cursor-pointer">logout</p>
+					</>
+				) : (
+					<p className="text-white font-bold cursor-pointer" onClick={() => near.signIn()}>
+						Login
+					</p>
+				)}
 			</div>
 		</div>
 	</div>

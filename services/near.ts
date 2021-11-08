@@ -16,7 +16,7 @@ class NearClass {
 	public near!: Near
 	public wallet!: WalletConnection
 
-	public init() {
+	public init(callback?: () => void) {
 		const config = getConfig(process.env.APP_ENV || 'development')
 		const near = new Near({
 			keyStore: new keyStores.BrowserLocalStorageKeyStore(),
@@ -26,6 +26,8 @@ class NearClass {
 
 		this.near = near
 		this.wallet = wallet
+
+		callback && callback()
 	}
 
 	public signIn() {

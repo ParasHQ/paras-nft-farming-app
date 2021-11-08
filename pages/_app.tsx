@@ -1,15 +1,14 @@
 import '../styles/globals.css'
 import 'tailwindcss/tailwind.css'
 import type { AppProps } from 'next/app'
-import { useEffect } from 'react'
-import near from 'services/near'
+import { NearProvider } from 'hooks/useNearProvider'
 
 function MyApp({ Component, pageProps }: AppProps) {
-	useEffect(() => {
-		near.init()
-	}, [])
-
-	return <Component {...pageProps} />
+	return (
+		<NearProvider>
+			<Component {...pageProps} />
+		</NearProvider>
+	)
 }
 
 export default MyApp

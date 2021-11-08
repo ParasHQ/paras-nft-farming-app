@@ -1,3 +1,5 @@
+import JSBI from 'jsbi'
+
 export const toHumanReadableNumbers = (val: string) => {
 	const PREFIXES: { [key: string]: string } = {
 		'24': 'Y',
@@ -56,4 +58,12 @@ export const prettyBalance = (balance: any, decimals: number = 18, len: number =
 	}
 	const formattedHead = head.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 	return tail ? `${formattedHead}.${tail}` : formattedHead
+}
+
+export const formatParasAmount = (balance: string | number, fracDigits?: number) => {
+	return JSBI.divide(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
+}
+
+export const parseParasAmount = (balance: string | number) => {
+	return JSBI.multiply(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
 }

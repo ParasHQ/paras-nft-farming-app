@@ -5,8 +5,8 @@ interface ButtonProps {
 	onClick: React.MouseEventHandler<HTMLButtonElement>
 	isDisabled?: boolean
 	isFullWidth?: boolean
-	size?: 'sm' | 'md' | 'lg'
-	color?: 'blue' | 'red' | 'green'
+	size?: 'xs' | 'sm' | 'md' | 'lg'
+	color?: 'blue' | 'red' | 'green' | 'gray'
 	className?: string
 	style?: React.CSSProperties
 }
@@ -37,6 +37,8 @@ const Button = ({
 				return 'bg-redButton text-white'
 			case 'green':
 				return 'bg-greenButton text-white'
+			case 'gray':
+				return 'bg-borderGray text-white'
 			default:
 				return ''
 		}
@@ -49,6 +51,8 @@ const Button = ({
 			case 'md':
 				return 'py-2 px-6 text-sm rounded-lg'
 			case 'sm':
+				return 'py-1 px-4 text-xs rounded-md'
+			case 'xs':
 				return 'py-1 px-4 text-xs rounded-md'
 			default:
 				return ''

@@ -8,6 +8,7 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"axios": "^0.24.0",
 		"dayjs": "^1.10.7",
 		"jsbi": "^4.0.0",
 		"near-api-js": "^0.43.1",

@@ -3,7 +3,7 @@ import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
 import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
-import near from 'services/near'
+import near, { CONTRACT } from 'services/near'
 import axios from 'axios'
 import StakeModal from './Modal/StakeModal'
 import UnstakeModal from './Modal/UnstakeModal'
@@ -54,11 +54,12 @@ interface IPool {
 
 interface PoolProps {
 	data: IPool
+	staked: string
 }
 
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
-const Pool = ({ data }: PoolProps) => {
+const Pool = ({ data, staked }: PoolProps) => {
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed>({})
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 
@@ -84,7 +85,7 @@ const Pool = ({ data }: PoolProps) => {
 
 		for (const farmId of data.farms) {
 			const farmDetails: IFarm = await near.nearViewFunction({
-				contractName: `dev-1636378463768-19826484030009`,
+				contractName: CONTRACT.FARM,
 				methodName: `get_farm`,
 				args: {
 					farm_id: farmId,
@@ -92,10 +93,10 @@ const Pool = ({ data }: PoolProps) => {
 			})
 
 			const unclaimedReward = await near.nearViewFunction({
-				contractName: `dev-1636378463768-19826484030009`,
+				contractName: CONTRACT.FARM,
 				methodName: `get_unclaimed_reward`,
 				args: {
-					account_id: 'johncena.testnet',
+					account_id: near.wallet.getAccountId(),
 					farm_id: farmId,
 				},
 			})
@@ -152,7 +153,11 @@ const Pool = ({ data }: PoolProps) => {
 	const PoolModal = () => {
 		return (
 			<>
-				<StakeModal show={showModal === 'stakePARAS'} onClose={() => setShowModal(null)} />
+				<StakeModal
+					seedId={data.seed_id}
+					show={showModal === 'stakePARAS'}
+					onClose={() => setShowModal(null)}
+				/>
 				<UnstakeModal show={showModal === 'unstakePARAS'} onClose={() => setShowModal(null)} />
 			</>
 		)
@@ -231,9 +236,9 @@ const Pool = ({ data }: PoolProps) => {
 							<div>
 								<p className="opacity-75">Staked PARAS</p>
 							</div>
-							{/* <div className="text-right">
-							<p>{prettyBalance(poolProcessed.userStaked, 18)} Ⓟ</p>
-						</div> */}
+							<div className="text-right">
+								<p>{prettyBalance(staked, 18)} Ⓟ</p>
+							</div>
 						</div>
 					</div>
 					<div className="mt-4">

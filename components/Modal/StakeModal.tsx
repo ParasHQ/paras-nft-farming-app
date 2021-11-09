@@ -8,6 +8,7 @@ import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface StakeModalProps {
+	seedId: string
 	show: boolean
 	onClose: () => void
 }
@@ -42,7 +43,7 @@ const StakeModal = (props: StakeModalProps) => {
 				amount: parseParasAmount(inputStake),
 				msg: JSON.stringify({
 					transfer_type: 'seed',
-					seed_id: 'dev-1631277489384-75412609538902$1',
+					seed_id: props.seedId,
 				}),
 			},
 			amount: '1',

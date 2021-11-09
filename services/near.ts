@@ -16,6 +16,7 @@ export const CONTRACT = {
 	TOKEN: process.env.NEXT_PUBLIC_PARAS_TOKEN_CONTRACT || '',
 	FARM: process.env.NEXT_PUBLIC_NFT_FARM_CONTRACT || '',
 }
+
 class NearClass {
 	public near!: Near
 	public wallet!: WalletConnection

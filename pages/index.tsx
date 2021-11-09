@@ -37,7 +37,6 @@ const Home: NextPage = () => {
 				limit: 10,
 			},
 		})
-		console.log(poolList)
 		setPoolList(Object.values(poolList))
 	}
 

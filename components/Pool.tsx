@@ -32,7 +32,7 @@ interface IPoolProcessed {
 	startDate?: number | null
 	endDate?: number | null
 	rewardPerWeek?: any
-	claimableRewards?: string
+	claimableRewards?: number
 	media?: string
 }
 
@@ -75,6 +75,7 @@ const Pool = ({ data }: PoolProps) => {
 		let totalRewardPerWeek = 0
 		let totalRewardPerWeekInUSD = 0
 		let totalRewardPerYearInUSD = 0
+		let totalUnclaimedReward = 0
 
 		for (const farmId of data.farms) {
 			const farmDetails: IFarm = await near.nearViewFunction({
@@ -84,6 +85,17 @@ const Pool = ({ data }: PoolProps) => {
 					farm_id: farmId,
 				},
 			})
+
+			const unclaimedReward = await near.nearViewFunction({
+				contractName: `dev-1636378463768-19826484030009`,
+				methodName: `get_unclaimed_reward`,
+				args: {
+					account_id: 'johncena.testnet',
+					farm_id: farmId,
+				},
+			})
+
+			totalUnclaimedReward += unclaimedReward
 
 			console.log(farmId, farmDetails)
 
@@ -127,6 +139,7 @@ const Pool = ({ data }: PoolProps) => {
 			rewardPerWeek: totalRewardPerWeek,
 			startDate: startDate ? startDate * 1000 : null,
 			endDate: endDate ? endDate * 1000 : null,
+			claimableRewards: totalUnclaimedReward,
 		}
 		setPoolProcessed(poolData)
 	}, [data.farms, data.amount, data.title, data.media])

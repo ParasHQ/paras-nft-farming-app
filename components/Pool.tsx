@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
 import near from 'services/near'
 import axios from 'axios'
+import StakeModal from './Modal/StakeModal'
+import UnstakeModal from './Modal/UnstakeModal'
 
 interface IFarm {
 	beneficiary_reward: string
@@ -54,8 +56,11 @@ interface PoolProps {
 	data: IPool
 }
 
+type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
+
 const Pool = ({ data }: PoolProps) => {
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed>({})
+	const [showModal, setShowModal] = useState<TShowModal>(null)
 
 	const getParasPrice = async () => {
 		const resp = await axios.get(
@@ -144,12 +149,22 @@ const Pool = ({ data }: PoolProps) => {
 		setPoolProcessed(poolData)
 	}, [data.farms, data.amount, data.title, data.media])
 
+	const PoolModal = () => {
+		return (
+			<>
+				<StakeModal show={showModal === 'stakePARAS'} onClose={() => setShowModal(null)} />
+				<UnstakeModal show={showModal === 'unstakePARAS'} onClose={() => setShowModal(null)} />
+			</>
+		)
+	}
+
 	useEffect(() => {
 		getFarms()
 	}, [getFarms])
 
 	return (
 		<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
+			{PoolModal()}
 			<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
 				<div className="absolute inset-0 opacity-20">
 					<div className="text-center h-full overflow-hidden">
@@ -203,9 +218,14 @@ const Pool = ({ data }: PoolProps) => {
 							<p>{prettyBalance(poolProcessed.rewardPerWeek, 18)} Ⓟ</p>
 						</div>
 					</div>
-					<div className="flex justify-between mt-1">
-						<div>
-							<p className="opacity-75">NFT Multiplier</p>
+					<div className="mt-4">
+						<div className="flex justify-between">
+							<div>
+								<p className="opacity-75">Reward per Week</p>
+							</div>
+							<div className="text-right">
+								<p>{prettyBalance(poolProcessed.rewardPerWeek, 18)} Ⓟ</p>
+							</div>
 						</div>
 						{/* <div className="text-right">
 							<p>{poolProcessed.nftMultiplier}%</p>
@@ -219,24 +239,29 @@ const Pool = ({ data }: PoolProps) => {
 							<p>{prettyBalance(poolProcessed.userStaked, 18)} Ⓟ</p>
 						</div> */}
 					</div>
-				</div>
-				<div className="mt-4">
-					<div className="flex justify-between -mx-4">
-						<div className="w-1/2 px-4">
-							<Button isFullWidth className="" onClick={() => {}}>
-								Stake NFT
-							</Button>
-							<Button isFullWidth className=" mt-2" color="red" onClick={() => {}}>
-								Unstake NFT
-							</Button>
-						</div>
-						<div className="w-1/2 px-4 text-right">
-							<Button isFullWidth className="" onClick={() => {}}>
-								Stake PARAS
-							</Button>
-							<Button isFullWidth className=" mt-2" color="red" onClick={() => {}}>
-								Unstake PARAS
-							</Button>
+					<div className="mt-4">
+						<div className="flex justify-between -mx-4">
+							<div className="w-1/2 px-4">
+								<Button isFullWidth className="" onClick={() => {}}>
+									Stake NFT
+								</Button>
+								<Button isFullWidth className=" mt-2" color="red" onClick={() => {}}>
+									Unstake NFT
+								</Button>
+							</div>
+							<div className="w-1/2 px-4 text-right">
+								<Button isFullWidth onClick={() => setShowModal('stakePARAS')}>
+									Stake PARAS
+								</Button>
+								<Button
+									isFullWidth
+									className=" mt-2"
+									color="red"
+									onClick={() => setShowModal('unstakePARAS')}
+								>
+									Unstake PARAS
+								</Button>
+							</div>
 						</div>
 					</div>
 				</div>

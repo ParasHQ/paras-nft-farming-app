@@ -209,15 +209,7 @@ const Pool = ({ data }: PoolProps) => {
 						</div>
 					</div>
 				</div>
-				<div className="mt-4">
-					<div className="flex justify-between">
-						<div>
-							<p className="opacity-75">Reward per Week</p>
-						</div>
-						<div className="text-right">
-							<p>{prettyBalance(poolProcessed.rewardPerWeek, 18)} Ⓟ</p>
-						</div>
-					</div>
+				<div>
 					<div className="mt-4">
 						<div className="flex justify-between">
 							<div>
@@ -227,17 +219,22 @@ const Pool = ({ data }: PoolProps) => {
 								<p>{prettyBalance(poolProcessed.rewardPerWeek, 18)} Ⓟ</p>
 							</div>
 						</div>
-						{/* <div className="text-right">
+						<div className="flex justify-between mt-1">
+							<div>
+								<p className="opacity-75">NFT Multiplier</p>
+							</div>
+							{/* <div className="text-right">
 							<p>{poolProcessed.nftMultiplier}%</p>
 						</div> */}
-					</div>
-					<div className="flex justify-between mt-1">
-						<div>
-							<p className="opacity-75">Staked PARAS</p>
 						</div>
-						{/* <div className="text-right">
+						<div className="flex justify-between mt-1">
+							<div>
+								<p className="opacity-75">Staked PARAS</p>
+							</div>
+							{/* <div className="text-right">
 							<p>{prettyBalance(poolProcessed.userStaked, 18)} Ⓟ</p>
 						</div> */}
+						</div>
 					</div>
 					<div className="mt-4">
 						<div className="flex justify-between -mx-4">

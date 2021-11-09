@@ -14,7 +14,12 @@ const Header = () => (
 				{near.wallet?.isSignedIn() ? (
 					<>
 						<p className="text-white font-bold">{near.wallet.getAccountId()}</p>
-						<p className="text-white text-sm opacity-80 cursor-pointer">logout</p>
+						<p
+							className="text-white text-sm opacity-80 cursor-pointer"
+							onClick={() => near.signOut()}
+						>
+							logout
+						</p>
 					</>
 				) : (
 					<p className="text-white font-bold cursor-pointer" onClick={() => near.signIn()}>

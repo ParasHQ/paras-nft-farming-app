@@ -1,4 +1,5 @@
 import Pool from 'components/Pool'
+import Header from 'components/Common/Header'
 import { useNearProvider } from 'hooks/useNearProvider'
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
@@ -46,7 +47,7 @@ const Home: NextPage = () => {
 	return (
 		<div className="bg-gray-900 min-h-screen">
 			<div className="p-4">
-				<p className="text-3xl text-white text-center font-bold">PARAS Staking</p>
+				<Header />
 			</div>
 			<div className="max-w-6xl mx-auto">
 				<div className="flex flex-wrap ">

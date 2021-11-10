@@ -56,13 +56,15 @@ interface IPool {
 interface PoolProps {
 	data: IPool
 	staked: string
+	stakedNFT: string[]
 }
 
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
-const Pool = ({ data, staked }: PoolProps) => {
+const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed>({})
 	const [showModal, setShowModal] = useState<TShowModal>(null)
+	const [nftMultiplier, setNFTMultiplier] = useState('0')
 
 	const getParasPrice = async () => {
 		const resp = await axios.get(
@@ -80,7 +82,6 @@ const Pool = ({ data, staked }: PoolProps) => {
 		let startDate = null
 		let endDate = null
 		let totalRewardPerWeek = 0
-		let totalRewardPerWeekInUSD = 0
 		let totalRewardPerYearInUSD = 0
 		let totalUnclaimedReward = 0
 
@@ -104,14 +105,11 @@ const Pool = ({ data, staked }: PoolProps) => {
 
 			totalUnclaimedReward += unclaimedReward
 
-			console.log(farmId, farmDetails)
-
 			const farmTotalRewardPerWeek =
 				(farmDetails.reward_per_session * 86400 * 7) / farmDetails.session_interval
 			const farmTotalRewardPerWeekInUSD = farmTotalRewardPerWeek * parasPriceInDecimal
 
 			totalRewardPerWeek += farmTotalRewardPerWeek
-			totalRewardPerWeekInUSD += farmTotalRewardPerWeekInUSD
 
 			const farmTotalRewardPerYearInUSD = farmTotalRewardPerWeekInUSD * 52
 			totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
@@ -151,6 +149,17 @@ const Pool = ({ data, staked }: PoolProps) => {
 		}
 		setPoolProcessed(poolData)
 	}, [data.farms, data.amount, data.title, data.media])
+
+	useEffect(() => {
+		if (stakedNFT) {
+			const totalMultiplier = stakedNFT.reduce((a: number, b: string) => {
+				const [id] = b.split(':')
+				const multiplier = data.nft_multiplier[id]
+				return a + multiplier
+			}, 0)
+			setNFTMultiplier((totalMultiplier / 100).toString())
+		}
+	}, [stakedNFT, data.nft_multiplier])
 
 	const PoolModal = () => {
 		return (
@@ -249,9 +258,9 @@ const Pool = ({ data, staked }: PoolProps) => {
 							<div>
 								<p className="opacity-75">NFT Multiplier</p>
 							</div>
-							{/* <div className="text-right">
-							<p>{poolProcessed.nftMultiplier}%</p>
-						</div> */}
+							<div className="text-right">
+								<p>{nftMultiplier}%</p>
+							</div>
 						</div>
 						<div className="flex justify-between mt-1">
 							<div>

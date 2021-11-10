@@ -23,18 +23,27 @@ interface IUserStaked {
 	[key: string]: string
 }
 
+interface IUserStakedNFT {
+	[key: string]: string[]
+}
+
 const Home: NextPage = () => {
-	const { isInit } = useNearProvider()
+	const { isInit, accountId } = useNearProvider()
 	const [poolList, setPoolList] = useState<IPool[]>([])
 	const [userStaked, setUserStaked] = useState<IUserStaked>({})
-	const [userStakedNFT, setUserStakedNFT] = useState({})
+	const [userStakedNFT, setUserStakedNFT] = useState<IUserStakedNFT>({})
 
 	useEffect(() => {
 		if (isInit) {
 			getPoolList()
-			getUserStaked()
 		}
 	}, [isInit])
+
+	useEffect(() => {
+		if (accountId) {
+			getUserStaked()
+		}
+	}, [accountId])
 
 	const getPoolList = async () => {
 		const poolList: IPool[] = await near.nearViewFunction({
@@ -65,8 +74,8 @@ const Home: NextPage = () => {
 			},
 		})
 
-		console.log(userStakedNFTData)
 		setUserStaked(userStakedToken)
+		setUserStakedNFT(userStakedNFTData)
 	}
 
 	return (
@@ -79,7 +88,11 @@ const Home: NextPage = () => {
 					{poolList.map((pool, idx) => {
 						return (
 							<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>
-								<Pool data={pool} staked={userStaked[pool.seed_id]} />
+								<Pool
+									data={pool}
+									staked={userStaked[pool.seed_id]}
+									stakedNFT={userStakedNFT[pool.seed_id]}
+								/>
 							</div>
 						)
 					})}

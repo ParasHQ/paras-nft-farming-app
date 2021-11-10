@@ -3,6 +3,7 @@ import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
+import { useNearProvider } from 'hooks/useNearProvider'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
@@ -15,6 +16,7 @@ interface StakeModalProps {
 const StakeModal = (props: StakeModalProps) => {
 	const [balance, setBalance] = useState('0')
 	const [inputStake, setInputStake] = useState<number | string>('')
+	const { hasDeposit, setCommonModal } = useNearProvider()
 
 	useEffect(() => {
 		if (props.show) {
@@ -34,6 +36,11 @@ const StakeModal = (props: StakeModalProps) => {
 	}
 
 	const stakeToken = async () => {
+		if (!hasDeposit) {
+			setCommonModal('deposit')
+			return
+		}
+
 		await near.nearFunctionCall({
 			methodName: 'ft_transfer_call',
 			contractName: CONTRACT.TOKEN,
@@ -54,8 +61,10 @@ const StakeModal = (props: StakeModalProps) => {
 		<Modal isShow={props.show} onClose={props.onClose}>
 			<div className="max-w-sm w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
 				<div className="flex items-center mb-4">
-					<div className="w-1/5 cursor-pointer" onClick={props.onClose}>
-						<IconBack />
+					<div className="w-1/5">
+						<div className="inline-block cursor-pointer" onClick={props.onClose}>
+							<IconBack />
+						</div>
 					</div>
 					<div className="w-3/5 flex-1 text-center">
 						<p className="font-bold text-xl text-white">Stake</p>

@@ -47,13 +47,11 @@ const Button = ({
 	const getSizeStyle = (): string => {
 		switch (size) {
 			case 'lg':
-				return 'py-3 px-20 text-base rounded-xl'
+				return 'py-3 text-base rounded-xl'
 			case 'md':
-				return 'py-2 px-6 text-sm rounded-lg'
+				return 'py-2 text-sm rounded-lg'
 			case 'sm':
-				return 'py-1 px-4 text-xs rounded-md'
-			case 'xs':
-				return 'py-1 px-4 text-xs rounded-md'
+				return 'py-1 text-xs rounded-md'
 			default:
 				return ''
 		}

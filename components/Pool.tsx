@@ -3,10 +3,11 @@ import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
 import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
-import near from 'services/near'
+import near, { CONTRACT } from 'services/near'
 import axios from 'axios'
 import StakeModal from './Modal/StakeModal'
 import UnstakeModal from './Modal/UnstakeModal'
+import { GAS_FEE } from 'constants/gasFee'
 
 interface IFarm {
 	beneficiary_reward: string
@@ -34,7 +35,7 @@ interface IPoolProcessed {
 	startDate?: number | null
 	endDate?: number | null
 	rewardPerWeek?: any
-	claimableRewards?: string
+	claimableRewards?: number
 	media?: string
 }
 
@@ -54,11 +55,12 @@ interface IPool {
 
 interface PoolProps {
 	data: IPool
+	staked: string
 }
 
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
-const Pool = ({ data }: PoolProps) => {
+const Pool = ({ data, staked }: PoolProps) => {
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed>({})
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 
@@ -80,15 +82,27 @@ const Pool = ({ data }: PoolProps) => {
 		let totalRewardPerWeek = 0
 		let totalRewardPerWeekInUSD = 0
 		let totalRewardPerYearInUSD = 0
+		let totalUnclaimedReward = 0
 
 		for (const farmId of data.farms) {
 			const farmDetails: IFarm = await near.nearViewFunction({
-				contractName: `dev-1636378463768-19826484030009`,
+				contractName: CONTRACT.FARM,
 				methodName: `get_farm`,
 				args: {
 					farm_id: farmId,
 				},
 			})
+
+			const unclaimedReward = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `get_unclaimed_reward`,
+				args: {
+					account_id: near.wallet.getAccountId(),
+					farm_id: farmId,
+				},
+			})
+
+			totalUnclaimedReward += unclaimedReward
 
 			console.log(farmId, farmDetails)
 
@@ -124,6 +138,7 @@ const Pool = ({ data }: PoolProps) => {
 		}
 
 		const APR = totalStakedInUSD > 0 ? (totalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
+
 		const poolData: IPoolProcessed = {
 			title: data.title,
 			media: data.media,
@@ -132,6 +147,7 @@ const Pool = ({ data }: PoolProps) => {
 			rewardPerWeek: totalRewardPerWeek,
 			startDate: startDate ? startDate * 1000 : null,
 			endDate: endDate ? endDate * 1000 : null,
+			claimableRewards: totalUnclaimedReward,
 		}
 		setPoolProcessed(poolData)
 	}, [data.farms, data.amount, data.title, data.media])
@@ -139,10 +155,33 @@ const Pool = ({ data }: PoolProps) => {
 	const PoolModal = () => {
 		return (
 			<>
-				<StakeModal show={showModal === 'stakePARAS'} onClose={() => setShowModal(null)} />
-				<UnstakeModal show={showModal === 'unstakePARAS'} onClose={() => setShowModal(null)} />
+				<StakeModal
+					seedId={data.seed_id}
+					title={data.title}
+					show={showModal === 'stakePARAS'}
+					onClose={() => setShowModal(null)}
+				/>
+				<UnstakeModal
+					seedId={data.seed_id}
+					title={data.title}
+					show={showModal === 'unstakePARAS'}
+					onClose={() => setShowModal(null)}
+				/>
 			</>
 		)
+	}
+
+	const claimRewards = async () => {
+		await near.nearFunctionCall({
+			methodName: 'claim_reward_by_seed_and_withdraw',
+			contractName: CONTRACT.FARM,
+			args: {
+				seed_id: data.seed_id,
+				token_id: CONTRACT.TOKEN,
+			},
+			amount: '1',
+			gas: GAS_FEE[300],
+		})
 	}
 
 	useEffect(() => {
@@ -177,7 +216,7 @@ const Pool = ({ data }: PoolProps) => {
 						</div>
 						<div className="text-right">
 							<p className="opacity-75">APR</p>
-							<p className="text-4xl font-semibold">{prettyBalance(poolProcessed.apr, 1, 1)}%</p>
+							<p className="text-4xl font-semibold">{prettyBalance(poolProcessed.apr, 0, 1)}%</p>
 						</div>
 					</div>
 				</div>
@@ -218,9 +257,9 @@ const Pool = ({ data }: PoolProps) => {
 							<div>
 								<p className="opacity-75">Staked PARAS</p>
 							</div>
-							{/* <div className="text-right">
-							<p>{prettyBalance(poolProcessed.userStaked, 18)} Ⓟ</p>
-						</div> */}
+							<div className="text-right">
+								<p>{prettyBalance(staked, 18)} Ⓟ</p>
+							</div>
 						</div>
 					</div>
 					<div className="mt-4">
@@ -253,10 +292,10 @@ const Pool = ({ data }: PoolProps) => {
 					<div className="flex justify-between items-center p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
 						<div className="w-2/3">
 							<p className="opacity-75">Claimable Rewards</p>
-							<p>{prettyBalance(poolProcessed.claimableRewards, 18)} Ⓟ</p>
+							<p>{prettyBalance(poolProcessed.claimableRewards, 18, 6)} Ⓟ</p>
 						</div>
 						<div className="w-1/3">
-							<Button isFullWidth color="green" onClick={() => {}}>
+							<Button isFullWidth color="green" onClick={claimRewards}>
 								Claim
 							</Button>
 						</div>

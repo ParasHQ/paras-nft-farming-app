@@ -9,6 +9,8 @@ import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface StakeModalProps {
+	seedId: string
+	title: string
 	show: boolean
 	onClose: () => void
 }
@@ -49,7 +51,7 @@ const StakeModal = (props: StakeModalProps) => {
 				amount: parseParasAmount(inputStake),
 				msg: JSON.stringify({
 					transfer_type: 'seed',
-					seed_id: 'dev-1631277489384-75412609538902$1',
+					seed_id: props.seedId,
 				}),
 			},
 			amount: '1',
@@ -68,7 +70,7 @@ const StakeModal = (props: StakeModalProps) => {
 					</div>
 					<div className="w-3/5 flex-1 text-center">
 						<p className="font-bold text-xl text-white">Stake</p>
-						<p className="text-white text-sm -mt-1">Pillars of Paras Pool</p>
+						<p className="text-white text-sm -mt-1">{props.title}</p>
 					</div>
 					<div className="w-1/5" />
 				</div>
@@ -89,7 +91,7 @@ const StakeModal = (props: StakeModalProps) => {
 					<div className="text-left">
 						<Button
 							onClick={() => setInputStake(formatParasAmount(balance))}
-							className="float-none mt-2"
+							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
 						>

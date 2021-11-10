@@ -3,11 +3,13 @@ import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface UnstakeModalProps {
+	seedId: string
+	title: string
 	show: boolean
 	onClose: () => void
 }
@@ -16,13 +18,7 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 	const [balance, setBalance] = useState('0')
 	const [inputUnstake, setInputUnstake] = useState<number | string>('')
 
-	useEffect(() => {
-		if (props.show) {
-			getStakedBalance()
-		}
-	}, [props.show])
-
-	const getStakedBalance = async () => {
+	const getStakedBalance = useCallback(async () => {
 		const balanceStaked = await near.nearViewFunction({
 			methodName: 'list_user_seeds',
 			contractName: CONTRACT.FARM,
@@ -30,15 +26,21 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 				account_id: near.wallet.getAccountId(),
 			},
 		})
-		setBalance(balanceStaked['dev-1631277489384-75412609538902$1'])
-	}
+		setBalance(balanceStaked[props.seedId])
+	}, [props.seedId])
+
+	useEffect(() => {
+		if (props.show) {
+			getStakedBalance()
+		}
+	}, [props.show, getStakedBalance])
 
 	const unstakeToken = async () => {
 		await near.nearFunctionCall({
 			methodName: 'withdraw_seed',
 			contractName: CONTRACT.FARM,
 			args: {
-				seed_id: 'dev-1631277489384-75412609538902$1',
+				seed_id: props.seedId,
 				amount: parseParasAmount(inputUnstake),
 			},
 			amount: '1',
@@ -57,7 +59,7 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 					</div>
 					<div className="w-3/5 flex-1 text-center">
 						<p className="font-bold text-xl text-white">Unstake</p>
-						<p className="text-white text-sm -mt-1">Pillars of Paras Pool</p>
+						<p className="text-white text-sm -mt-1">{props.title}</p>
 					</div>
 					<div className="w-1/5" />
 				</div>
@@ -78,7 +80,7 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 					<div className="text-left">
 						<Button
 							onClick={() => setInputUnstake(formatParasAmount(balance))}
-							className="float-none mt-2"
+							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
 						>

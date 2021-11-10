@@ -56,7 +56,6 @@ const Home: NextPage = () => {
 			},
 		})
 
-		console.log(userStakedNFTData)
 		setUserStaked(userStakedToken)
 	}
 

@@ -33,7 +33,9 @@ const DepositModal = ({ show, onClose }: DepositModalProps) => {
 					NEAR for storage
 				</p>
 				<div className="flex justify-between items-center mt-4">
-					<Button onClick={onClickDeposit}>Deposit</Button>
+					<Button className="px-4" onClick={onClickDeposit}>
+						Deposit
+					</Button>
 				</div>
 			</div>
 		</Modal>

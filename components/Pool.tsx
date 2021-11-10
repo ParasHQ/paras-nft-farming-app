@@ -63,16 +63,17 @@ const Pool = ({ data, staked }: PoolProps) => {
 				},
 			})
 
-			const unclaimedReward = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
-				methodName: `get_unclaimed_reward`,
-				args: {
-					account_id: near.wallet.getAccountId(),
-					farm_id: farmId,
-				},
-			})
-
-			totalUnclaimedReward += unclaimedReward
+			if (accountId) {
+				const unclaimedReward = await near.nearViewFunction({
+					contractName: CONTRACT.FARM,
+					methodName: `get_unclaimed_reward`,
+					args: {
+						account_id: near.wallet.getAccountId(),
+						farm_id: farmId,
+					},
+				})
+				totalUnclaimedReward += unclaimedReward
+			}
 
 			console.log(farmId, farmDetails)
 
@@ -120,7 +121,7 @@ const Pool = ({ data, staked }: PoolProps) => {
 			claimableRewards: totalUnclaimedReward,
 		}
 		setPoolProcessed(poolData)
-	}, [data.farms, data.amount, data.title, data.media])
+	}, [data.amount, data.title, data.media, data.farms, accountId])
 
 	const PoolModal = () => {
 		return (

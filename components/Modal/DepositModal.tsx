@@ -13,14 +13,16 @@ const DepositModal = ({ show, onClose }: DepositModalProps) => {
 	const { accountId } = useNearProvider()
 
 	const onClickDeposit = () => {
-		near.nearFunctionCall({
-			contractName: CONTRACT.FARM,
-			methodName: 'storage_deposit',
-			amount: '18520000000000000000000',
-			args: {
-				account_id: accountId,
-			},
-		})
+		if (accountId) {
+			near.nearFunctionCall({
+				contractName: CONTRACT.FARM,
+				methodName: 'storage_deposit',
+				amount: '18520000000000000000000',
+				args: {
+					account_id: accountId,
+				},
+			})
+		}
 	}
 
 	return (

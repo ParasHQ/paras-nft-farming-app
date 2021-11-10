@@ -78,7 +78,7 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 					<div className="text-left">
 						<Button
 							onClick={() => setInputUnstake(formatParasAmount(balance))}
-							className="float-none mt-2"
+							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
 						>

@@ -82,7 +82,7 @@ const StakeModal = (props: StakeModalProps) => {
 					<div className="text-left">
 						<Button
 							onClick={() => setInputStake(formatParasAmount(balance))}
-							className="float-none mt-2"
+							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
 						>

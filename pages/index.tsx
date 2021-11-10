@@ -16,12 +16,16 @@ const Home: NextPage = () => {
 	const [userStaked, setUserStaked] = useState<IUserStaked>({})
 	const [userStakedNFT, setUserStakedNFT] = useState({})
 
+	const { accountId } = useNearProvider()
+
 	useEffect(() => {
 		if (isInit) {
 			getPoolList()
+		}
+		if (accountId) {
 			getUserStaked()
 		}
-	}, [isInit])
+	}, [isInit, accountId])
 
 	const getPoolList = async () => {
 		const poolList: IPool[] = await near.nearViewFunction({

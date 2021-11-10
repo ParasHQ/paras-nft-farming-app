@@ -4,7 +4,9 @@ import getConfig from './config'
 interface IViewFunction {
 	contractName: string
 	methodName: string
-	args?: object
+	args?: {
+		[key: string]: string | number
+	}
 }
 
 interface IFunctionCall extends IViewFunction {

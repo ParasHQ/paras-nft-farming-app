@@ -10,7 +10,7 @@ const Header = () => (
 			</div>
 		</div>
 		<div className="w-1/2 md:w-1/3 text-right">
-			<div>
+			<div className="inline-block">
 				{near.wallet?.isSignedIn() ? (
 					<>
 						<p className="text-white font-bold">{near.wallet.getAccountId()}</p>

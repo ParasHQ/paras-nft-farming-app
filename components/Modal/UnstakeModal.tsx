@@ -52,8 +52,10 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 		<Modal isShow={props.show} onClose={props.onClose}>
 			<div className="max-w-sm w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
 				<div className="flex items-center mb-4">
-					<div className="w-1/5 cursor-pointer" onClick={props.onClose}>
-						<IconBack />
+					<div className="w-1/5">
+						<div className="inline-block cursor-pointer" onClick={props.onClose}>
+							<IconBack />
+						</div>
 					</div>
 					<div className="w-3/5 flex-1 text-center">
 						<p className="font-bold text-xl text-white">Unstake</p>

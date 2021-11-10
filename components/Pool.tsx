@@ -157,10 +157,16 @@ const Pool = ({ data, staked }: PoolProps) => {
 			<>
 				<StakeModal
 					seedId={data.seed_id}
+					title={data.title}
 					show={showModal === 'stakePARAS'}
 					onClose={() => setShowModal(null)}
 				/>
-				<UnstakeModal show={showModal === 'unstakePARAS'} onClose={() => setShowModal(null)} />
+				<UnstakeModal
+					seedId={data.seed_id}
+					title={data.title}
+					show={showModal === 'unstakePARAS'}
+					onClose={() => setShowModal(null)}
+				/>
 			</>
 		)
 	}

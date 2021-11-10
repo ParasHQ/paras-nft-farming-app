@@ -9,6 +9,7 @@ import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common
 
 interface StakeModalProps {
 	seedId: string
+	title: string
 	show: boolean
 	onClose: () => void
 }
@@ -60,7 +61,7 @@ const StakeModal = (props: StakeModalProps) => {
 					</div>
 					<div className="w-3/5 flex-1 text-center">
 						<p className="font-bold text-xl text-white">Stake</p>
-						<p className="text-white text-sm -mt-1">Pillars of Paras Pool</p>
+						<p className="text-white text-sm -mt-1">{props.title}</p>
 					</div>
 					<div className="w-1/5" />
 				</div>

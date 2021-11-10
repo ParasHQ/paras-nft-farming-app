@@ -4,20 +4,7 @@ import { useNearProvider } from 'hooks/useNearProvider'
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
-
-interface IPool {
-	title: string
-	seed_id: string
-	seed_type: string
-	next_index: number
-	amount: string
-	min_deposit: string
-	nft_multiplier: {
-		[key: string]: number
-	}
-	farms: string[]
-	media: string
-}
+import { IPool } from 'interfaces'
 
 interface IUserStaked {
 	[key: string]: string

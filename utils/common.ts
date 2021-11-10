@@ -46,7 +46,7 @@ export const prettyBalance = (balance: any, decimals: number = 18, len: number =
 		return '0'
 	}
 	const diff = balance.toString().length - decimals
-	const fixedPoint = Math.max(2, len - Math.max(diff, 0))
+	const fixedPoint = Math.max(len, len - Math.max(diff, 0))
 	const fixedBalance = (balance / 10 ** decimals).toFixed(fixedPoint)
 	const finalBalance = parseFloat(fixedBalance).toString()
 	const [head, tail] = finalBalance.split('.')

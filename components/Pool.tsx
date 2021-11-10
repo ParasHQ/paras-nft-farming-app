@@ -7,6 +7,7 @@ import near, { CONTRACT } from 'services/near'
 import axios from 'axios'
 import StakeModal from './Modal/StakeModal'
 import UnstakeModal from './Modal/UnstakeModal'
+import { GAS_FEE } from 'constants/gasFee'
 
 interface IFarm {
 	beneficiary_reward: string
@@ -137,6 +138,7 @@ const Pool = ({ data, staked }: PoolProps) => {
 		}
 
 		const APR = totalStakedInUSD > 0 ? (totalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
+
 		const poolData: IPoolProcessed = {
 			title: data.title,
 			media: data.media,
@@ -161,6 +163,19 @@ const Pool = ({ data, staked }: PoolProps) => {
 				<UnstakeModal show={showModal === 'unstakePARAS'} onClose={() => setShowModal(null)} />
 			</>
 		)
+	}
+
+	const claimRewards = async () => {
+		await near.nearFunctionCall({
+			methodName: 'claim_reward_by_seed_and_withdraw',
+			contractName: CONTRACT.FARM,
+			args: {
+				seed_id: data.seed_id,
+				token_id: CONTRACT.TOKEN,
+			},
+			amount: '1',
+			gas: GAS_FEE[300],
+		})
 	}
 
 	useEffect(() => {
@@ -195,7 +210,7 @@ const Pool = ({ data, staked }: PoolProps) => {
 						</div>
 						<div className="text-right">
 							<p className="opacity-75">APR</p>
-							<p className="text-4xl font-semibold">{prettyBalance(poolProcessed.apr, 1, 1)}%</p>
+							<p className="text-4xl font-semibold">{prettyBalance(poolProcessed.apr, 0, 1)}%</p>
 						</div>
 					</div>
 				</div>
@@ -271,10 +286,10 @@ const Pool = ({ data, staked }: PoolProps) => {
 					<div className="flex justify-between items-center p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
 						<div className="w-2/3">
 							<p className="opacity-75">Claimable Rewards</p>
-							<p>{prettyBalance(poolProcessed.claimableRewards, 18)} Ⓟ</p>
+							<p>{prettyBalance(poolProcessed.claimableRewards, 18, 6)} Ⓟ</p>
 						</div>
 						<div className="w-1/3">
-							<Button isFullWidth color="green" onClick={() => {}}>
+							<Button isFullWidth color="green" onClick={claimRewards}>
 								Claim
 							</Button>
 						</div>

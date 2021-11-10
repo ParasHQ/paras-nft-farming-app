@@ -32,6 +32,7 @@ type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | nu
 const Pool = ({ data, staked }: PoolProps) => {
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed>({})
 	const [showModal, setShowModal] = useState<TShowModal>(null)
+	const { accountId, setCommonModal } = useNearProvider()
 
 	const getParasPrice = async () => {
 		const resp = await axios.get(
@@ -242,14 +243,19 @@ const Pool = ({ data, staked }: PoolProps) => {
 								</Button>
 							</div>
 							<div className="w-1/2 px-4 text-right">
-								<Button isFullWidth onClick={() => setShowModal('stakePARAS')}>
+								<Button
+									isFullWidth
+									onClick={() => (accountId ? setShowModal('stakePARAS') : setCommonModal('login'))}
+								>
 									Stake PARAS
 								</Button>
 								<Button
 									isFullWidth
 									className=" mt-2"
 									color="red"
-									onClick={() => setShowModal('unstakePARAS')}
+									onClick={() =>
+										accountId ? setShowModal('unstakePARAS') : setCommonModal('login')
+									}
 								>
 									Unstake PARAS
 								</Button>

@@ -17,8 +17,8 @@ interface StakeModalProps {
 
 const StakeModal = (props: StakeModalProps) => {
 	const [balance, setBalance] = useState('0')
-	const [inputStake, setInputStake] = useState<number | string>('')
-	const { hasDeposit, setCommonModal } = useNearProvider()
+	const [inputStake, setInputStake] = useState<string>('')
+	const { hasDeposit, setCommonModal, accountId } = useNearProvider()
 
 	useEffect(() => {
 		if (props.show) {
@@ -99,7 +99,7 @@ const StakeModal = (props: StakeModalProps) => {
 						</Button>
 					</div>
 				</div>
-				<Button onClick={stakeToken} isFullWidth size="lg">
+				<Button isDisabled={inputStake === ''} onClick={stakeToken} isFullWidth size="lg">
 					Stake
 				</Button>
 			</div>

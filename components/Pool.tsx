@@ -11,6 +11,8 @@ import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IFarm, IPool } from 'interfaces'
 import PoolLoader from './Common/PoolLoader'
+import StakeNFTModal from './Modal/StakeNFTModal'
+import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 
 interface IPoolProcessed {
 	title?: string
@@ -148,6 +150,16 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 					show={showModal === 'unstakePARAS'}
 					onClose={() => setShowModal(null)}
 				/>
+				<StakeNFTModal
+					seedId={data.seed_id}
+					show={showModal === 'stakeNFT'}
+					onClose={() => setShowModal(null)}
+				/>
+				<UnstakeNFTModal
+					seedId={data.seed_id}
+					show={showModal === 'unstakeNFT'}
+					onClose={() => setShowModal(null)}
+				/>
 			</>
 		)
 	}
@@ -163,6 +175,14 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 			amount: '1',
 			gas: GAS_FEE[300],
 		})
+	}
+
+	const onClickActionButton = (type: TShowModal) => {
+		if (!accountId) {
+			setCommonModal('login')
+			return
+		}
+		setShowModal(type)
 	}
 
 	useEffect(() => {
@@ -250,27 +270,27 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 					<div className="mt-4">
 						<div className="flex justify-between -mx-4">
 							<div className="w-1/2 px-4">
-								<Button isFullWidth className="" onClick={() => {}}>
+								<Button isFullWidth className="" onClick={() => onClickActionButton('stakeNFT')}>
 									Stake NFT
 								</Button>
-								<Button isFullWidth className=" mt-2" color="red" onClick={() => {}}>
+								<Button
+									isFullWidth
+									className=" mt-2"
+									color="red"
+									onClick={() => onClickActionButton('unstakeNFT')}
+								>
 									Unstake NFT
 								</Button>
 							</div>
 							<div className="w-1/2 px-4 text-right">
-								<Button
-									isFullWidth
-									onClick={() => (accountId ? setShowModal('stakePARAS') : setCommonModal('login'))}
-								>
+								<Button isFullWidth onClick={() => onClickActionButton('stakePARAS')}>
 									Stake PARAS
 								</Button>
 								<Button
 									isFullWidth
 									className=" mt-2"
 									color="red"
-									onClick={() =>
-										accountId ? setShowModal('unstakePARAS') : setCommonModal('login')
-									}
+									onClick={() => onClickActionButton('unstakePARAS')}
 								>
 									Unstake PARAS
 								</Button>

@@ -88,7 +88,13 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 						</Button>
 					</div>
 				</div>
-				<Button onClick={unstakeToken} isFullWidth size="lg" color="red">
+				<Button
+					isDisabled={inputUnstake === ''}
+					onClick={unstakeToken}
+					isFullWidth
+					size="lg"
+					color="red"
+				>
 					Unstake
 				</Button>
 			</div>

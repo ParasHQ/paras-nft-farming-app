@@ -1,4 +1,4 @@
-import Loading from 'components/Common/Loading'
+import Loader from 'components/Common/Loader'
 import DepositModal from 'components/Modal/DepositModal'
 import LoginModal from 'components/Modal/LoginModal'
 import React, { createContext, useContext, useEffect, useState } from 'react'
@@ -63,7 +63,7 @@ export const NearProvider = (props: { children: React.ReactNode }) => {
 
 	return (
 		<NearContext.Provider value={value}>
-			{!isInit && <Loading />}
+			<Loader isLoading={!isInit} />
 			{props.children}
 			<DepositModal show={commonModal === 'deposit'} onClose={() => setCommonModal(null)} />
 			<LoginModal show={commonModal === 'login'} onClose={() => setCommonModal(null)} />

@@ -10,6 +10,7 @@ import UnstakeModal from './Modal/UnstakeModal'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IFarm, IPool } from 'interfaces'
+import PoolLoader from './Common/PoolLoader'
 
 interface IPoolProcessed {
 	title?: string
@@ -167,6 +168,10 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	useEffect(() => {
 		getFarms()
 	}, [getFarms])
+
+	if (!poolProcessed.title) {
+		return <PoolLoader />
+	}
 
 	return (
 		<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">

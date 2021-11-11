@@ -4,20 +4,7 @@ import { useNearProvider } from 'hooks/useNearProvider'
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
-
-interface IPool {
-	title: string
-	seed_id: string
-	seed_type: string
-	next_index: number
-	amount: string
-	min_deposit: string
-	nft_multiplier: {
-		[key: string]: number
-	}
-	farms: string[]
-	media: string
-}
+import { IPool } from 'interfaces'
 
 interface IUserStaked {
 	[key: string]: string
@@ -34,49 +21,49 @@ const Home: NextPage = () => {
 	const [userStakedNFT, setUserStakedNFT] = useState<IUserStakedNFT>({})
 
 	useEffect(() => {
+		const getPoolList = async () => {
+			const poolList: IPool[] = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `list_seeds_info`,
+				args: {
+					from_index: 0,
+					limit: 10,
+				},
+			})
+			setPoolList(Object.values(poolList))
+		}
+
 		if (isInit) {
 			getPoolList()
 		}
 	}, [isInit])
 
 	useEffect(() => {
+		const getUserStaked = async () => {
+			const userStakedToken = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `list_user_seeds`,
+				args: {
+					account_id: accountId,
+				},
+			})
+
+			const userStakedNFTData = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `list_user_nft_seeds`,
+				args: {
+					account_id: accountId,
+				},
+			})
+
+			setUserStaked(userStakedToken)
+			setUserStakedNFT(userStakedNFTData)
+		}
+
 		if (accountId) {
 			getUserStaked()
 		}
 	}, [accountId])
-
-	const getPoolList = async () => {
-		const poolList: IPool[] = await near.nearViewFunction({
-			contractName: CONTRACT.FARM,
-			methodName: `list_seeds_info`,
-			args: {
-				from_index: 0,
-				limit: 10,
-			},
-		})
-		setPoolList(Object.values(poolList))
-	}
-
-	const getUserStaked = async () => {
-		const userStakedToken = await near.nearViewFunction({
-			contractName: CONTRACT.FARM,
-			methodName: `list_user_seeds`,
-			args: {
-				account_id: near.wallet.getAccountId(),
-			},
-		})
-
-		const userStakedNFTData = await near.nearViewFunction({
-			contractName: CONTRACT.FARM,
-			methodName: `list_user_nft_seeds`,
-			args: {
-				account_id: near.wallet.getAccountId(),
-			},
-		})
-
-		setUserStaked(userStakedToken)
-		setUserStakedNFT(userStakedNFTData)
-	}
 
 	return (
 		<div className="bg-gray-900 min-h-screen">

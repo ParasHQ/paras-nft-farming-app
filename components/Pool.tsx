@@ -8,25 +8,8 @@ import axios from 'axios'
 import StakeModal from './Modal/StakeModal'
 import UnstakeModal from './Modal/UnstakeModal'
 import { GAS_FEE } from 'constants/gasFee'
-
-interface IFarm {
-	beneficiary_reward: string
-	claimed_reward: string
-	cur_round: number
-	farm_id: string
-	farm_kind: string
-	farm_status: string
-	last_round: number
-	media: string
-	reward_per_session: any
-	reward_token: any
-	seed_id: string
-	session_interval: number
-	start_at: number
-	title: string
-	total_reward: any
-	unclaimed_reward: string
-}
+import { useNearProvider } from 'hooks/useNearProvider'
+import { IFarm, IPool } from 'interfaces'
 
 interface IPoolProcessed {
 	title?: string
@@ -39,20 +22,6 @@ interface IPoolProcessed {
 	media?: string
 }
 
-interface IPool {
-	title: string
-	seed_id: string
-	seed_type: string
-	next_index: number
-	amount: any
-	min_deposit: string
-	nft_multiplier: {
-		[key: string]: number
-	}
-	farms: string[]
-	media: string
-}
-
 interface PoolProps {
 	data: IPool
 	staked: string
@@ -62,6 +31,7 @@ interface PoolProps {
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
 const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
+	const { accountId, setCommonModal } = useNearProvider()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed>({})
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [nftMultiplier, setNFTMultiplier] = useState('0')
@@ -94,16 +64,17 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 				},
 			})
 
-			const unclaimedReward = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
-				methodName: `get_unclaimed_reward`,
-				args: {
-					account_id: near.wallet.getAccountId(),
-					farm_id: farmId,
-				},
-			})
-
-			totalUnclaimedReward += unclaimedReward
+			if (accountId) {
+				const unclaimedReward = await near.nearViewFunction({
+					contractName: CONTRACT.FARM,
+					methodName: `get_unclaimed_reward`,
+					args: {
+						account_id: near.wallet.getAccountId(),
+						farm_id: farmId,
+					},
+				})
+				totalUnclaimedReward += unclaimedReward
+			}
 
 			const farmTotalRewardPerWeek =
 				(farmDetails.reward_per_session * 86400 * 7) / farmDetails.session_interval
@@ -148,7 +119,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 			claimableRewards: totalUnclaimedReward,
 		}
 		setPoolProcessed(poolData)
-	}, [data.farms, data.amount, data.title, data.media])
+	}, [data.amount, data.title, data.media, data.farms, accountId])
 
 	useEffect(() => {
 		if (stakedNFT) {
@@ -282,14 +253,19 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 								</Button>
 							</div>
 							<div className="w-1/2 px-4 text-right">
-								<Button isFullWidth onClick={() => setShowModal('stakePARAS')}>
+								<Button
+									isFullWidth
+									onClick={() => (accountId ? setShowModal('stakePARAS') : setCommonModal('login'))}
+								>
 									Stake PARAS
 								</Button>
 								<Button
 									isFullWidth
 									className=" mt-2"
 									color="red"
-									onClick={() => setShowModal('unstakePARAS')}
+									onClick={() =>
+										accountId ? setShowModal('unstakePARAS') : setCommonModal('login')
+									}
 								>
 									Unstake PARAS
 								</Button>

@@ -5,7 +5,7 @@ interface IViewFunction {
 	contractName: string
 	methodName: string
 	args?: {
-		[key: string]: string | number
+		[key: string]: string | number | null
 	}
 }
 

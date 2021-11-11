@@ -30,3 +30,8 @@ export interface IFarm {
 	total_reward: any
 	unclaimed_reward: string
 }
+
+export interface IProfile {
+	accountId?: string
+	imgUrl?: string
+}

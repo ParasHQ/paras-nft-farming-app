@@ -66,10 +66,8 @@ const Home: NextPage = () => {
 	}, [accountId])
 
 	return (
-		<div className="bg-gray-900 min-h-screen">
-			<div className="p-4">
-				<Header />
-			</div>
+		<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
+			<Header />
 			<div className="max-w-6xl mx-auto">
 				<div className="flex flex-wrap ">
 					{poolList.map((pool, idx) => {

@@ -1,4 +1,10 @@
 import JSBI from 'jsbi'
+import CID from 'cids'
+
+interface IParseImgOpts {
+	useOriginal?: boolean
+	width?: string
+}
 
 export const toHumanReadableNumbers = (val: string) => {
 	const PREFIXES: { [key: string]: string } = {
@@ -66,4 +72,65 @@ export const formatParasAmount = (balance: string | number, fracDigits?: number)
 
 export const parseParasAmount = (balance: string | number) => {
 	return JSBI.multiply(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
+}
+
+export const parseImgUrl = (url: any, defaultValue = '', opts: IParseImgOpts = {}) => {
+	if (!url) {
+		return defaultValue
+	}
+	if (url.includes('://')) {
+		const [protocol, path] = url.split('://')
+		if (protocol === 'ipfs') {
+			if (opts.useOriginal || process.env.APP_ENV !== 'production') {
+				const cid = new CID(path)
+				if (cid.version === 0) {
+					return `https://ipfs-gateway.paras.id/ipfs/${path}`
+				} else {
+					return `https://ipfs.fleek.co/ipfs/${path}`
+				}
+			}
+
+			let transformationList = []
+			if (opts.width) {
+				transformationList.push(`tr:w-${opts.width}`)
+			} else {
+				transformationList.push('tr:w-0.8')
+			}
+			return `https://cdn.paras.id/${transformationList.join(',')}/${path}`
+		}
+		return url
+	} else {
+		try {
+			const cid = new CID(url)
+			if (opts.useOriginal || process.env.APP_ENV !== 'production') {
+				if (cid.version === 0) {
+					return `https://ipfs-gateway.paras.id/ipfs/${cid}`
+				} else if (cid.version === 1) {
+					return `https://ipfs.fleek.co/ipfs/${cid}`
+				}
+			}
+
+			let transformationList = []
+			if (opts.width) {
+				transformationList.push(`tr:w-${opts.width}`)
+			} else {
+				transformationList.push('tr:w-0.8')
+			}
+			return `https://paras-cdn.imgix.net/${cid}?q=60`
+		} catch (err) {
+			return url
+		}
+	}
+}
+
+export const prettyTruncate = (str: string | null = '', len = 8, type: string) => {
+	if (str && str.length > len) {
+		if (type === 'address') {
+			const front = Math.ceil(len / 2)
+			const back = str.length - (len - front)
+			return `${str.slice(0, front)}...${str.slice(back)}`
+		}
+		return `${str.slice(0, len)}...`
+	}
+	return str
 }

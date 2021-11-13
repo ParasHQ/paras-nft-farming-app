@@ -208,13 +208,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 				<div className="absolute inset-0 opacity-20">
 					<div className="text-center h-full overflow-hidden">
 						{poolProcessed.media && (
-							<Image
-								objectPosition="center bottom"
-								objectFit="contain"
-								layout="fill"
-								alt={poolProcessed.title}
-								src={poolProcessed.media}
-							/>
+							<img className="w-full h-full" alt={poolProcessed.title} src={poolProcessed.media} />
 						)}
 					</div>
 				</div>

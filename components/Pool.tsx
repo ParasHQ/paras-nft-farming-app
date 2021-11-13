@@ -15,14 +15,14 @@ import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 
 interface IPoolProcessed {
-	title?: string
-	totalStaked?: any
-	apr?: number
-	startDate?: number | null
-	endDate?: number | null
-	rewardPerWeek?: any
-	claimableRewards?: number
-	media?: string
+	title: string
+	totalStaked: any
+	apr: number
+	startDate: number | null
+	endDate: number | null
+	rewardPerWeek: any
+	claimableRewards: number
+	media: string
 }
 
 interface PoolProps {
@@ -35,7 +35,7 @@ type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | nu
 
 const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	const { accountId, setCommonModal } = useNearProvider()
-	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed>({})
+	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [nftMultiplier, setNFTMultiplier] = useState('0')
 
@@ -152,11 +152,13 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 				/>
 				<StakeNFTModal
 					seedId={data.seed_id}
+					title={data.title}
 					show={showModal === 'stakeNFT'}
 					onClose={() => setShowModal(null)}
 				/>
 				<UnstakeNFTModal
 					seedId={data.seed_id}
+					title={data.title}
 					show={showModal === 'unstakeNFT'}
 					onClose={() => setShowModal(null)}
 				/>
@@ -189,7 +191,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 		getFarms()
 	}, [getFarms])
 
-	if (!poolProcessed.title) {
+	if (!poolProcessed) {
 		return <PoolLoader />
 	}
 

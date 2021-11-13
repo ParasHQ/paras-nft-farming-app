@@ -4,16 +4,12 @@ import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
+import { ModalCommonProps } from 'interfaces/modal'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
-interface StakeModalProps {
-	seedId: string
-	title: string
-	show: boolean
-	onClose: () => void
-}
+interface StakeModalProps extends ModalCommonProps {}
 
 const StakeModal = (props: StakeModalProps) => {
 	const [balance, setBalance] = useState('0')

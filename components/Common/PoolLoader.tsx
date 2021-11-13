@@ -6,8 +6,8 @@ const PoolLoader = (props: any) => (
 		width="100%"
 		height="100%"
 		viewBox="0 0 352 500"
-		backgroundColor="white"
-		foregroundColor="gray"
+		backgroundColor="#576585"
+		foregroundColor="#2b3653"
 		opacity="0.15"
 		{...props}
 	>

@@ -3,14 +3,11 @@ import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
+import { ModalCommonProps } from 'interfaces/modal'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 
-interface UnstakeNFTModalProps {
-	seedId: string
-	show: boolean
-	onClose: () => void
-}
+interface UnstakeNFTModalProps extends ModalCommonProps {}
 
 interface stakedResponse {
 	[key: string]: string[]
@@ -65,7 +62,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 					</div>
 					<div className="w-3/5 flex-1 text-center">
 						<p className="font-bold text-xl text-white">Unstake NFT</p>
-						<p className="text-white text-sm -mt-1">Pillars of Paras Pool</p>
+						<p className="text-white text-sm -mt-1">{props.title}</p>
 					</div>
 					<div className="w-1/5" />
 				</div>

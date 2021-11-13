@@ -3,16 +3,12 @@ import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
+import { ModalCommonProps } from 'interfaces/modal'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
-interface UnstakeModalProps {
-	seedId: string
-	title: string
-	show: boolean
-	onClose: () => void
-}
+interface UnstakeModalProps extends ModalCommonProps {}
 
 const UnstakeModal = (props: UnstakeModalProps) => {
 	const [balance, setBalance] = useState('0')

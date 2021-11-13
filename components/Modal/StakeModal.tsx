@@ -14,7 +14,6 @@ interface StakeModalProps extends ModalCommonProps {}
 const StakeModal = (props: StakeModalProps) => {
 	const [balance, setBalance] = useState('0')
 	const [inputStake, setInputStake] = useState<string>('')
-	const { hasDeposit, setCommonModal, accountId } = useNearProvider()
 
 	useEffect(() => {
 		if (props.show) {
@@ -34,11 +33,6 @@ const StakeModal = (props: StakeModalProps) => {
 	}
 
 	const stakeToken = async () => {
-		if (!hasDeposit) {
-			setCommonModal('deposit')
-			return
-		}
-
 		await near.nearFunctionCall({
 			methodName: 'ft_transfer_call',
 			contractName: CONTRACT.TOKEN,

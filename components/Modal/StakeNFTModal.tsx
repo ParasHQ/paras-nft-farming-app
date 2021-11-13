@@ -20,7 +20,7 @@ interface IResponseCheckNFT {
 
 const StakeNFTModal = (props: StakeNFTModalProps) => {
 	const [ownedNFT, setOwnedNFT] = useState<IToken[]>([])
-	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
+	const { accountId } = useNearProvider()
 
 	useEffect(() => {
 		const fetchOwnedNFT = async () => {
@@ -42,11 +42,6 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 	}, [props.show, accountId, props.seedId])
 
 	const stakeNFT = async (tokenId: string, contractId: string) => {
-		if (!hasDeposit) {
-			setCommonModal('deposit')
-			return
-		}
-
 		await near.nearFunctionCall({
 			contractName: contractId,
 			methodName: 'nft_transfer_call',

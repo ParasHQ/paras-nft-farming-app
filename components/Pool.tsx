@@ -34,7 +34,7 @@ interface PoolProps {
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
 const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
-	const { accountId, setCommonModal } = useNearProvider()
+	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [nftMultiplier, setNFTMultiplier] = useState('0')
@@ -184,6 +184,12 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 			setCommonModal('login')
 			return
 		}
+
+		if (!hasDeposit) {
+			setCommonModal('deposit')
+			return
+		}
+
 		setShowModal(type)
 	}
 

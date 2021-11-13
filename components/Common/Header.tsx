@@ -57,10 +57,15 @@ const Header = () => {
 						<p className="pr-2 text-gray-300 font-semibold">
 							{prettyTruncate(accountId, 16, `address`)}
 						</p>
-						<img
-							className="w-6 h-6 border border-gray-600 rounded-full"
-							src={parseImgUrl(userProfile.imgUrl)}
-						/>
+						<div className="w-6 h-6 rounded-full bg-parasGrey">
+							{userProfile.imgUrl && (
+								<img
+									className="w-6 h-6 border border-gray-600 rounded-full"
+									src={parseImgUrl(userProfile.imgUrl)}
+									alt="profile-image"
+								/>
+							)}
+						</div>
 					</div>
 				</div>
 			</div>

@@ -15,10 +15,15 @@ const ProfileModal = ({ show, profile, onClose }: ProfileModalProps) => {
 		<Modal isShow={show} onClose={onClose}>
 			<div className="bg-parasGrey text-white shadow-xl w-full p-4 rounded-md m-auto max-w-xs text-center">
 				<p className="font-bold text-xl mb-3">Account</p>
-				<img
-					className="w-20 h-20 border border-gray-600 rounded-full mx-auto"
-					src={parseImgUrl(profile.imgUrl)}
-				/>
+				<div className="w-20 h-20 rounded-full mx-auto">
+					{profile.imgUrl && (
+						<img
+							className="w-20 h-20 border border-gray-600 rounded-full mx-auto"
+							src={parseImgUrl(profile.imgUrl)}
+							alt="profile-image"
+						/>
+					)}
+				</div>
 				<p className="mt-4 opacity-90 text-lg font-semibold">
 					{prettyTruncate(profile.accountId, 24, 'address')}
 				</p>

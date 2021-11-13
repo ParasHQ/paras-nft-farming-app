@@ -1,4 +1,4 @@
-export interface IToken {
+export interface INFToken {
 	_id: string
 	contract_id: string
 	token_id: string

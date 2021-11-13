@@ -4,43 +4,47 @@ import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { ModalCommonProps } from 'interfaces/modal'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
-interface UnstakeModalProps extends ModalCommonProps {}
+interface StakeTokenModalProps extends ModalCommonProps {}
 
-const UnstakeModal = (props: UnstakeModalProps) => {
+const StakeTokenModal = (props: StakeTokenModalProps) => {
 	const [balance, setBalance] = useState('0')
-	const [inputUnstake, setInputUnstake] = useState<number | string>('')
+	const [inputStake, setInputStake] = useState<string>('')
 
-	const getStakedBalance = useCallback(async () => {
-		const balanceStaked = await near.nearViewFunction({
-			methodName: 'list_user_seeds',
-			contractName: CONTRACT.FARM,
+	useEffect(() => {
+		if (props.show) {
+			getParasBalance()
+		}
+	}, [props.show])
+
+	const getParasBalance = async () => {
+		const balanceParas = await near.nearViewFunction({
+			methodName: 'ft_balance_of',
+			contractName: CONTRACT.TOKEN,
 			args: {
 				account_id: near.wallet.getAccountId(),
 			},
 		})
-		setBalance(balanceStaked[props.seedId])
-	}, [props.seedId])
+		setBalance(balanceParas)
+	}
 
-	useEffect(() => {
-		if (props.show) {
-			getStakedBalance()
-		}
-	}, [props.show, getStakedBalance])
-
-	const unstakeToken = async () => {
+	const stakeToken = async () => {
 		await near.nearFunctionCall({
-			methodName: 'withdraw_seed',
-			contractName: CONTRACT.FARM,
+			methodName: 'ft_transfer_call',
+			contractName: CONTRACT.TOKEN,
 			args: {
-				seed_id: props.seedId,
-				amount: parseParasAmount(inputUnstake),
+				receiver_id: CONTRACT.FARM,
+				amount: parseParasAmount(inputStake),
+				msg: JSON.stringify({
+					transfer_type: 'seed',
+					seed_id: props.seedId,
+				}),
 			},
 			amount: '1',
-			gas: GAS_FEE[100],
+			gas: GAS_FEE[300],
 		})
 	}
 
@@ -54,7 +58,7 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 						</div>
 					</div>
 					<div className="w-3/5 flex-1 text-center">
-						<p className="font-bold text-xl text-white">Unstake</p>
+						<p className="font-bold text-xl text-white">Stake</p>
 						<p className="text-white text-sm -mt-1">{props.title}</p>
 					</div>
 					<div className="w-1/5" />
@@ -65,8 +69,8 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 					</p>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
-							value={inputUnstake}
-							onChange={(event) => setInputUnstake(event.target.value)}
+							value={inputStake}
+							onChange={(event) => setInputStake(event.target.value)}
 							className="border-none"
 							type="number"
 							placeholder="0.0"
@@ -75,7 +79,7 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 					</div>
 					<div className="text-left">
 						<Button
-							onClick={() => setInputUnstake(formatParasAmount(balance))}
+							onClick={() => setInputStake(formatParasAmount(balance))}
 							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
@@ -84,18 +88,12 @@ const UnstakeModal = (props: UnstakeModalProps) => {
 						</Button>
 					</div>
 				</div>
-				<Button
-					isDisabled={inputUnstake === ''}
-					onClick={unstakeToken}
-					isFullWidth
-					size="lg"
-					color="red"
-				>
-					Unstake
+				<Button isDisabled={inputStake === ''} onClick={stakeToken} isFullWidth size="lg">
+					Stake
 				</Button>
 			</div>
 		</Modal>
 	)
 }
 
-export default UnstakeModal
+export default StakeTokenModal

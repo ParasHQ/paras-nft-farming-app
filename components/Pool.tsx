@@ -5,8 +5,8 @@ import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import axios from 'axios'
-import StakeModal from './Modal/StakeModal'
-import UnstakeModal from './Modal/UnstakeModal'
+import StakeTokenModal from './Modal/StakeTokenModal'
+import UnstakeTokenModal from './Modal/UnstakeTokenModal'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IFarm, IPool } from 'interfaces'
@@ -138,13 +138,13 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	const PoolModal = () => {
 		return (
 			<>
-				<StakeModal
+				<StakeTokenModal
 					seedId={data.seed_id}
 					title={data.title}
 					show={showModal === 'stakePARAS'}
 					onClose={() => setShowModal(null)}
 				/>
-				<UnstakeModal
+				<UnstakeTokenModal
 					seedId={data.seed_id}
 					title={data.title}
 					show={showModal === 'unstakePARAS'}

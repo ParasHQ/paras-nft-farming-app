@@ -1,9 +1,12 @@
-import Button from 'components/Common/Button'
+import axios from 'axios'
 import Modal from 'components/Common/Modal'
+import NFTokenFarm from 'components/Common/NFTokenFarm'
 import IconBack from 'components/Icon/IconBack'
+import { apiParasUrl } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
+import { INFToken } from 'interfaces/token'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 
@@ -15,29 +18,41 @@ interface stakedResponse {
 
 const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 	const { accountId } = useNearProvider()
-	const [stakedNFT, setStakedNFT] = useState<stakedResponse>({})
+	const [stakedNFT, setStakedNFT] = useState<INFToken[]>([])
 
 	useEffect(() => {
 		const getStakedNFT = async () => {
 			if (accountId) {
-				const res: stakedResponse = await near.nearViewFunction({
+				const resSC: stakedResponse = await near.nearViewFunction({
 					contractName: CONTRACT.FARM,
 					methodName: 'list_user_nft_seeds',
 					args: {
 						account_id: accountId,
 					},
 				})
-				setStakedNFT(res)
+
+				if (resSC[props.seedId]) {
+					const resBE: INFToken[] = await axios.all(resSC[props.seedId].map(fetchToken))
+					setStakedNFT(resBE)
+				}
 			}
+		}
+
+		const fetchToken = (scNft: string) => {
+			const [contract_id, token_id] = scNft.split('@')
+			const params = { token_id, contract_id }
+			return axios
+				.get(`${apiParasUrl}/token`, { params })
+				.then((response) => response.data.data.results[0])
+				.catch((error) => error)
 		}
 
 		if (props.show) {
 			getStakedNFT()
 		}
-	}, [accountId, props.show])
+	}, [accountId, props.seedId, props.show])
 
-	const unstakeNFT = (nft: string) => {
-		const [contractId, tokenId] = nft.split('@')
+	const unstakeNFT = (tokenId: string, contractId: string) => {
 		near.nearFunctionCall({
 			contractName: CONTRACT.FARM,
 			methodName: 'withdraw_nft',
@@ -66,15 +81,9 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 					</div>
 					<div className="w-1/5" />
 				</div>
-				<div>
-					{stakedNFT[props.seedId]?.map((nft) => (
-						<div key={nft} className="flex justify-between mb-2">
-							<div>{nft}</div>
-							<Button className="px-4" size="sm" onClick={() => unstakeNFT(nft)}>
-								Unstake
-							</Button>
-						</div>
-					))}
+				<div className="min-h-[16rem] max-h-[50vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar md:grid md:grid-cols-2 md:gap-4">
+					{stakedNFT.length !== 0 &&
+						stakedNFT.map((nft) => <NFTokenFarm key={nft._id} token={nft} stakeNFT={unstakeNFT} />)}
 				</div>
 			</div>
 		</Modal>

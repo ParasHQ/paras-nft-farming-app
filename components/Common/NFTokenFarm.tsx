@@ -1,13 +1,13 @@
-import { IToken } from 'interfaces/token'
+import { INFToken } from 'interfaces/token'
 import { parseImgUrl } from 'utils/common'
 import Button from './Button'
 
-interface TokenFarmProps {
-	token: IToken
+interface NFTokenFarmProps {
+	token: INFToken
 	stakeNFT: (tokenId: string, contractId: string) => void
 }
 
-const TokenFarm = ({ token, stakeNFT }: TokenFarmProps) => {
+const NFTokenFarm = ({ token, stakeNFT }: NFTokenFarmProps) => {
 	const tokenUrl = `https://paras.id/token/${token.contract_id}:${token.token_series_id}/${token.token_id}`
 	const collectionUrl = `https://paras.id/collection/${token.metadata.collection_id}`
 
@@ -47,4 +47,4 @@ const TokenFarm = ({ token, stakeNFT }: TokenFarmProps) => {
 	)
 }
 
-export default TokenFarm
+export default NFTokenFarm

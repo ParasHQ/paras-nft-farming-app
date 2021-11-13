@@ -1,31 +1,30 @@
 import axios from 'axios'
-import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
-import TokenFarm from 'components/Common/TokenFarm'
+import NFTokenFarm from 'components/Common/NFTokenFarm'
 import IconBack from 'components/Icon/IconBack'
 import IconInfo from 'components/Icon/IconInfo'
-import { apiURL } from 'constants/apiURL'
+import { apiFarmingURL } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
-import { IToken } from 'interfaces/token'
+import { INFToken } from 'interfaces/token'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 
 interface StakeNFTModalProps extends ModalCommonProps {}
 
 interface IResponseCheckNFT {
-	data: { results: IToken[] }
+	data: { results: INFToken[] }
 }
 
 const StakeNFTModal = (props: StakeNFTModalProps) => {
-	const [ownedNFT, setOwnedNFT] = useState<IToken[]>([])
+	const [ownedNFT, setOwnedNFT] = useState<INFToken[]>([])
 	const { accountId } = useNearProvider()
 
 	useEffect(() => {
 		const fetchOwnedNFT = async () => {
 			try {
-				const resp = await axios.get<IResponseCheckNFT>(`${apiURL}/check`, {
+				const resp = await axios.get<IResponseCheckNFT>(`${apiFarmingURL}/check`, {
 					params: {
 						nft_farming_contract: CONTRACT.FARM,
 						seed_id: props.seedId,
@@ -76,7 +75,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 				</div>
 				<div className="min-h-[16rem] max-h-[50vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar md:grid md:grid-cols-2 md:gap-4">
 					{ownedNFT.length !== 0 &&
-						ownedNFT.map((nft) => <TokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} />)}
+						ownedNFT.map((nft) => <NFTokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} />)}
 				</div>
 			</div>
 		</Modal>

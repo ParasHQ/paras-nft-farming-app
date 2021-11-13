@@ -6,14 +6,15 @@ interface NFTokenFarmProps {
 	token: INFToken
 	stakeNFT: (tokenId: string, contractId: string) => void
 	type: 'unstake' | 'stake'
+	multiplier: number
 }
 
-const NFTokenFarm = ({ token, stakeNFT, type }: NFTokenFarmProps) => {
+const NFTokenFarm = ({ token, stakeNFT, type, multiplier }: NFTokenFarmProps) => {
 	const tokenUrl = `https://paras.id/token/${token.contract_id}:${token.token_series_id}/${token.token_id}`
 	const collectionUrl = `https://paras.id/collection/${token.metadata.collection_id}`
 
 	return (
-		<div className="flex justify-between mb-4 md:mb-0 p-3 border-2 border-borderGray rounded-xl h-[9rem] shadow-lg overflow-hidden">
+		<div className="flex justify-between mb-4 md:mb-0 p-3 border-2 border-borderGray rounded-xl h-[11rem] shadow-lg overflow-hidden">
 			<div className="w-1/2 pr-4">
 				<div className="w-full h-full">
 					<img
@@ -36,6 +37,7 @@ const NFTokenFarm = ({ token, stakeNFT, type }: NFTokenFarmProps) => {
 						</p>
 					</a>
 				</div>
+				<p className="font-bold text-xs">{`${multiplier.toLocaleString()} multiplier`}</p>
 				<Button
 					className="px-6 mt-4"
 					size="md"

@@ -1,7 +1,6 @@
 import dayjs from 'dayjs'
 import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
-import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import axios from 'axios'
@@ -155,12 +154,14 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 					title={data.title}
 					show={showModal === 'stakeNFT'}
 					onClose={() => setShowModal(null)}
+					nftMultiplier={data.nft_multiplier}
 				/>
 				<UnstakeNFTModal
 					seedId={data.seed_id}
 					title={data.title}
 					show={showModal === 'unstakeNFT'}
 					onClose={() => setShowModal(null)}
+					nftMultiplier={data.nft_multiplier}
 				/>
 			</>
 		)
@@ -200,6 +201,8 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	if (!poolProcessed) {
 		return <PoolLoader />
 	}
+
+	console.log('nftmultiplier', data.nft_multiplier)
 
 	return (
 		<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">

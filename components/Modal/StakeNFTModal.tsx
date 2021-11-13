@@ -12,7 +12,11 @@ import { INFToken } from 'interfaces/token'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 
-interface StakeNFTModalProps extends ModalCommonProps {}
+interface StakeNFTModalProps extends ModalCommonProps {
+	nftMultiplier: {
+		[key: string]: number
+	}
+}
 
 interface IResponseCheckNFT {
 	data: { results: INFToken[] }
@@ -87,7 +91,13 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 						{ownedNFT.length !== 0 ? (
 							<div className="md:grid md:grid-cols-2 md:gap-4">
 								{ownedNFT.map((nft) => (
-									<NFTokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} type="stake" />
+									<NFTokenFarm
+										key={nft._id}
+										token={nft}
+										stakeNFT={stakeNFT}
+										type="stake"
+										multiplier={props.nftMultiplier[`${nft.contract_id}@${nft.token_series_id}`]}
+									/>
 								))}
 							</div>
 						) : (

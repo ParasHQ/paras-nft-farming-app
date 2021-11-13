@@ -3,59 +3,44 @@ import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
-import { useEffect, useState } from 'react'
+import { ModalCommonProps } from 'interfaces/modal'
+import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
-interface StakeModalProps {
-	seedId: string
-	title: string
-	show: boolean
-	onClose: () => void
-}
+interface UnstakeTokenModalProps extends ModalCommonProps {}
 
-const StakeModal = (props: StakeModalProps) => {
+const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	const [balance, setBalance] = useState('0')
-	const [inputStake, setInputStake] = useState<string>('')
-	const { hasDeposit, setCommonModal, accountId } = useNearProvider()
+	const [inputUnstake, setInputUnstake] = useState<number | string>('')
 
-	useEffect(() => {
-		if (props.show) {
-			getParasBalance()
-		}
-	}, [props.show])
-
-	const getParasBalance = async () => {
-		const balanceParas = await near.nearViewFunction({
-			methodName: 'ft_balance_of',
-			contractName: CONTRACT.TOKEN,
+	const getStakedBalance = useCallback(async () => {
+		const balanceStaked = await near.nearViewFunction({
+			methodName: 'list_user_seeds',
+			contractName: CONTRACT.FARM,
 			args: {
 				account_id: near.wallet.getAccountId(),
 			},
 		})
-		setBalance(balanceParas)
-	}
+		setBalance(balanceStaked[props.seedId])
+	}, [props.seedId])
 
-	const stakeToken = async () => {
-		if (!hasDeposit) {
-			setCommonModal('deposit')
-			return
+	useEffect(() => {
+		if (props.show) {
+			getStakedBalance()
 		}
+	}, [props.show, getStakedBalance])
 
+	const unstakeToken = async () => {
 		await near.nearFunctionCall({
-			methodName: 'ft_transfer_call',
-			contractName: CONTRACT.TOKEN,
+			methodName: 'withdraw_seed',
+			contractName: CONTRACT.FARM,
 			args: {
-				receiver_id: CONTRACT.FARM,
-				amount: parseParasAmount(inputStake),
-				msg: JSON.stringify({
-					transfer_type: 'seed',
-					seed_id: props.seedId,
-				}),
+				seed_id: props.seedId,
+				amount: parseParasAmount(inputUnstake),
 			},
 			amount: '1',
-			gas: GAS_FEE[300],
+			gas: GAS_FEE[100],
 		})
 	}
 
@@ -69,19 +54,20 @@ const StakeModal = (props: StakeModalProps) => {
 						</div>
 					</div>
 					<div className="w-3/5 flex-1 text-center">
-						<p className="font-bold text-xl text-white">Stake</p>
+						<p className="font-bold text-xl text-white">Unstake</p>
 						<p className="text-white text-sm -mt-1">{props.title}</p>
 					</div>
 					<div className="w-1/5" />
 				</div>
+
 				<div className="mb-8">
 					<p className="opacity-80 text-right text-white text-sm mb-1">
 						Balance: {prettyBalance(balance)}
 					</p>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
-							value={inputStake}
-							onChange={(event) => setInputStake(event.target.value)}
+							value={inputUnstake}
+							onChange={(event) => setInputUnstake(event.target.value)}
 							className="border-none"
 							type="number"
 							placeholder="0.0"
@@ -90,7 +76,7 @@ const StakeModal = (props: StakeModalProps) => {
 					</div>
 					<div className="text-left">
 						<Button
-							onClick={() => setInputStake(formatParasAmount(balance))}
+							onClick={() => setInputUnstake(formatParasAmount(balance))}
 							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
@@ -99,12 +85,18 @@ const StakeModal = (props: StakeModalProps) => {
 						</Button>
 					</div>
 				</div>
-				<Button isDisabled={inputStake === ''} onClick={stakeToken} isFullWidth size="lg">
-					Stake
+				<Button
+					isDisabled={inputUnstake === ''}
+					onClick={unstakeToken}
+					isFullWidth
+					size="lg"
+					color="red"
+				>
+					Unstake
 				</Button>
 			</div>
 		</Modal>
 	)
 }
 
-export default StakeModal
+export default UnstakeTokenModal

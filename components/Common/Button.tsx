@@ -24,9 +24,7 @@ const Button = ({
 	const buttonBaseStyle =
 		'inline-block text-center relative whitespace-nowrap font-medium hover:bg-opacity-80 shadow-md'
 	const buttonTransition = 'transition duration-150 ease-in-out'
-	const buttonDisabledStyle = isDisabled
-		? 'cursor-not-allowed opacity-60 saturate-50 hover:bg-opacity-100'
-		: ''
+	const buttonDisabledStyle = isDisabled ? 'cursor-not-allowed opacity-60 hover:bg-opacity-100' : ''
 	const buttonWideStyle = isFullWidth ? 'w-full block' : ''
 
 	const getColorStyle = (): string => {

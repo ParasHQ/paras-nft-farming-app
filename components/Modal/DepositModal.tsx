@@ -1,7 +1,7 @@
 import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
 import { useNearProvider } from 'hooks/useNearProvider'
-import { formatNearAmount } from 'near-api-js/lib/utils/format'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import near, { CONTRACT } from 'services/near'
 
 interface DepositModalProps {
@@ -17,7 +17,7 @@ const DepositModal = ({ show, onClose }: DepositModalProps) => {
 			near.nearFunctionCall({
 				contractName: CONTRACT.FARM,
 				methodName: 'storage_deposit',
-				amount: '18520000000000000000000',
+				amount: parseNearAmount('0.1') as string,
 				args: {
 					account_id: accountId,
 				},
@@ -28,10 +28,7 @@ const DepositModal = ({ show, onClose }: DepositModalProps) => {
 	return (
 		<Modal isShow={show} onClose={onClose}>
 			<div className="bg-parasGrey text-white shadow-xl w-full p-4 rounded-md mx-4 md:m-auto max-w-sm">
-				<p>
-					In order to Stake Paras you need to deposit {formatNearAmount('18520000000000000000000')}{' '}
-					NEAR for storage
-				</p>
+				<p>In order to Stake Paras you need to deposit 0.1 NEAR for storage</p>
 				<div className="flex justify-between items-center mt-4">
 					<Button className="px-4" onClick={onClickDeposit}>
 						Deposit

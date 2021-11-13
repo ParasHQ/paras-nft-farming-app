@@ -1,12 +1,11 @@
 import dayjs from 'dayjs'
 import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
-import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import axios from 'axios'
-import StakeModal from './Modal/StakeModal'
-import UnstakeModal from './Modal/UnstakeModal'
+import StakeTokenModal from './Modal/StakeTokenModal'
+import UnstakeTokenModal from './Modal/UnstakeTokenModal'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IFarm, IPool } from 'interfaces'
@@ -15,14 +14,14 @@ import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 
 interface IPoolProcessed {
-	title?: string
-	totalStaked?: any
-	apr?: number
-	startDate?: number | null
-	endDate?: number | null
-	rewardPerWeek?: any
-	claimableRewards?: number
-	media?: string
+	title: string
+	totalStaked: any
+	apr: number
+	startDate: number | null
+	endDate: number | null
+	rewardPerWeek: any
+	claimableRewards: number
+	media: string
 }
 
 interface PoolProps {
@@ -34,8 +33,8 @@ interface PoolProps {
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
 const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
-	const { accountId, setCommonModal } = useNearProvider()
-	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed>({})
+	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
+	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [nftMultiplier, setNFTMultiplier] = useState('0')
 
@@ -138,13 +137,13 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	const PoolModal = () => {
 		return (
 			<>
-				<StakeModal
+				<StakeTokenModal
 					seedId={data.seed_id}
 					title={data.title}
 					show={showModal === 'stakePARAS'}
 					onClose={() => setShowModal(null)}
 				/>
-				<UnstakeModal
+				<UnstakeTokenModal
 					seedId={data.seed_id}
 					title={data.title}
 					show={showModal === 'unstakePARAS'}
@@ -152,13 +151,17 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 				/>
 				<StakeNFTModal
 					seedId={data.seed_id}
+					title={data.title}
 					show={showModal === 'stakeNFT'}
 					onClose={() => setShowModal(null)}
+					nftMultiplier={data.nft_multiplier}
 				/>
 				<UnstakeNFTModal
 					seedId={data.seed_id}
+					title={data.title}
 					show={showModal === 'unstakeNFT'}
 					onClose={() => setShowModal(null)}
+					nftMultiplier={data.nft_multiplier}
 				/>
 			</>
 		)
@@ -182,6 +185,12 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 			setCommonModal('login')
 			return
 		}
+
+		if (!hasDeposit) {
+			setCommonModal('deposit')
+			return
+		}
+
 		setShowModal(type)
 	}
 
@@ -189,9 +198,11 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 		getFarms()
 	}, [getFarms])
 
-	if (!poolProcessed.title) {
+	if (!poolProcessed) {
 		return <PoolLoader />
 	}
+
+	console.log('nftmultiplier', data.nft_multiplier)
 
 	return (
 		<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
@@ -200,13 +211,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 				<div className="absolute inset-0 opacity-20">
 					<div className="text-center h-full overflow-hidden">
 						{poolProcessed.media && (
-							<Image
-								objectPosition="center bottom"
-								objectFit="contain"
-								layout="fill"
-								alt={poolProcessed.title}
-								src={poolProcessed.media}
-							/>
+							<img className="w-full h-full" alt={poolProcessed.title} src={poolProcessed.media} />
 						)}
 					</div>
 				</div>

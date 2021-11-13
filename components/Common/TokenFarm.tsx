@@ -12,7 +12,7 @@ const TokenFarm = ({ token, stakeNFT }: TokenFarmProps) => {
 	const collectionUrl = `https://paras.id/collection/${token.metadata.collection_id}`
 
 	return (
-		<div className="flex justify-between mb-4 p-3 border-2 border-borderGray rounded-xl h-[9rem] shadow-lg overflow-hidden">
+		<div className="flex justify-between mb-4 md:mb-0 p-3 border-2 border-borderGray rounded-xl h-[9rem] shadow-lg overflow-hidden">
 			<div className="w-1/2 pr-4">
 				<div className="w-full h-full">
 					<img

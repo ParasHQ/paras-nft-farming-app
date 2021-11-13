@@ -57,7 +57,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 
 	return (
 		<Modal isShow={props.show} onClose={props.onClose}>
-			<div className="max-w-sm w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
+			<div className="max-w-sm md:max-w-2xl w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
 				<div className="flex items-center mb-4">
 					<div className="w-1/5">
 						<div className="inline-block cursor-pointer" onClick={props.onClose}>
@@ -74,7 +74,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 						</div>
 					</div>
 				</div>
-				<div className="min-h-[16rem] max-h-[40vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar">
+				<div className="min-h-[16rem] max-h-[50vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar md:grid md:grid-cols-2 md:gap-4">
 					{ownedNFT.length !== 0 &&
 						ownedNFT.map((nft) => <TokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} />)}
 				</div>

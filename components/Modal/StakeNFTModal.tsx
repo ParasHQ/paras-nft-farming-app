@@ -1,19 +1,18 @@
 import axios from 'axios'
 import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
+import TokenFarm from 'components/Common/TokenFarm'
 import IconBack from 'components/Icon/IconBack'
+import IconInfo from 'components/Icon/IconInfo'
 import { apiURL } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
+import { ModalCommonProps } from 'interfaces/modal'
 import { IToken } from 'interfaces/token'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 
-interface StakeNFTModalProps {
-	show: boolean
-	seedId: string
-	onClose: () => void
-}
+interface StakeNFTModalProps extends ModalCommonProps {}
 
 interface IResponseCheckNFT {
 	data: { results: IToken[] }
@@ -72,24 +71,17 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 					</div>
 					<div className="w-3/5 flex-1 text-center">
 						<p className="font-bold text-xl text-white">Stake NFT</p>
-						<p className="text-white text-sm -mt-1">Pillars of Paras Pool</p>
+						<p className="text-white text-sm -mt-1">{props.title}</p>
 					</div>
-					<div className="w-1/5" />
+					<div className="w-1/5 text-right">
+						<div className="inline-block cursor-pointer" onClick={() => console.log('click info')}>
+							<IconInfo />
+						</div>
+					</div>
 				</div>
-				<div>
+				<div className="min-h-[16rem] max-h-[40vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar">
 					{ownedNFT.length !== 0 &&
-						ownedNFT.map((nft) => (
-							<div key={nft._id} className="flex justify-between mb-2">
-								<div>{nft.metadata.title}</div>
-								<Button
-									className="px-4"
-									size="sm"
-									onClick={() => stakeNFT(nft.token_id, nft.contract_id)}
-								>
-									Stake
-								</Button>
-							</div>
-						))}
+						ownedNFT.map((nft) => <TokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} />)}
 				</div>
 			</div>
 		</Modal>

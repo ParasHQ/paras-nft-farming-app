@@ -83,7 +83,9 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 				</div>
 				<div className="min-h-[16rem] max-h-[50vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar md:grid md:grid-cols-2 md:gap-4">
 					{stakedNFT.length !== 0 &&
-						stakedNFT.map((nft) => <NFTokenFarm key={nft._id} token={nft} stakeNFT={unstakeNFT} />)}
+						stakedNFT.map((nft) => (
+							<NFTokenFarm key={nft._id} token={nft} stakeNFT={unstakeNFT} type="unstake" />
+						))}
 				</div>
 			</div>
 		</Modal>

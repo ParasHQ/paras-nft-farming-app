@@ -5,9 +5,10 @@ import Button from './Button'
 interface NFTokenFarmProps {
 	token: INFToken
 	stakeNFT: (tokenId: string, contractId: string) => void
+	type: 'unstake' | 'stake'
 }
 
-const NFTokenFarm = ({ token, stakeNFT }: NFTokenFarmProps) => {
+const NFTokenFarm = ({ token, stakeNFT, type }: NFTokenFarmProps) => {
 	const tokenUrl = `https://paras.id/token/${token.contract_id}:${token.token_series_id}/${token.token_id}`
 	const collectionUrl = `https://paras.id/collection/${token.metadata.collection_id}`
 
@@ -38,9 +39,10 @@ const NFTokenFarm = ({ token, stakeNFT }: NFTokenFarmProps) => {
 				<Button
 					className="px-6 mt-4"
 					size="md"
+					color={type === 'stake' ? 'blue' : 'red'}
 					onClick={() => stakeNFT(token.token_id, token.contract_id)}
 				>
-					Stake
+					{type === 'stake' ? 'Stake' : 'Unstake'}
 				</Button>
 			</div>
 		</div>

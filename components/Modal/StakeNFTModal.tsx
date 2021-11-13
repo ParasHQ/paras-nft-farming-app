@@ -75,7 +75,9 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 				</div>
 				<div className="min-h-[16rem] max-h-[50vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar md:grid md:grid-cols-2 md:gap-4">
 					{ownedNFT.length !== 0 &&
-						ownedNFT.map((nft) => <NFTokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} />)}
+						ownedNFT.map((nft) => (
+							<NFTokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} type="stake" />
+						))}
 				</div>
 			</div>
 		</Modal>

@@ -59,6 +59,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 					</div>
 					<div className="w-1/5" />
 				</div>
+
 				<div className="mb-8">
 					<p className="opacity-80 text-right text-white text-sm mb-1">
 						Balance: {prettyBalance(balance)}

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { LogoBounce } from 'components/Common/Loader'
 import Modal from 'components/Common/Modal'
 import NFTokenFarm from 'components/Common/NFTokenFarm'
 import IconBack from 'components/Icon/IconBack'
@@ -19,10 +20,12 @@ interface IResponseCheckNFT {
 
 const StakeNFTModal = (props: StakeNFTModalProps) => {
 	const [ownedNFT, setOwnedNFT] = useState<INFToken[]>([])
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const { accountId } = useNearProvider()
 
 	useEffect(() => {
 		const fetchOwnedNFT = async () => {
+			ownedNFT.length === 0 && setIsLoading(true)
 			try {
 				const resp = await axios.get<IResponseCheckNFT>(`${apiFarmingURL}/check`, {
 					params: {
@@ -33,12 +36,13 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 				})
 				setOwnedNFT(resp.data.data.results)
 			} catch (error) {}
+			setIsLoading(false)
 		}
 
 		if (props.show && accountId) {
 			fetchOwnedNFT()
 		}
-	}, [props.show, accountId, props.seedId])
+	}, [props.show, accountId, props.seedId, ownedNFT.length])
 
 	const stakeNFT = async (tokenId: string, contractId: string) => {
 		await near.nearFunctionCall({
@@ -73,12 +77,26 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 						</div>
 					</div>
 				</div>
-				<div className="min-h-[16rem] max-h-[50vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar md:grid md:grid-cols-2 md:gap-4">
-					{ownedNFT.length !== 0 &&
-						ownedNFT.map((nft) => (
-							<NFTokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} type="stake" />
-						))}
-				</div>
+
+				{isLoading ? (
+					<div className="w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">
+						<LogoBounce width={20} className="mb-4 opacity-50" />
+					</div>
+				) : (
+					<div className="h-[50vh] md:h-[60vh] overflow-y-scroll no-scrollbar">
+						{ownedNFT.length !== 0 ? (
+							<div className="md:grid md:grid-cols-2 md:gap-4">
+								{ownedNFT.map((nft) => (
+									<NFTokenFarm key={nft._id} token={nft} stakeNFT={stakeNFT} type="stake" />
+								))}
+							</div>
+						) : (
+							<div className="w-full h-full flex items-center justify-center px-4 text-center">
+								<p>{"You don't have any NFT for this Pool"}</p>
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 		</Modal>
 	)

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { LogoBounce } from 'components/Common/Loader'
 import Modal from 'components/Common/Modal'
 import NFTokenFarm from 'components/Common/NFTokenFarm'
 import IconBack from 'components/Icon/IconBack'
@@ -17,11 +18,13 @@ interface stakedResponse {
 }
 
 const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
-	const { accountId } = useNearProvider()
 	const [stakedNFT, setStakedNFT] = useState<INFToken[]>([])
+	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const { accountId } = useNearProvider()
 
 	useEffect(() => {
 		const getStakedNFT = async () => {
+			stakedNFT.length === 0 && setIsLoading(true)
 			if (accountId) {
 				const resSC: stakedResponse = await near.nearViewFunction({
 					contractName: CONTRACT.FARM,
@@ -36,6 +39,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 					setStakedNFT(resBE)
 				}
 			}
+			setIsLoading(false)
 		}
 
 		const fetchToken = (scNft: string) => {
@@ -50,7 +54,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 		if (props.show) {
 			getStakedNFT()
 		}
-	}, [accountId, props.seedId, props.show])
+	}, [accountId, props.seedId, props.show, stakedNFT.length])
 
 	const unstakeNFT = (tokenId: string, contractId: string) => {
 		near.nearFunctionCall({
@@ -68,7 +72,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 
 	return (
 		<Modal isShow={props.show} onClose={props.onClose}>
-			<div className="max-w-sm w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
+			<div className="max-w-sm md:max-w-2xl w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
 				<div className="flex items-center mb-4">
 					<div className="w-1/5">
 						<div className="inline-block cursor-pointer" onClick={props.onClose}>
@@ -81,12 +85,26 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 					</div>
 					<div className="w-1/5" />
 				</div>
-				<div className="min-h-[16rem] max-h-[50vh] md:max-h-[60vh] overflow-y-scroll no-scrollbar md:grid md:grid-cols-2 md:gap-4">
-					{stakedNFT.length !== 0 &&
-						stakedNFT.map((nft) => (
-							<NFTokenFarm key={nft._id} token={nft} stakeNFT={unstakeNFT} type="unstake" />
-						))}
-				</div>
+
+				{isLoading ? (
+					<div className="w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">
+						<LogoBounce width={20} className="mb-4 opacity-50" />
+					</div>
+				) : (
+					<div className="h-[50vh] md:h-[60vh] overflow-y-scroll no-scrollbar">
+						{stakedNFT.length !== 0 ? (
+							<div className="md:grid md:grid-cols-2 md:gap-4">
+								{stakedNFT.map((nft) => (
+									<NFTokenFarm key={nft._id} token={nft} stakeNFT={unstakeNFT} type="unstake" />
+								))}
+							</div>
+						) : (
+							<div className="w-full h-full flex items-center justify-center px-4 text-center">
+								<p>{"You haven't stake any NFT for this Pool"}</p>
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 		</Modal>
 	)

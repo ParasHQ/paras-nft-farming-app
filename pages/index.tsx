@@ -5,6 +5,7 @@ import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { IPool } from 'interfaces'
+import Head from 'components/Common/Head'
 
 interface IUserStaked {
 	[key: string]: string
@@ -66,24 +67,27 @@ const Home: NextPage = () => {
 	}, [accountId])
 
 	return (
-		<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
-			<Header />
-			<div className="max-w-6xl mx-auto">
-				<div className="flex flex-wrap ">
-					{poolList.map((pool, idx) => {
-						return (
-							<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>
-								<Pool
-									data={pool}
-									staked={userStaked[pool.seed_id]}
-									stakedNFT={userStakedNFT[pool.seed_id]}
-								/>
-							</div>
-						)
-					})}
+		<>
+			<Head />
+			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
+				<Header />
+				<div className="max-w-6xl mx-auto">
+					<div className="flex flex-wrap ">
+						{poolList.map((pool, idx) => {
+							return (
+								<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>
+									<Pool
+										data={pool}
+										staked={userStaked[pool.seed_id]}
+										stakedNFT={userStakedNFT[pool.seed_id]}
+									/>
+								</div>
+							)
+						})}
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	)
 }
 

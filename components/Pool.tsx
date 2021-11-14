@@ -240,7 +240,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 							<p>{dayjs(poolProcessed.startDate).format('MMM D, YYYY')}</p>
 						</div>
 						<div className="text-right">
-							<p className="opacity-75">Start Date</p>
+							<p className="opacity-75">End Date</p>
 							<p>{dayjs(poolProcessed.endDate).format('MMM D, YYYY')}</p>
 						</div>
 					</div>

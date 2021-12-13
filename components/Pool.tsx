@@ -168,6 +168,8 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	}
 
 	const claimRewards = async () => {
+		if (!accountId) return
+
 		await near.nearFunctionCall({
 			methodName: 'claim_reward_by_seed_and_withdraw',
 			contractName: CONTRACT.FARM,
@@ -201,8 +203,6 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	if (!poolProcessed) {
 		return <PoolLoader />
 	}
-
-	console.log('nftmultiplier', data.nft_multiplier)
 
 	return (
 		<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
@@ -257,18 +257,18 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 						</div>
 						<div className="flex justify-between mt-1">
 							<div>
-								<p className="opacity-75">NFT Multiplier</p>
-							</div>
-							<div className="text-right">
-								<p>{nftMultiplier}%</p>
-							</div>
-						</div>
-						<div className="flex justify-between mt-1">
-							<div>
 								<p className="opacity-75">Staked PARAS</p>
 							</div>
 							<div className="text-right">
 								<p>{prettyBalance(staked, 18)} Ⓟ</p>
+							</div>
+						</div>
+						<div className="flex justify-between mt-1">
+							<div>
+								<p className="opacity-75">NFT Multiplier</p>
+							</div>
+							<div className="text-right">
+								<p>{nftMultiplier}% (100 Ⓟ)</p>
 							</div>
 						</div>
 					</div>
@@ -281,7 +281,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 								<Button
 									isFullWidth
 									className=" mt-2"
-									color="red"
+									color="blue-gray"
 									onClick={() => onClickActionButton('unstakeNFT')}
 								>
 									Unstake NFT
@@ -294,7 +294,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 								<Button
 									isFullWidth
 									className=" mt-2"
-									color="red"
+									color="blue-gray"
 									onClick={() => onClickActionButton('unstakePARAS')}
 								>
 									Unstake PARAS
@@ -303,19 +303,26 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 						</div>
 					</div>
 				</div>
-				<div className="mt-4">
-					<div className="flex justify-between items-center p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
-						<div className="w-2/3">
-							<p className="opacity-75">Claimable Rewards</p>
-							<p>{prettyBalance(poolProcessed.claimableRewards, 18, 6)} Ⓟ</p>
-						</div>
-						<div className="w-1/3">
-							<Button isFullWidth color="green" onClick={claimRewards}>
-								Claim
-							</Button>
+				{accountId && (
+					<div className="mt-4">
+						<div className="flex justify-between items-center p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
+							<div className="w-2/3">
+								<p className="opacity-75">Claimable Rewards</p>
+								<p>{prettyBalance(poolProcessed.claimableRewards, 18, 6)} Ⓟ</p>
+							</div>
+							<div className="w-1/3">
+								<Button
+									isDisabled={poolProcessed.claimableRewards !== 0}
+									isFullWidth
+									color="green"
+									onClick={claimRewards}
+								>
+									Claim
+								</Button>
+							</div>
 						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</div>
 	)

@@ -37,6 +37,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [nftMultiplier, setNFTMultiplier] = useState('0')
+	const multiplierAmount = (parseFloat(staked) * parseInt(nftMultiplier)) / 10 ** 20
 
 	const getParasPrice = async () => {
 		const resp = await axios.get(
@@ -260,7 +261,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 								<p className="opacity-75">Staked PARAS</p>
 							</div>
 							<div className="text-right">
-								<p>{prettyBalance(staked, 18)} Ⓟ</p>
+								<p>{staked ? `${prettyBalance(staked, 18)}Ⓟ` : '-'} </p>
 							</div>
 						</div>
 						<div className="flex justify-between mt-1">
@@ -268,7 +269,11 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 								<p className="opacity-75">NFT Multiplier</p>
 							</div>
 							<div className="text-right">
-								<p>{nftMultiplier}% (100 Ⓟ)</p>
+								<p>
+									{nftMultiplier !== '0'
+										? `${nftMultiplier}% (${multiplierAmount.toLocaleString()} Ⓟ)`
+										: '-'}
+								</p>
 							</div>
 						</div>
 					</div>

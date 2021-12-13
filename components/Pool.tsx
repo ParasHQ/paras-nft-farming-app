@@ -269,7 +269,11 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 								<p className="opacity-75">NFT Multiplier</p>
 							</div>
 							<div className="text-right">
-								<p>{nftMultiplier !== '0' ? `${nftMultiplier}% (${multiplierAmount} Ⓟ)` : '-'}</p>
+								<p>
+									{nftMultiplier !== '0'
+										? `${nftMultiplier}% (${multiplierAmount.toLocaleString()} Ⓟ)`
+										: '-'}
+								</p>
 							</div>
 						</div>
 					</div>

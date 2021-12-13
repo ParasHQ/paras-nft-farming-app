@@ -37,11 +37,11 @@ const NFTokenFarm = ({ token, stakeNFT, type, multiplier }: NFTokenFarmProps) =>
 						</p>
 					</a>
 				</div>
-				<p className="font-bold text-xs">{`${multiplier.toLocaleString()} multiplier`}</p>
+				<p className="font-bold text-xs">{`Multiplier: ${(multiplier / 100).toLocaleString()}%`}</p>
 				<Button
 					className="px-6 mt-4"
 					size="md"
-					color={type === 'stake' ? 'blue' : 'red'}
+					color={type === 'stake' ? 'blue' : 'blue-gray'}
 					onClick={() => stakeNFT(token.token_id, token.contract_id)}
 				>
 					{type === 'stake' ? 'Stake' : 'Unstake'}

@@ -90,7 +90,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 					onClick={unstakeToken}
 					isFullWidth
 					size="lg"
-					color="red"
+					color="blue-gray"
 				>
 					Unstake
 				</Button>

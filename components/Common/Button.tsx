@@ -6,7 +6,7 @@ interface ButtonProps {
 	isDisabled?: boolean
 	isFullWidth?: boolean
 	size?: 'xs' | 'sm' | 'md' | 'lg'
-	color?: 'blue' | 'red' | 'green' | 'gray'
+	color?: 'blue' | 'red' | 'green' | 'gray' | 'blue-gray'
 	className?: string
 	style?: React.CSSProperties
 }
@@ -37,6 +37,8 @@ const Button = ({
 				return 'bg-greenButton text-white'
 			case 'gray':
 				return 'bg-borderGray text-white'
+			case 'blue-gray':
+				return 'bg-blueGray text-white'
 			default:
 				return ''
 		}

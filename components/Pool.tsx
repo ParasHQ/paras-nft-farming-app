@@ -317,7 +317,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 							</div>
 							<div className="w-1/3">
 								<Button
-									isDisabled={poolProcessed.claimableRewards !== 0}
+									isDisabled={poolProcessed.claimableRewards.toString() === '0'}
 									isFullWidth
 									color="green"
 									onClick={claimRewards}

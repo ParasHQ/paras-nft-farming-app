@@ -5,7 +5,7 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint"
+		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
 	},
 	"dependencies": {
 		"axios": "^0.24.0",
@@ -21,11 +21,13 @@
 	"devDependencies": {
 		"@types/node": "16.11.6",
 		"@types/react": "17.0.34",
+		"@typescript-eslint/eslint-plugin": "^5.9.0",
+		"@typescript-eslint/parser": "^5.9.0",
 		"autoprefixer": "^10.4.0",
-		"eslint": "7",
+		"eslint": "^8.6.0",
 		"eslint-config-next": "12.0.2",
 		"postcss": "^8.3.11",
 		"tailwindcss": "^2.2.19",
-		"typescript": "4.4.4"
+		"typescript": "^4.5.4"
 	}
 }

@@ -39,15 +39,15 @@ export const toHumanReadableNumbers = (val: string) => {
 	}
 
 	function toHumanString(sn: string) {
-		var n = precise(Number.parseFloat(sn))
-		var e = Math.max(Math.min(3 * Math.floor(getExponent(n) / 3), 24), -24)
+		const n = precise(Number.parseFloat(sn))
+		const e = Math.max(Math.min(3 * Math.floor(getExponent(n) / 3), 24), -24)
 		return precise(n / Math.pow(10, e)).toString() + PREFIXES[e]
 	}
 
 	return toHumanString(val)
 }
 
-export const prettyBalance = (balance: any, decimals: number = 18, len: number = 8) => {
+export const prettyBalance = (balance: any, decimals = 18, len = 8) => {
 	if (!balance) {
 		return '0'
 	}
@@ -66,7 +66,7 @@ export const prettyBalance = (balance: any, decimals: number = 18, len: number =
 	return tail ? `${formattedHead}.${tail}` : formattedHead
 }
 
-export const formatParasAmount = (balance: string | number, fracDigits?: number) => {
+export const formatParasAmount = (balance: string | number) => {
 	return JSBI.divide(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
 }
 
@@ -90,7 +90,7 @@ export const parseImgUrl = (url: any, defaultValue = '', opts: IParseImgOpts = {
 				}
 			}
 
-			let transformationList = []
+			const transformationList = []
 			if (opts.width) {
 				transformationList.push(`tr:w-${opts.width}`)
 			} else {
@@ -110,7 +110,7 @@ export const parseImgUrl = (url: any, defaultValue = '', opts: IParseImgOpts = {
 				}
 			}
 
-			let transformationList = []
+			const transformationList = []
 			if (opts.width) {
 				transformationList.push(`tr:w-${opts.width}`)
 			} else {

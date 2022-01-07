@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
-interface UnstakeTokenModalProps extends ModalCommonProps {}
+type UnstakeTokenModalProps = ModalCommonProps
 
 const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	const [balance, setBalance] = useState('0')

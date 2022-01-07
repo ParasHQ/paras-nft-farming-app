@@ -39,7 +39,9 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 					},
 				})
 				setOwnedNFT(resp.data.data.results)
-			} catch (error) {}
+			} catch (error) {
+				console.log(error)
+			}
 			setIsLoading(false)
 		}
 

@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
-interface StakeTokenModalProps extends ModalCommonProps {}
+type StakeTokenModalProps = ModalCommonProps
 
 const StakeTokenModal = (props: StakeTokenModalProps) => {
 	const [balance, setBalance] = useState('0')

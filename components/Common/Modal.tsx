@@ -13,7 +13,7 @@ interface ModalProps {
 
 const Modal = ({
 	isShow = true,
-	onClose = () => {},
+	onClose = () => null,
 	closeOnBgClick = true,
 	closeOnEscape = true,
 	children,

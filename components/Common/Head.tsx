@@ -15,7 +15,7 @@ const Head = ({
 	url = 'https://stake.paras.com',
 	keywords = 'stake, blockchain, near',
 }: HeadProps) => {
-	let _title = title === 'Paras Staking' ? 'Paras Staking' : `${title} - Paras Staking`
+	const _title = title === 'Paras Staking' ? 'Paras Staking' : `${title} - Paras Staking`
 
 	return (
 		<NextHead>

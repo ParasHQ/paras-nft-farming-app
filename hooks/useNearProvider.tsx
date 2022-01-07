@@ -19,7 +19,7 @@ const defaultValue: INearContext = {
 	hasDeposit: false,
 	accountId: null,
 	commonModal: null,
-	setCommonModal: () => {},
+	setCommonModal: () => null,
 }
 
 export const NearContext = createContext<INearContext>(defaultValue)

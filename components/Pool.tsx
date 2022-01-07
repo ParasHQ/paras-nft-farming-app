@@ -12,6 +12,7 @@ import { IFarm, IPool } from 'interfaces'
 import PoolLoader from './Common/PoolLoader'
 import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
+import JSBI from 'jsbi'
 
 interface IPoolProcessed {
 	title: string
@@ -20,7 +21,7 @@ interface IPoolProcessed {
 	startDate: number | null
 	endDate: number | null
 	rewardPerWeek: any
-	claimableRewards: number
+	claimableRewards: string
 	media: string
 }
 
@@ -56,7 +57,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 		let endDate = null
 		let totalRewardPerWeek = 0
 		let totalRewardPerYearInUSD = 0
-		let totalUnclaimedReward = 0
+		let totalUnclaimedReward = '0'
 
 		for (const farmId of data.farms) {
 			const farmDetails: IFarm = await near.nearViewFunction({
@@ -76,7 +77,10 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 						farm_id: farmId,
 					},
 				})
-				totalUnclaimedReward += unclaimedReward
+				totalUnclaimedReward = JSBI.add(
+					JSBI.BigInt(unclaimedReward),
+					JSBI.BigInt(totalUnclaimedReward)
+				).toString()
 			}
 
 			const farmTotalRewardPerWeek =

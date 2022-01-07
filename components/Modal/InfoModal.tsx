@@ -44,7 +44,7 @@ const InfoModal = (props: InfoModalProps) => {
 							>
 								{formatText(key)}
 							</a>
-							<p className="text-xs">{value}</p>
+							<p className="text-xs">{(value / 100).toLocaleString()}%</p>
 						</div>
 					))}
 				</div>

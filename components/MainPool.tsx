@@ -28,12 +28,11 @@ interface IPoolProcessed {
 interface PoolProps {
 	data: IPool
 	staked: string
-	stakedNFT: string[]
 }
 
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
-const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
+const MainPool = ({ data, staked }: PoolProps) => {
 	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
@@ -127,17 +126,6 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 		}
 		setPoolProcessed(poolData)
 	}, [data.amount, data.title, data.media, data.farms, accountId])
-
-	useEffect(() => {
-		if (stakedNFT) {
-			const totalMultiplier = stakedNFT.reduce((a: number, b: string) => {
-				const [id] = b.split(':')
-				const multiplier = data.nft_multiplier[id]
-				return a + multiplier
-			}, 0)
-			setNFTMultiplier((totalMultiplier / 100).toString())
-		}
-	}, [stakedNFT, data.nft_multiplier])
 
 	const PoolModal = () => {
 		return (
@@ -238,18 +226,6 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 			</div>
 
 			<div className="px-4 pb-4">
-				<div className="mt-4">
-					<div className="flex justify-between">
-						<div>
-							<p className="opacity-75">Start Date</p>
-							<p>{dayjs(poolProcessed.startDate).format('MMM D, YYYY')}</p>
-						</div>
-						<div className="text-right">
-							<p className="opacity-75">End Date</p>
-							<p>{dayjs(poolProcessed.endDate).format('MMM D, YYYY')}</p>
-						</div>
-					</div>
-				</div>
 				<div>
 					<div className="mt-4">
 						<div className="flex justify-between">
@@ -262,31 +238,27 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 						</div>
 						<div className="flex justify-between mt-1">
 							<div>
-								<p className="opacity-75">Staked NFTs</p>
+								<p className="opacity-75">Staked PARAS</p>
 							</div>
 							<div className="text-right">
-								<p>
-									{nftMultiplier !== '0'
-										? `${nftMultiplier}% (${multiplierAmount.toLocaleString()} Ⓟ)`
-										: '-'}
-								</p>
+								<p>{staked ? `${prettyBalance(staked, 18)}Ⓟ` : '-'} </p>
 							</div>
 						</div>
 					</div>
 					<div className="mt-4">
 						<div className="flex justify-between -mx-4">
 							<div className="w-1/2 px-4">
-								<Button isFullWidth className="" onClick={() => onClickActionButton('stakeNFT')}>
-									Stake NFT
+								<Button isFullWidth onClick={() => onClickActionButton('stakePARAS')}>
+									Stake PARAS
 								</Button>
 							</div>
 							<div className="w-1/2 px-4 text-right">
 								<Button
-									isFullWidth
 									color="blue-gray"
-									onClick={() => onClickActionButton('unstakeNFT')}
+									isFullWidth
+									onClick={() => onClickActionButton('unstakePARAS')}
 								>
-									Unstake NFT
+									Unstake PARAS
 								</Button>
 							</div>
 						</div>
@@ -317,4 +289,4 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 	)
 }
 
-export default Pool
+export default MainPool

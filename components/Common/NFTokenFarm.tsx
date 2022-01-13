@@ -37,7 +37,7 @@ const NFTokenFarm = ({ token, stakeNFT, type, multiplier }: NFTokenFarmProps) =>
 						</p>
 					</a>
 				</div>
-				<p className="font-bold text-xs">{`Multiplier: ${(multiplier / 100).toLocaleString()}%`}</p>
+				<p className="font-bold text-xs">{`Eq. Amount: ${(multiplier / 100).toLocaleString()}`}</p>
 				<Button
 					className="px-6 mt-4"
 					size="md"

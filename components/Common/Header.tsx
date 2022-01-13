@@ -137,8 +137,8 @@ const Header = () => {
 								xmlns="http://www.w3.org/2000/svg"
 							>
 								<path
-									fill-rule="evenodd"
-									clip-rule="evenodd"
+									fillRule="evenodd"
+									clipRule="evenodd"
 									d="M19.293 7.29291L20.7072 8.70712L12.0001 17.4142L3.29297 8.70712L4.70718 7.29291L12.0001 14.5858L19.293 7.29291Z"
 									fill="white"
 								/>
@@ -149,9 +149,10 @@ const Header = () => {
 								ref={bgRef}
 								className="flex flex-col absolute w-full rounded-md mt-2 overflow-hidden bg-gray-700"
 							>
-								{NAV_LINK.map((x) => {
+								{NAV_LINK.map((x, idx) => {
 									return (
 										<a
+											key={idx}
 											className="flex text-white py-2 px-4 bg-gray-800 hover:bg-opacity-50 text-sm"
 											target="_blank"
 											href={x.url}
@@ -166,8 +167,8 @@ const Header = () => {
 													xmlns="http://www.w3.org/2000/svg"
 												>
 													<path
-														fill-rule="evenodd"
-														clip-rule="evenodd"
+														fillRule="evenodd"
+														clipRule="evenodd"
 														d="M7.70421 9.70711L13.9971 3.41421V7H15.9971V0H8.9971V2H12.5829L6.28999 8.29289L7.70421 9.70711ZM15 14V10H13V14H2V3H6V1H2C0.89543 1 0 1.89543 0 3V14C0 15.1046 0.89543 16 2 16H13C14.1046 16 15 15.1046 15 14Z"
 														fill="white"
 													/>

@@ -29,6 +29,7 @@ const DepositModal = ({ show, onClose }: DepositModalProps) => {
 		<Modal isShow={show} onClose={onClose}>
 			<div className="bg-parasGrey text-white shadow-xl w-full p-4 rounded-md mx-4 md:m-auto max-w-sm">
 				<p>In order to Stake Paras you need to deposit 0.1 NEAR for storage</p>
+
 				<div className="flex justify-between items-center mt-4">
 					<Button className="px-4" onClick={onClickDeposit}>
 						Deposit

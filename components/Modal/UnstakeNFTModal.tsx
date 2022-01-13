@@ -10,11 +10,13 @@ import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
+import { prettyBalance } from 'utils/common'
 
 interface UnstakeNFTModalProps extends ModalCommonProps {
-	nftMultiplier: {
-		[key: string]: number
+	nftPoints: {
+		[key: string]: string
 	}
+	claimableRewards: string | undefined
 }
 
 interface stakedResponse {
@@ -90,12 +92,17 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 					<div className="w-1/5" />
 				</div>
 
+				<p className="font-semibold text-sm mt-2 text-center">
+					Unstaking will automatically claim your rewards (
+					{prettyBalance(props.claimableRewards, 18, 6)} Ⓟ)
+				</p>
+
 				{isLoading ? (
-					<div className="w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">
+					<div className="mt-4 w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">
 						<LogoBounce width={20} className="mb-4 opacity-50" />
 					</div>
 				) : (
-					<div className="h-[50vh] md:h-[60vh] overflow-y-scroll no-scrollbar">
+					<div className="mt-4 h-[50vh] md:h-[60vh] overflow-y-scroll no-scrollbar">
 						{stakedNFT.length !== 0 ? (
 							<div className="md:grid md:grid-cols-2 md:gap-4">
 								{stakedNFT.map((nft) => (
@@ -104,7 +111,11 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 										token={nft}
 										stakeNFT={unstakeNFT}
 										type="unstake"
-										multiplier={props.nftMultiplier[`${nft.contract_id}@${nft.token_series_id}`]}
+										point={prettyBalance(
+											props.nftPoints[`${nft.contract_id}@${nft.token_series_id}`],
+											18,
+											4
+										)}
 									/>
 								))}
 							</div>

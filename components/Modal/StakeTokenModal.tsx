@@ -8,7 +8,9 @@ import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
-type StakeTokenModalProps = ModalCommonProps
+interface StakeTokenModalProps extends ModalCommonProps {
+	claimableRewards: string | undefined
+}
 
 const StakeTokenModal = (props: StakeTokenModalProps) => {
 	const [balance, setBalance] = useState('0')
@@ -38,10 +40,7 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 			args: {
 				receiver_id: CONTRACT.FARM,
 				amount: parseParasAmount(inputStake),
-				msg: JSON.stringify({
-					transfer_type: 'seed',
-					seed_id: props.seedId,
-				}),
+				msg: '',
 			},
 			amount: '1',
 			gas: GAS_FEE[300],
@@ -64,7 +63,7 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 					<div className="w-1/5" />
 				</div>
 
-				<div className="mb-8">
+				<div>
 					<p className="opacity-80 text-right text-white text-sm mb-1">
 						Balance: {prettyBalance(balance)}
 					</p>
@@ -89,7 +88,17 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 						</Button>
 					</div>
 				</div>
-				<Button isDisabled={inputStake === ''} onClick={stakeToken} isFullWidth size="lg">
+				<p className="font-semibold text-sm mt-2 text-center">
+					Staking will automatically claim your rewards (
+					{prettyBalance(props.claimableRewards, 18, 6)} Ⓟ)
+				</p>
+				<Button
+					isDisabled={inputStake === ''}
+					onClick={stakeToken}
+					isFullWidth
+					size="lg"
+					className="mt-4"
+				>
 					Stake
 				</Button>
 			</div>

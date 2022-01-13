@@ -18,6 +18,7 @@ interface IUserStakedNFT {
 
 const Home: NextPage = () => {
 	const { isInit, accountId } = useNearProvider()
+	const [poolListFT, setPoolListFT] = useState<IPool[]>([])
 	const [poolList, setPoolList] = useState<IPool[]>([])
 	const [userStaked, setUserStaked] = useState<IUserStaked>({})
 	const [userStakedNFT, setUserStakedNFT] = useState<IUserStakedNFT>({})
@@ -32,7 +33,11 @@ const Home: NextPage = () => {
 					limit: 10,
 				},
 			})
-			setPoolList(Object.values(poolList))
+			const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
+			const poolNFT = Object.values(poolList).filter((x) => x.seed_type === 'NFT')
+
+			setPoolListFT(poolFT)
+			setPoolList(poolNFT)
 		}
 
 		if (isInit) {
@@ -79,7 +84,7 @@ const Home: NextPage = () => {
 				<div className="max-w-6xl mx-auto">
 					<p className="text-white text-3xl font-semibold text-center">PARAS Staking</p>
 					<div className="mt-4 max-w-md mx-auto">
-						<MainPool data={poolList[0]} staked={userStaked[poolList[0].seed_id]} />
+						<MainPool data={poolListFT[0]} staked={userStaked[poolListFT[0].seed_id]} />
 					</div>
 					<div className="mt-12">
 						<p className="text-white text-3xl font-semibold text-center">NFT Staking</p>
@@ -87,11 +92,7 @@ const Home: NextPage = () => {
 							{poolList.map((pool, idx) => {
 								return (
 									<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>
-										<Pool
-											data={pool}
-											staked={userStaked[pool.seed_id]}
-											stakedNFT={userStakedNFT[pool.seed_id]}
-										/>
+										<Pool data={pool} stakedNFT={userStakedNFT[pool.seed_id]} />
 									</div>
 								)
 							})}

@@ -6,10 +6,10 @@ interface NFTokenFarmProps {
 	token: INFToken
 	stakeNFT: (tokenId: string, contractId: string) => void
 	type: 'unstake' | 'stake'
-	multiplier: number
+	point: string
 }
 
-const NFTokenFarm = ({ token, stakeNFT, type, multiplier }: NFTokenFarmProps) => {
+const NFTokenFarm = ({ token, stakeNFT, type, point }: NFTokenFarmProps) => {
 	const tokenUrl = `https://paras.id/token/${token.contract_id}:${token.token_series_id}/${token.token_id}`
 	const collectionUrl = `https://paras.id/collection/${token.metadata.collection_id}`
 
@@ -37,7 +37,7 @@ const NFTokenFarm = ({ token, stakeNFT, type, multiplier }: NFTokenFarmProps) =>
 						</p>
 					</a>
 				</div>
-				<p className="font-bold text-xs">{`Eq. Amount: ${(multiplier / 100).toLocaleString()}`}</p>
+				<p className="font-bold text-xs">{`Value: ${point} Pts`}</p>
 				<Button
 					className="px-6 mt-4"
 					size="md"

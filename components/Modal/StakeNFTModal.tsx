@@ -11,11 +11,13 @@ import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
+import { prettyBalance } from 'utils/common'
 import InfoModal from './InfoModal'
 
 interface StakeNFTModalProps extends ModalCommonProps {
-	nftMultiplier: {
-		[key: string]: number
+	claimableRewards: string | undefined
+	nftPoints: {
+		[key: string]: string
 	}
 }
 
@@ -87,12 +89,17 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 						</div>
 					</div>
 
+					<p className="font-semibold text-sm mt-2 text-center">
+						Staking will automatically claim your rewards (
+						{prettyBalance(props.claimableRewards, 18, 6)} Ⓟ)
+					</p>
+
 					{isLoading ? (
-						<div className="w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">
+						<div className="mt-4 w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">
 							<LogoBounce width={20} className="mb-4 opacity-50" />
 						</div>
 					) : (
-						<div className="h-[50vh] md:h-[60vh] overflow-y-scroll no-scrollbar">
+						<div className="mt-4 h-[50vh] md:h-[60vh] overflow-y-scroll no-scrollbar">
 							{ownedNFT.length !== 0 ? (
 								<div className="md:grid md:grid-cols-2 md:gap-4">
 									{ownedNFT.map((nft) => (
@@ -101,7 +108,11 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 											token={nft}
 											stakeNFT={stakeNFT}
 											type="stake"
-											multiplier={props.nftMultiplier[`${nft.contract_id}@${nft.token_series_id}`]}
+											point={prettyBalance(
+												props.nftPoints[`${nft.contract_id}@${nft.token_series_id}`],
+												18,
+												4
+											)}
 										/>
 									))}
 								</div>
@@ -117,7 +128,8 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 			<InfoModal
 				show={showInfoPool}
 				onClose={() => setShowInfoPool(false)}
-				nftMultiplier={props.nftMultiplier}
+				nftPoints={props.nftPoints}
+				// nftMultiplier={props.nftMultiplier}
 			/>
 		</>
 	)

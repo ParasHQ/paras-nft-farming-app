@@ -135,26 +135,14 @@ const MainPool = ({ data, staked }: PoolProps) => {
 					title={data.title}
 					show={showModal === 'stakePARAS'}
 					onClose={() => setShowModal(null)}
+					claimableRewards={poolProcessed?.claimableRewards}
 				/>
 				<UnstakeTokenModal
 					seedId={data.seed_id}
 					title={data.title}
 					show={showModal === 'unstakePARAS'}
 					onClose={() => setShowModal(null)}
-				/>
-				<StakeNFTModal
-					seedId={data.seed_id}
-					title={data.title}
-					show={showModal === 'stakeNFT'}
-					onClose={() => setShowModal(null)}
-					nftMultiplier={data.nft_multiplier}
-				/>
-				<UnstakeNFTModal
-					seedId={data.seed_id}
-					title={data.title}
-					show={showModal === 'unstakeNFT'}
-					onClose={() => setShowModal(null)}
-					nftMultiplier={data.nft_multiplier}
+					claimableRewards={poolProcessed?.claimableRewards}
 				/>
 			</>
 		)

@@ -17,28 +17,29 @@ import JSBI from 'jsbi'
 interface IPoolProcessed {
 	title: string
 	totalStaked: any
-	apr: number
+	apr: string
 	startDate: number | null
 	endDate: number | null
 	rewardPerWeek: any
 	claimableRewards: string
 	media: string
+	nftPoints: {
+		[key: string]: string
+	}
 }
 
 interface PoolProps {
 	data: IPool
-	staked: string
 	stakedNFT: string[]
 }
 
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
-const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
+const Pool = ({ data, stakedNFT }: PoolProps) => {
 	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
-	const [nftMultiplier, setNFTMultiplier] = useState('0')
-	const multiplierAmount = (parseFloat(staked) * parseInt(nftMultiplier)) / 10 ** 20
+	const [nftPoint, setNftPoint] = useState('0')
 
 	const getParasPrice = async () => {
 		const resp = await axios.get(
@@ -58,6 +59,14 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 		let totalRewardPerWeek = 0
 		let totalRewardPerYearInUSD = 0
 		let totalUnclaimedReward = '0'
+
+		const seedDetails = await near.nearViewFunction({
+			contractName: CONTRACT.FARM,
+			methodName: `get_seed_info`,
+			args: {
+				seed_id: data.seed_id,
+			},
+		})
 
 		for (const farmId of data.farms) {
 			const farmDetails: IFarm = await near.nearViewFunction({
@@ -118,59 +127,27 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 		const poolData: IPoolProcessed = {
 			title: data.title,
 			media: data.media,
-			apr: APR,
+			apr: APR > 99999 ? `99,999%+` : `${prettyBalance(APR, 0, 1)}%`,
 			totalStaked: totalStakedInUSD,
 			rewardPerWeek: totalRewardPerWeek,
 			startDate: startDate ? startDate * 1000 : null,
 			endDate: endDate ? endDate * 1000 : null,
 			claimableRewards: totalUnclaimedReward,
+			nftPoints: seedDetails.nft_balance,
 		}
+
 		setPoolProcessed(poolData)
 	}, [data.amount, data.title, data.media, data.farms, accountId])
 
 	useEffect(() => {
-		if (stakedNFT) {
-			const totalMultiplier = stakedNFT.reduce((a: number, b: string) => {
-				const [id] = b.split(':')
-				const multiplier = data.nft_multiplier[id]
-				return a + multiplier
-			}, 0)
-			setNFTMultiplier((totalMultiplier / 100).toString())
-		}
-	}, [stakedNFT, data.nft_multiplier])
+		if (stakedNFT && poolProcessed?.nftPoints) {
+			const x = stakedNFT.reduce((a, b) => {
+				return JSBI.add(a, JSBI.BigInt(poolProcessed.nftPoints[b.split(':')[0]]))
+			}, JSBI.BigInt(0))
 
-	const PoolModal = () => {
-		return (
-			<>
-				<StakeTokenModal
-					seedId={data.seed_id}
-					title={data.title}
-					show={showModal === 'stakePARAS'}
-					onClose={() => setShowModal(null)}
-				/>
-				<UnstakeTokenModal
-					seedId={data.seed_id}
-					title={data.title}
-					show={showModal === 'unstakePARAS'}
-					onClose={() => setShowModal(null)}
-				/>
-				<StakeNFTModal
-					seedId={data.seed_id}
-					title={data.title}
-					show={showModal === 'stakeNFT'}
-					onClose={() => setShowModal(null)}
-					nftMultiplier={data.nft_multiplier}
-				/>
-				<UnstakeNFTModal
-					seedId={data.seed_id}
-					title={data.title}
-					show={showModal === 'unstakeNFT'}
-					onClose={() => setShowModal(null)}
-					nftMultiplier={data.nft_multiplier}
-				/>
-			</>
-		)
-	}
+			setNftPoint(x.toString())
+		}
+	}, [stakedNFT, poolProcessed])
 
 	const claimRewards = async () => {
 		if (!accountId) return
@@ -205,6 +182,29 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 		getFarms()
 	}, [getFarms])
 
+	const PoolModal = () => {
+		return (
+			<>
+				<StakeNFTModal
+					seedId={data.seed_id}
+					nftPoints={poolProcessed ? poolProcessed.nftPoints : {}}
+					claimableRewards={poolProcessed?.claimableRewards}
+					title={data.title}
+					show={showModal === 'stakeNFT'}
+					onClose={() => setShowModal(null)}
+				/>
+				<UnstakeNFTModal
+					seedId={data.seed_id}
+					nftPoints={poolProcessed ? poolProcessed.nftPoints : {}}
+					claimableRewards={poolProcessed?.claimableRewards}
+					title={data.title}
+					show={showModal === 'unstakeNFT'}
+					onClose={() => setShowModal(null)}
+				/>
+			</>
+		)
+	}
+
 	if (!poolProcessed) {
 		return <PoolLoader />
 	}
@@ -226,12 +226,12 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 						<div>
 							<p className="opacity-75">Total Staked</p>
 							<p className="text-4xl font-semibold">
-								${toHumanReadableNumbers(poolProcessed.totalStaked)}
+								{toHumanReadableNumbers(poolProcessed.totalStaked)} Pts
 							</p>
 						</div>
 						<div className="text-right">
 							<p className="opacity-75">APR</p>
-							<p className="text-4xl font-semibold">{prettyBalance(poolProcessed.apr, 0, 1)}%</p>
+							<p className="text-4xl font-semibold">{poolProcessed.apr}</p>
 						</div>
 					</div>
 				</div>
@@ -265,11 +265,7 @@ const Pool = ({ data, staked, stakedNFT }: PoolProps) => {
 								<p className="opacity-75">Staked NFTs</p>
 							</div>
 							<div className="text-right">
-								<p>
-									{nftMultiplier !== '0'
-										? `${nftMultiplier}% (${multiplierAmount.toLocaleString()} Ⓟ)`
-										: '-'}
-								</p>
+								<p>{nftPoint !== '0' ? `${prettyBalance(nftPoint, 18, 4)} Pts` : '-'}</p>
 							</div>
 						</div>
 					</div>

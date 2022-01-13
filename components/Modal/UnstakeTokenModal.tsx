@@ -8,7 +8,9 @@ import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
-type UnstakeTokenModalProps = ModalCommonProps
+interface UnstakeTokenModalProps extends ModalCommonProps {
+	claimableRewards: string | undefined
+}
 
 const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	const [balance, setBalance] = useState('0')
@@ -60,7 +62,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 					<div className="w-1/5" />
 				</div>
 
-				<div className="mb-8">
+				<div>
 					<p className="opacity-80 text-right text-white text-sm mb-1">
 						Balance: {prettyBalance(balance)}
 					</p>
@@ -86,12 +88,17 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 						</Button>
 					</div>
 				</div>
+				<p className="font-semibold text-sm mt-2 text-center">
+					Unstaking will automatically claim your rewards (
+					{prettyBalance(props.claimableRewards, 18, 6)} Ⓟ)
+				</p>
 				<Button
 					isDisabled={inputUnstake === ''}
 					onClick={unstakeToken}
 					isFullWidth
 					size="lg"
 					color="blue-gray"
+					className="mt-4"
 				>
 					Unstake
 				</Button>

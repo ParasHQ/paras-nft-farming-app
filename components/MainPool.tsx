@@ -58,13 +58,6 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 		return resp.data.paras.usd
 	}
 
-	const getNearPrice = async () => {
-		const resp = await axios.get(
-			'https://api.coingecko.com/api/v3/simple/price?ids=NEAR&vs_currencies=USD'
-		)
-		return resp.data.near.usd
-	}
-
 	const getFarms = useCallback(async () => {
 		const parasPrice = await getParasPrice()
 		const parasPriceInDecimal = parasPrice / 10 ** 18
@@ -163,8 +156,8 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 		const poolData: IPoolProcessed = {
 			title: data.title,
 			media: data.media,
-			apr: APR > 9999 ? `9,999%+` : `${prettyBalance(APR, 0, 1)}%`,
-			realAPR: `${prettyBalance(APR, 0, 1)}%`,
+			apr: APR > 9999 ? `9,999%+` : `${prettyBalance(APR.toString(), 0, 1)}%`,
+			realAPR: `${prettyBalance(APR.toString(), 0, 1)}%`,
 			totalStaked: totalStakedInUSD,
 			rewardPerWeek: totalRewardPerWeek,
 			rewards: totalRewards,

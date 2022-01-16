@@ -1,5 +1,6 @@
 import { Near, keyStores, WalletConnection } from 'near-api-js'
 import getConfig from './config'
+import BN from 'bn.js'
 
 interface IViewFunction {
 	contractName: string
@@ -18,6 +19,8 @@ export const CONTRACT = {
 	TOKEN: process.env.NEXT_PUBLIC_PARAS_TOKEN_CONTRACT || '',
 	FARM: process.env.NEXT_PUBLIC_NFT_FARM_CONTRACT || '',
 }
+
+export const getAmount = (amount: string | undefined) => (amount ? new BN(amount) : new BN('0'))
 
 class NearClass {
 	public near!: Near
@@ -50,9 +53,9 @@ class NearClass {
 		return this.wallet.account().functionCall({
 			contractId: contractName,
 			methodName,
-			attachedDeposit: amount,
+			attachedDeposit: getAmount(amount),
+			gas: getAmount(gas),
 			args,
-			gas,
 		})
 	}
 

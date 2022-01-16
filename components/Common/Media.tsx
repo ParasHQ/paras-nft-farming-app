@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react'
 import { parseImgUrl } from 'utils/common'
 import axios from 'axios'
-import { filetypemime } from 'magic-bytes.js'
+import filetypeinfo from 'magic-bytes.js'
 // import { fileTypeFromBlob } from 'file-type'
 
-const Media = ({ className, url, videoControls = false, videoMuted = true, videoLoop = false }) => {
-	const [media, setMedia] = useState(null)
+const Media = ({
+	className = '',
+	url = '',
+	videoControls = false,
+	videoMuted = true,
+	videoLoop = false,
+}) => {
+	const [media, setMedia] = useState<{
+		type: string
+		url: string
+	} | null>(null)
 	const [isLoading, setIsLoading] = useState(true)
 
 	useEffect(() => {
@@ -22,16 +31,18 @@ const Media = ({ className, url, videoControls = false, videoMuted = true, video
 				responseType: 'arraybuffer',
 			})
 
-			const fileType = await filetypemime(new Uint8Array(resp.data))
+			const fileType = await filetypeinfo(new Uint8Array(resp.data))
+			const fileTypeMime = fileType.map((e) => e.mime || '')
 
-			const objectUrl = URL.createObjectURL(resp.data)
+			const objectUrl = URL.createObjectURL(new Blob([resp.data]))
 
 			setMedia({
-				type: fileType.mime,
-				url: [objectUrl],
+				type: fileTypeMime[0],
+				url: objectUrl,
 			})
 			setIsLoading(false)
 		} catch (err) {
+			console.log(err)
 			setMedia({
 				type: 'image/jpg',
 				url: parseImgUrl(url),

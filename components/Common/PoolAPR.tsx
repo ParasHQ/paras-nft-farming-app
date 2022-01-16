@@ -51,7 +51,6 @@ const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
 					contractPriceMap[ftContract].decimals
 				)
 				const rewardPerYearInUSD = parseInt(rewardsPerWeek[ftContract]) * 52 * currPrice
-				console.log(rewardPerYearInUSD)
 
 				const APR = totalStakedInUSD > 0 ? (rewardPerYearInUSD * 100) / totalStakedInUSD : 0
 				apr[ftContract] = APR
@@ -79,9 +78,9 @@ const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
 			<ReactTooltip html={true} />
 			<p
 				className="text-4xl font-semibold"
-				data-tip={`<p class="text-base">${prettyBalance(data, 0, 1)}%</p>`}
+				data-tip={`<p class="text-base">${prettyBalance(data.toString(), 0, 1)}%</p>`}
 			>
-				{data > 9999 ? `9,999%+` : `${prettyBalance(data, 0, 1)}%`}
+				{data > 9999 ? `9,999%+` : `${prettyBalance(data.toString(), 0, 1)}%`}
 			</p>
 		</div>
 	)

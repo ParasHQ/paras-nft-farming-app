@@ -80,7 +80,11 @@ export const formatParasAmount = (balance: string | number) => {
 }
 
 export const parseParasAmount = (balance: string | number) => {
-	return JSBI.multiply(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
+	try {
+		return JSBI.multiply(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
+	} catch (err) {
+		return JSBI.BigInt(Number(balance) * 10 ** 18).toString()
+	}
 }
 
 export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts = {}) => {

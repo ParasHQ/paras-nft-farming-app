@@ -1,6 +1,6 @@
 import { INFToken } from 'interfaces/token'
-import { parseImgUrl } from 'utils/common'
 import Button from './Button'
+import Media from './Media'
 
 interface NFTokenFarmProps {
 	token: INFToken
@@ -17,9 +17,11 @@ const NFTokenFarm = ({ token, stakeNFT, type, point }: NFTokenFarmProps) => {
 		<div className="flex justify-between mb-4 md:mb-0 p-3 border-2 border-borderGray rounded-xl h-[11rem] shadow-lg overflow-hidden">
 			<div className="w-1/2 pr-4">
 				<div className="w-full h-full">
-					<img
-						src={parseImgUrl(token.metadata.media)}
-						alt="token-image"
+					<Media
+						url={token.metadata.media}
+						videoControls={false}
+						videoMuted={true}
+						videoLoop={true}
 						className="w-full h-full object-contain"
 					/>
 				</div>

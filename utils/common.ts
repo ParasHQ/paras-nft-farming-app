@@ -47,13 +47,11 @@ export const toHumanReadableNumbers = (val: string) => {
 	return toHumanString(val)
 }
 
-export const prettyBalance = (balance: any, decimals = 18, len = 8) => {
+export const prettyBalance = (balance: string, decimals = 18, len = 8) => {
 	if (!balance) {
 		return '0'
 	}
-	const diff = balance.toString().length - decimals
-	const fixedPoint = Math.max(len, len - Math.max(diff, 0))
-	const fixedBalance = (balance / 10 ** decimals).toFixed(fixedPoint)
+	const fixedBalance = (Number(balance) / 10 ** decimals).toFixed(len)
 	const finalBalance = parseFloat(fixedBalance).toString()
 	const [head, tail] = finalBalance.split('.')
 	if (head === '0') {

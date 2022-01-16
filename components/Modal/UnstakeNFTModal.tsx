@@ -97,9 +97,9 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 
 				<p className="font-semibold text-sm mt-2 text-center">
 					Unstaking will automatically claim your rewards:
-					{Object.keys(props.claimableRewards).map((k) => {
+					{Object.keys(props.claimableRewards).map((k, idx) => {
 						return (
-							<div className="text-sm">
+							<div key={idx} className="text-sm">
 								<PoolReward key={k} contractName={k} amount={props.claimableRewards[k]} />
 							</div>
 						)

@@ -24,7 +24,7 @@ const NAV_LINK = [
 ]
 
 const Header = () => {
-	const bgRef = useRef<HTMLInputElement | null>(null)
+	const bgRef = useRef<null | HTMLDivElement>(null)
 	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [userProfile, setUserProfile] = useState<IProfile>({})
@@ -93,7 +93,7 @@ const Header = () => {
 		const checkIfClickedOutside = (e: Event) => {
 			// If the menu is open and the clicked target is not within the menu,
 			// then close the menu
-			if (showGetParas && bgRef.current && !bgRef.current.contains(e.target)) {
+			if (showGetParas && bgRef.current && !bgRef.current.contains(e.target as HTMLDivElement)) {
 				setShowGetParas(false)
 			}
 		}

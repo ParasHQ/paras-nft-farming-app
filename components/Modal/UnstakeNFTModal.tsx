@@ -2,6 +2,7 @@ import axios from 'axios'
 import { LogoBounce } from 'components/Common/Loader'
 import Modal from 'components/Common/Modal'
 import NFTokenFarm from 'components/Common/NFTokenFarm'
+import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { apiParasUrl } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
@@ -16,7 +17,9 @@ interface UnstakeNFTModalProps extends ModalCommonProps {
 	nftPoints: {
 		[key: string]: string
 	}
-	claimableRewards: string | undefined
+	claimableRewards: {
+		[key: string]: string
+	}
 }
 
 interface stakedResponse {
@@ -93,8 +96,14 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 				</div>
 
 				<p className="font-semibold text-sm mt-2 text-center">
-					Unstaking will automatically claim your rewards (
-					{prettyBalance(props.claimableRewards, 18, 6)} Ⓟ)
+					Unstaking will automatically claim your rewards:
+					{Object.keys(props.claimableRewards).map((k) => {
+						return (
+							<div className="text-sm">
+								<PoolReward key={k} contractName={k} amount={props.claimableRewards[k]} />
+							</div>
+						)
+					})}
 				</p>
 
 				{isLoading ? (
@@ -112,7 +121,8 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 										stakeNFT={unstakeNFT}
 										type="unstake"
 										point={prettyBalance(
-											props.nftPoints[`${nft.contract_id}@${nft.token_series_id}`],
+											props.nftPoints[`${nft.contract_id}@${nft.token_id}`] ||
+												props.nftPoints[`${nft.contract_id}@${nft.token_series_id}`],
 											18,
 											4
 										)}

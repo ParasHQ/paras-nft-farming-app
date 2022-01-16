@@ -1,6 +1,7 @@
 import Button from 'components/Common/Button'
 import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
+import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { ModalCommonProps } from 'interfaces/modal'
@@ -9,7 +10,9 @@ import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface StakeTokenModalProps extends ModalCommonProps {
-	claimableRewards: string | undefined
+	claimableRewards: {
+		[key: string]: string
+	}
 }
 
 const StakeTokenModal = (props: StakeTokenModalProps) => {
@@ -88,10 +91,18 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 						</Button>
 					</div>
 				</div>
-				<p className="font-semibold text-sm mt-2 text-center">
-					Staking will automatically claim your rewards (
-					{prettyBalance(props.claimableRewards, 18, 6)} Ⓟ)
-				</p>
+				<div className="text-center">
+					<p className="font-semibold text-sm mt-2">
+						Staking will automatically claim your rewards:
+					</p>
+					{Object.keys(props.claimableRewards).map((k) => {
+						return (
+							<div className="text-sm">
+								<PoolReward key={k} contractName={k} amount={props.claimableRewards[k]} />
+							</div>
+						)
+					})}
+				</div>
 				<Button
 					isDisabled={inputStake === ''}
 					onClick={stakeToken}

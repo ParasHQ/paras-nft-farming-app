@@ -62,6 +62,17 @@ export const prettyBalance = (balance: any, decimals = 18, len = 8) => {
 		}
 		return `${head}`
 	}
+
+	if (head.length > len) {
+		const tailRequired = len - head.length
+		const formattedHead = head.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+		if (tail && tailRequired > 0) {
+			return `${formattedHead}.${tail.substring(0, tailRequired)}`
+		}
+		return `${formattedHead}`
+	}
+
 	const formattedHead = head.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 	return tail ? `${formattedHead}.${tail}` : formattedHead
 }
@@ -74,7 +85,7 @@ export const parseParasAmount = (balance: string | number) => {
 	return JSBI.multiply(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
 }
 
-export const parseImgUrl = (url: any, defaultValue = '', opts: IParseImgOpts = {}) => {
+export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts = {}) => {
 	if (!url) {
 		return defaultValue
 	}

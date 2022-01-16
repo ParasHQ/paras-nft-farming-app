@@ -1,4 +1,3 @@
-import Pool from 'components/Pool'
 import Header from 'components/Common/Header'
 import { useNearProvider } from 'hooks/useNearProvider'
 import type { NextPage } from 'next'
@@ -65,6 +64,7 @@ const Home: NextPage = () => {
 
 			setUserStaked(userStakedToken)
 			setUserStakedNFT(userStakedNFTData)
+			console.log(userStakedNFTData)
 		}
 
 		if (accountId) {
@@ -82,9 +82,8 @@ const Home: NextPage = () => {
 			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
 				<Header />
 				<div className="max-w-6xl mx-auto">
-					<p className="text-white text-3xl font-semibold text-center">PARAS Staking</p>
 					<div className="mt-4 max-w-md mx-auto">
-						<MainPool data={poolListFT[0]} staked={userStaked[poolListFT[0].seed_id]} />
+						<MainPool type="ft" data={poolListFT[0]} staked={userStaked[poolListFT[0].seed_id]} />
 					</div>
 					<div className="mt-12">
 						<p className="text-white text-3xl font-semibold text-center">NFT Staking</p>
@@ -92,7 +91,7 @@ const Home: NextPage = () => {
 							{poolList.map((pool, idx) => {
 								return (
 									<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>
-										<Pool data={pool} stakedNFT={userStakedNFT[pool.seed_id]} />
+										<MainPool type="nft" data={pool} stakedNFT={userStakedNFT[pool.seed_id]} />
 									</div>
 								)
 							})}

@@ -24,7 +24,7 @@ const NAV_LINK = [
 ]
 
 const Header = () => {
-	const bgRef = useRef(null)
+	const bgRef = useRef<HTMLInputElement | null>(null)
 	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [userProfile, setUserProfile] = useState<IProfile>({})

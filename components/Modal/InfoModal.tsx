@@ -33,7 +33,7 @@ const NFT = ({ contractId, tokenSeriesId }: NFTProps) => {
 							token_series_id: tokenSeriesId,
 						},
 					})
-					console.log(resp.data)
+
 					setData(resp.data.data.results[0])
 				} catch (error) {
 					console.log(error)

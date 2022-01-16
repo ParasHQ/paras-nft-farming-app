@@ -1,7 +1,9 @@
 import axios from 'axios'
+import Button from 'components/Common/Button'
 import { LogoBounce } from 'components/Common/Loader'
 import Modal from 'components/Common/Modal'
 import NFTokenFarm from 'components/Common/NFTokenFarm'
+import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import IconInfo from 'components/Icon/IconInfo'
 import { apiFarmingURL } from 'constants/apiURL'
@@ -15,7 +17,9 @@ import { prettyBalance } from 'utils/common'
 import InfoModal from './InfoModal'
 
 interface StakeNFTModalProps extends ModalCommonProps {
-	claimableRewards: string | undefined
+	claimableRewards: {
+		[key: string]: string
+	}
 	nftPoints: {
 		[key: string]: string
 	}
@@ -89,10 +93,18 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 						</div>
 					</div>
 
-					<p className="font-semibold text-sm mt-2 text-center">
-						Staking will automatically claim your rewards (
-						{prettyBalance(props.claimableRewards, 18, 6)} Ⓟ)
-					</p>
+					<div className="text-center">
+						<p className="font-semibold text-sm mt-2">
+							Staking will automatically claim your rewards:
+						</p>
+						{Object.keys(props.claimableRewards).map((k) => {
+							return (
+								<div className="text-sm">
+									<PoolReward key={k} contractName={k} amount={props.claimableRewards[k]} />
+								</div>
+							)
+						})}
+					</div>
 
 					{isLoading ? (
 						<div className="mt-4 w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">
@@ -109,7 +121,8 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 											stakeNFT={stakeNFT}
 											type="stake"
 											point={prettyBalance(
-												props.nftPoints[`${nft.contract_id}@${nft.token_series_id}`],
+												props.nftPoints[`${nft.contract_id}@${nft.token_id}`] ||
+													props.nftPoints[`${nft.contract_id}@${nft.token_series_id}`],
 												18,
 												4
 											)}
@@ -118,7 +131,12 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 								</div>
 							) : (
 								<div className="w-full h-full flex items-center justify-center px-4 text-center">
-									<p>{"You don't have any NFT for this Pool"}</p>
+									<div>
+										<p>{"You don't have any NFT for this Pool"}</p>
+										<Button className="mt-4 px-4" onClick={() => setShowInfoPool(true)}>
+											Check Eligible NFT
+										</Button>
+									</div>
 								</div>
 							)}
 						</div>
@@ -129,7 +147,6 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 				show={showInfoPool}
 				onClose={() => setShowInfoPool(false)}
 				nftPoints={props.nftPoints}
-				// nftMultiplier={props.nftMultiplier}
 			/>
 		</>
 	)

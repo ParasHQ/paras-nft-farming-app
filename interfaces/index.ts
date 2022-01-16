@@ -35,3 +35,8 @@ export interface IProfile {
 	accountId?: string
 	imgUrl?: string
 }
+
+export interface IFTMetadata {
+	symbol: string
+	decimals: number
+}

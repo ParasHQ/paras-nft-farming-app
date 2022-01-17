@@ -131,7 +131,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 							</div>
 						) : (
 							<div className="w-full h-full flex items-center justify-center px-4 text-center">
-								<p>{"You haven't stake any NFT for this Pool"}</p>
+								<p>{"You haven't staked any NFT for this Pool"}</p>
 							</div>
 						)}
 					</div>

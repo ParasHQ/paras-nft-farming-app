@@ -4,7 +4,10 @@ import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
+import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
+import { FunctionCall } from 'near-api-js/lib/transaction'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
@@ -16,6 +19,7 @@ interface StakeTokenModalProps extends ModalCommonProps {
 }
 
 const StakeTokenModal = (props: StakeTokenModalProps) => {
+	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [inputStake, setInputStake] = useState<string>('')
 
@@ -37,17 +41,59 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 	}
 
 	const stakeToken = async () => {
-		await near.nearFunctionCall({
-			methodName: 'ft_transfer_call',
-			contractName: CONTRACT.TOKEN,
-			args: {
-				receiver_id: CONTRACT.FARM,
-				amount: parseParasAmount(inputStake),
-				msg: '',
-			},
-			amount: '1',
-			gas: GAS_FEE[300],
+		const txs: {
+			receiverId: string
+			functionCalls: FunctionCall[]
+		}[] = []
+
+		for (const contractName of Object.keys(props.claimableRewards || {})) {
+			const deposited = await near.nearViewFunction({
+				contractName: contractName,
+				methodName: `storage_balance_of`,
+				args: {
+					account_id: near.wallet.getAccountId(),
+				},
+			})
+			console.log(deposited, contractName)
+			if (deposited.total === '0') {
+				txs.push({
+					receiverId: contractName,
+					functionCalls: [
+						{
+							methodName: 'storage_deposit',
+							contractName: contractName,
+							args: {
+								registration_only: true,
+								account_id: accountId,
+							},
+							deposit: parseNearAmount('0.00125'),
+							gas: GAS_FEE[30],
+						},
+					],
+				})
+			}
+		}
+
+		txs.push({
+			receiverId: CONTRACT.TOKEN,
+			functionCalls: [
+				{
+					methodName: 'ft_transfer_call',
+					contractName: CONTRACT.TOKEN,
+					args: {
+						receiver_id: CONTRACT.FARM,
+						amount: parseParasAmount(inputStake),
+						msg: '',
+					},
+					deposit: '1',
+					gas: GAS_FEE[100],
+				},
+			],
 		})
+
+		console.log(txs)
+
+		return await near.executeMultipleTransactions(txs)
 	}
 
 	return (

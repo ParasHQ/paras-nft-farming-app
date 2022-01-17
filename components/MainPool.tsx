@@ -15,6 +15,8 @@ import PoolReward from './Common/PoolReward'
 import PoolAPR from './Common/PoolAPR'
 import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
+import { FunctionCall } from 'near-api-js/lib/transaction'
 
 interface IPoolProcessed {
 	title: string
@@ -217,16 +219,55 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 	const claimRewards = async () => {
 		if (!accountId) return
 
-		await near.nearFunctionCall({
-			methodName: 'claim_reward_by_seed_and_withdraw',
-			contractName: CONTRACT.FARM,
-			args: {
-				seed_id: data.seed_id,
-				token_id: CONTRACT.TOKEN,
-			},
-			amount: '1',
-			gas: GAS_FEE[300],
+		const txs: {
+			receiverId: string
+			functionCalls: FunctionCall[]
+		}[] = []
+
+		for (const contractName of Object.keys(poolProcessed?.rewards || {})) {
+			const deposited = await near.nearViewFunction({
+				contractName: contractName,
+				methodName: `storage_balance_of`,
+				args: {
+					account_id: near.wallet.getAccountId(),
+				},
+			})
+			if (!deposited) {
+				txs.push({
+					receiverId: contractName,
+					functionCalls: [
+						{
+							methodName: 'storage_deposit',
+							contractName: contractName,
+							args: {
+								registration_only: true,
+								account_id: accountId,
+							},
+							deposit: parseNearAmount('0.0125'),
+							gas: GAS_FEE[30],
+						},
+					],
+				})
+			}
+		}
+
+		txs.push({
+			receiverId: CONTRACT.FARM,
+			functionCalls: [
+				{
+					methodName: 'claim_reward_by_seed_and_withdraw',
+					contractName: CONTRACT.FARM,
+					args: {
+						seed_id: data.seed_id,
+						token_id: CONTRACT.TOKEN,
+					},
+					deposit: '1',
+					gas: GAS_FEE[300],
+				},
+			],
 		})
+
+		return await near.executeMultipleTransactions(txs)
 	}
 
 	const onClickActionButton = (type: TShowModal) => {
@@ -405,7 +446,11 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 							</div>
 							<div className="w-1/3">
 								<Button
-									isDisabled={poolProcessed.claimableRewards.toString() === '0'}
+									isDisabled={
+										Object.values(poolProcessed.claimableRewards).findIndex(
+											(x) => Number(x) > 0
+										) === -1
+									}
 									isFullWidth
 									color="green"
 									onClick={claimRewards}

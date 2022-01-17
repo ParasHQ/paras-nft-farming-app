@@ -86,13 +86,13 @@ const Home: NextPage = () => {
 			<Head />
 			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
 				<Header />
-				<div className="max-w-6xl mx-auto">
-					<div className="mt-4 max-w-md mx-auto">
+				<div className="mt-4 max-w-6xl mx-auto">
+					<div className="max-w-md mx-auto">
 						<MainPool type="ft" data={poolListFT[0]} staked={userStaked[poolListFT[0].seed_id]} />
 					</div>
 					<div className="mt-12">
 						<p className="text-white text-3xl font-semibold text-center">NFT Staking</p>
-						<div className="flex flex-wrap -mx-4">
+						<div className="flex flex-wrap">
 							{poolList.map((pool, idx) => {
 								return (
 									<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>

@@ -115,13 +115,13 @@ const Header = () => {
 			/>
 			<div className="flex items-center p-4 max-w-6xl mx-auto justify-between">
 				<div className="flex items-center">
-					<div className="w-24 mr-16">
+					<div className="w-24">
 						<IconParas />
 					</div>
 				</div>
 
 				<div className="flex items-center">
-					<div className="relative mx-4">
+					<div className="relative">
 						<Button
 							onClick={() => {
 								setShowGetParas(!showGetParas)
@@ -180,23 +180,31 @@ const Header = () => {
 							</div>
 						)}
 					</div>
-					<div className="md:inline-block">
+					<div className="ml-4 hidden md:inline-block">
 						{accountId ? (
-							<div className="hidden md:block">
+							<div>
 								<Profile />
 							</div>
 						) : (
-							<Button className="w-20" onClick={() => near.signIn()}>
-								Login
+							<Button className="px-4" onClick={() => near.signIn()}>
+								Login with NEAR
 							</Button>
 						)}
 					</div>
 				</div>
 			</div>
-			{accountId && (
+			{accountId ? (
 				<div className="fixed z-10 bottom-0 left-0 right-0 p-4 bg-gray-900 md:hidden">
 					<div className="flex justify-center items-center">
 						<Profile />
+					</div>
+				</div>
+			) : (
+				<div className="fixed z-10 bottom-0 left-0 right-0 p-4 bg-gray-900 md:hidden">
+					<div className="flex">
+						<Button className="px-4" onClick={() => near.signIn()}>
+							Login with NEAR
+						</Button>
 					</div>
 				</div>
 			)}

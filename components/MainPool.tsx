@@ -262,7 +262,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 						token_id: CONTRACT.TOKEN,
 					},
 					attachedDeposit: getAmount('1'),
-					gas: getAmount(GAS_FEE[100]),
+					gas: getAmount(GAS_FEE[150]),
 				},
 			],
 		})

@@ -10,7 +10,7 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
+import { formatParasAmount, hasReward, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface UnstakeTokenModalProps extends ModalCommonProps {
 	claimableRewards: {
@@ -141,18 +141,20 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 						</Button>
 					</div>
 				</div>
-				<div className="text-center">
-					<p className="font-semibold text-sm mt-2">
-						Unstaking will automatically claim your rewards:
-					</p>
-					{Object.keys(props.claimableRewards).map((k, idx) => {
-						return (
-							<div key={idx} className="text-sm">
-								<PoolReward key={k} contractName={k} amount={props.claimableRewards[k]} />
-							</div>
-						)
-					})}
-				</div>
+				{hasReward(Object.values(props.claimableRewards)) && (
+					<div className="text-center">
+						<p className="font-semibold text-sm mt-2">
+							Unstaking will automatically claim your rewards:
+						</p>
+						{Object.keys(props.claimableRewards).map((k, idx) => {
+							return (
+								<div key={idx} className="text-sm">
+									<PoolReward key={k} contractName={k} amount={props.claimableRewards[k]} />
+								</div>
+							)
+						})}
+					</div>
+				)}
 				<Button
 					isLoading={isSubmitting}
 					isDisabled={inputUnstake === '' || isSubmitting}

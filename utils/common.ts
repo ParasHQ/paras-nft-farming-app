@@ -147,3 +147,10 @@ export const prettyTruncate = (str: string | null = '', len = 8, type: string) =
 	}
 	return str
 }
+
+export const hasReward = (rewards: string[]) => {
+	const rewardIdx = rewards.findIndex((val) => {
+		return JSBI.greaterThan(JSBI.BigInt(val), JSBI.BigInt(0))
+	})
+	return rewardIdx > -1 ? true : false
+}

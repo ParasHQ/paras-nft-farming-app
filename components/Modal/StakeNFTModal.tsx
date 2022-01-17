@@ -15,7 +15,7 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import { prettyBalance } from 'utils/common'
+import { hasReward, prettyBalance } from 'utils/common'
 import InfoModal from './InfoModal'
 
 interface StakeNFTModalProps extends ModalCommonProps {
@@ -139,19 +139,20 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 							</div>
 						</div>
 					</div>
-
-					<div className="text-center">
-						<p className="font-semibold text-sm mt-2">
-							Staking will automatically claim your rewards:
-						</p>
-						{Object.keys(props.claimableRewards).map((k, idx) => {
-							return (
-								<div key={idx} className="text-sm">
-									<PoolReward key={k} contractName={k} amount={props.claimableRewards[k]} />
-								</div>
-							)
-						})}
-					</div>
+					{hasReward(Object.values(props.claimableRewards)) && (
+						<div className="text-center">
+							<p className="font-semibold text-sm mt-2">
+								Staking will automatically claim your rewards:
+							</p>
+							{Object.keys(props.claimableRewards).map((k, idx) => {
+								return (
+									<div key={idx} className="text-sm">
+										<PoolReward key={k} contractName={k} amount={props.claimableRewards[k]} />
+									</div>
+								)
+							})}
+						</div>
+					)}
 
 					{isLoading ? (
 						<div className="mt-4 w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">

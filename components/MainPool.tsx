@@ -95,6 +95,33 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				},
 			})
 
+			const farmEndDate =
+				farmDetails.start_at +
+				(farmDetails.session_interval * farmDetails.total_reward) / farmDetails.reward_per_session
+
+			// check if already started or expired
+			const currentTs = new Date().getTime() / 1000
+			if (farmDetails.start_at > currentTs || currentTs > farmEndDate) {
+				console.log(`${JSON.stringify(farmDetails)} inactive`)
+				continue
+			}
+
+			if (startDate) {
+				if (farmDetails.start_at < startDate) {
+					startDate = farmDetails.start_at
+				}
+			} else {
+				startDate = farmDetails.start_at
+			}
+
+			if (endDate) {
+				if (farmEndDate < endDate) {
+					endDate = farmEndDate
+				}
+			} else {
+				endDate = farmEndDate
+			}
+
 			if (accountId) {
 				const unclaimedReward = await near.nearViewFunction({
 					contractName: CONTRACT.FARM,
@@ -130,26 +157,6 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				).toString()
 			} else {
 				totalRewards[farmDetails.reward_token] = JSBI.BigInt(farmTotalRewardPerWeek).toString()
-			}
-
-			const farmEndDate =
-				farmDetails.start_at +
-				(farmDetails.session_interval * farmDetails.total_reward) / farmDetails.reward_per_session
-
-			if (startDate) {
-				if (farmDetails.start_at < startDate) {
-					startDate = farmDetails.start_at
-				}
-			} else {
-				startDate = farmDetails.start_at
-			}
-
-			if (endDate) {
-				if (farmEndDate < endDate) {
-					endDate = farmEndDate
-				}
-			} else {
-				endDate = farmEndDate
 			}
 		}
 

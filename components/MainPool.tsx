@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
 import { useCallback, useEffect, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
+import near, { CONTRACT, getAmount } from 'services/near'
 import axios from 'axios'
 import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
@@ -16,7 +16,7 @@ import PoolAPR from './Common/PoolAPR'
 import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
-import { FunctionCall } from 'near-api-js/lib/transaction'
+import { FunctionCallOptions } from 'near-api-js/lib/account'
 
 interface IPoolProcessed {
 	title: string
@@ -221,7 +221,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 
 		const txs: {
 			receiverId: string
-			functionCalls: FunctionCall[]
+			functionCalls: FunctionCallOptions[]
 		}[] = []
 
 		for (const contractName of Object.keys(poolProcessed?.rewards || {})) {
@@ -238,13 +238,13 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 					functionCalls: [
 						{
 							methodName: 'storage_deposit',
-							contractName: contractName,
+							contractId: contractName,
 							args: {
 								registration_only: true,
 								account_id: accountId,
 							},
-							deposit: parseNearAmount('0.0125'),
-							gas: GAS_FEE[30],
+							attachedDeposit: getAmount(parseNearAmount('0.0125')),
+							gas: getAmount(GAS_FEE[30]),
 						},
 					],
 				})
@@ -256,13 +256,13 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 			functionCalls: [
 				{
 					methodName: 'claim_reward_by_seed_and_withdraw',
-					contractName: CONTRACT.FARM,
+					contractId: CONTRACT.FARM,
 					args: {
 						seed_id: data.seed_id,
 						token_id: CONTRACT.TOKEN,
 					},
-					deposit: '1',
-					gas: GAS_FEE[300],
+					attachedDeposit: getAmount('1'),
+					gas: getAmount(GAS_FEE[100]),
 				},
 			],
 		})

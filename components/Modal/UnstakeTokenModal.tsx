@@ -4,9 +4,12 @@ import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
+import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
+import { FunctionCallOptions } from 'near-api-js/lib/account'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
+import near, { CONTRACT, getAmount } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface UnstakeTokenModalProps extends ModalCommonProps {
@@ -16,8 +19,10 @@ interface UnstakeTokenModalProps extends ModalCommonProps {
 }
 
 const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
+	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [inputUnstake, setInputUnstake] = useState<number | string>('')
+	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const getStakedBalance = useCallback(async () => {
 		const balanceStaked = await near.nearViewFunction({
@@ -37,16 +42,61 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	}, [props.show, getStakedBalance])
 
 	const unstakeToken = async () => {
-		await near.nearFunctionCall({
-			methodName: 'withdraw_seed',
-			contractName: CONTRACT.FARM,
-			args: {
-				seed_id: props.seedId,
-				amount: parseParasAmount(inputUnstake),
-			},
-			amount: '1',
-			gas: GAS_FEE[100],
-		})
+		try {
+			const txs: {
+				receiverId: string
+				functionCalls: FunctionCallOptions[]
+			}[] = []
+
+			for (const contractName of Object.keys(props.claimableRewards || {})) {
+				const deposited = await near.nearViewFunction({
+					contractName: contractName,
+					methodName: `storage_balance_of`,
+					args: {
+						account_id: near.wallet.getAccountId(),
+					},
+				})
+
+				if (deposited.total === '0') {
+					txs.push({
+						receiverId: contractName,
+						functionCalls: [
+							{
+								methodName: 'storage_deposit',
+								contractId: contractName,
+								args: {
+									registration_only: true,
+									account_id: accountId,
+								},
+								attachedDeposit: getAmount(parseNearAmount('0.00125')),
+								gas: getAmount(GAS_FEE[30]),
+							},
+						],
+					})
+				}
+			}
+
+			txs.push({
+				receiverId: CONTRACT.FARM,
+				functionCalls: [
+					{
+						methodName: 'withdraw_seed',
+						contractId: CONTRACT.FARM,
+						args: {
+							seed_id: props.seedId,
+							amount: parseParasAmount(inputUnstake),
+						},
+						attachedDeposit: getAmount('1'),
+						gas: getAmount(GAS_FEE[100]),
+					},
+				],
+			})
+
+			return await near.executeMultipleTransactions(txs)
+		} catch (err) {
+			console.log(err)
+			setIsSubmitting(false)
+		}
 	}
 
 	return (
@@ -104,7 +154,8 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 					})}
 				</div>
 				<Button
-					isDisabled={inputUnstake === ''}
+					isLoading={isSubmitting}
+					isDisabled={inputUnstake === '' || isSubmitting}
 					onClick={unstakeToken}
 					isFullWidth
 					size="lg"

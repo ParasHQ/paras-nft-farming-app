@@ -6,10 +6,10 @@ import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
-import { FunctionCall } from 'near-api-js/lib/transaction'
+import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
+import near, { CONTRACT, getAmount } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface StakeTokenModalProps extends ModalCommonProps {
@@ -22,6 +22,7 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [inputStake, setInputStake] = useState<string>('')
+	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	useEffect(() => {
 		if (props.show) {
@@ -41,59 +42,64 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 	}
 
 	const stakeToken = async () => {
-		const txs: {
-			receiverId: string
-			functionCalls: FunctionCall[]
-		}[] = []
+		setIsSubmitting(true)
 
-		for (const contractName of Object.keys(props.claimableRewards || {})) {
-			const deposited = await near.nearViewFunction({
-				contractName: contractName,
-				methodName: `storage_balance_of`,
-				args: {
-					account_id: near.wallet.getAccountId(),
-				},
-			})
-			console.log(deposited, contractName)
-			if (deposited.total === '0') {
-				txs.push({
-					receiverId: contractName,
-					functionCalls: [
-						{
-							methodName: 'storage_deposit',
-							contractName: contractName,
-							args: {
-								registration_only: true,
-								account_id: accountId,
-							},
-							deposit: parseNearAmount('0.00125'),
-							gas: GAS_FEE[30],
-						},
-					],
-				})
-			}
-		}
+		try {
+			const txs: {
+				receiverId: string
+				functionCalls: FunctionCallOptions[]
+			}[] = []
 
-		txs.push({
-			receiverId: CONTRACT.TOKEN,
-			functionCalls: [
-				{
-					methodName: 'ft_transfer_call',
-					contractName: CONTRACT.TOKEN,
+			for (const contractName of Object.keys(props.claimableRewards || {})) {
+				const deposited = await near.nearViewFunction({
+					contractName: contractName,
+					methodName: `storage_balance_of`,
 					args: {
-						receiver_id: CONTRACT.FARM,
-						amount: parseParasAmount(inputStake),
-						msg: '',
+						account_id: near.wallet.getAccountId(),
 					},
-					deposit: '1',
-					gas: GAS_FEE[100],
-				},
-			],
-		})
+				})
 
-		console.log(txs)
+				if (deposited.total === '0') {
+					txs.push({
+						receiverId: contractName,
+						functionCalls: [
+							{
+								methodName: 'storage_deposit',
+								contractId: contractName,
+								args: {
+									registration_only: true,
+									account_id: accountId,
+								},
+								attachedDeposit: getAmount(parseNearAmount('0.00125')),
+								gas: getAmount(GAS_FEE[30]),
+							},
+						],
+					})
+				}
+			}
 
-		return await near.executeMultipleTransactions(txs)
+			txs.push({
+				receiverId: CONTRACT.TOKEN,
+				functionCalls: [
+					{
+						methodName: 'ft_transfer_call',
+						contractId: CONTRACT.TOKEN,
+						args: {
+							receiver_id: CONTRACT.FARM,
+							amount: parseParasAmount(inputStake),
+							msg: '',
+						},
+						attachedDeposit: getAmount('1'),
+						gas: getAmount(GAS_FEE[100]),
+					},
+				],
+			})
+
+			return await near.executeMultipleTransactions(txs)
+		} catch (err) {
+			console.log(err)
+			setIsSubmitting(false)
+		}
 	}
 
 	return (
@@ -150,7 +156,8 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 					})}
 				</div>
 				<Button
-					isDisabled={inputStake === ''}
+					isLoading={isSubmitting}
+					isDisabled={inputStake === '' || isSubmitting}
 					onClick={stakeToken}
 					isFullWidth
 					size="lg"

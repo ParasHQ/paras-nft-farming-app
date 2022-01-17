@@ -9,8 +9,10 @@ import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
+import { FunctionCallOptions } from 'near-api-js/lib/account'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
+import near, { CONTRACT, getAmount } from 'services/near'
 import { prettyBalance } from 'utils/common'
 
 interface UnstakeNFTModalProps extends ModalCommonProps {
@@ -65,18 +67,62 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 		}
 	}, [accountId, props.seedId, props.show, stakedNFT.length])
 
-	const unstakeNFT = (tokenId: string, contractId: string) => {
-		near.nearFunctionCall({
-			contractName: CONTRACT.FARM,
-			methodName: 'withdraw_nft',
-			args: {
-				seed_id: props.seedId,
-				nft_contract_id: contractId,
-				nft_token_id: tokenId,
-			},
-			amount: '1',
-			gas: GAS_FEE[300],
-		})
+	const unstakeNFT = async (tokenId: string, contractId: string) => {
+		try {
+			const txs: {
+				receiverId: string
+				functionCalls: FunctionCallOptions[]
+			}[] = []
+
+			for (const contractName of Object.keys(props.claimableRewards || {})) {
+				const deposited = await near.nearViewFunction({
+					contractName: contractName,
+					methodName: `storage_balance_of`,
+					args: {
+						account_id: near.wallet.getAccountId(),
+					},
+				})
+
+				if (deposited.total === '0') {
+					txs.push({
+						receiverId: contractName,
+						functionCalls: [
+							{
+								methodName: 'storage_deposit',
+								contractId: contractName,
+								args: {
+									registration_only: true,
+									account_id: accountId,
+								},
+								attachedDeposit: getAmount(parseNearAmount('0.00125')),
+								gas: getAmount(GAS_FEE[30]),
+							},
+						],
+					})
+				}
+			}
+
+			txs.push({
+				receiverId: CONTRACT.FARM,
+				functionCalls: [
+					{
+						methodName: 'withdraw_nft',
+						contractId: CONTRACT.FARM,
+						args: {
+							seed_id: props.seedId,
+							nft_contract_id: contractId,
+							nft_token_id: tokenId,
+						},
+						attachedDeposit: getAmount('1'),
+						gas: getAmount(GAS_FEE[100]),
+					},
+				],
+			})
+
+			return await near.executeMultipleTransactions(txs)
+		} catch (err) {
+			console.log(err)
+		}
 	}
 
 	return (
@@ -95,7 +141,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 					<div className="w-1/5" />
 				</div>
 
-				<p className="font-semibold text-sm mt-2 text-center">
+				<div className="font-semibold text-sm mt-2 text-center">
 					Unstaking will automatically claim your rewards:
 					{Object.keys(props.claimableRewards).map((k, idx) => {
 						return (
@@ -104,7 +150,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 							</div>
 						)
 					})}
-				</p>
+				</div>
 
 				{isLoading ? (
 					<div className="mt-4 w-full h-[50vh] md:h-[60vh] flex flex-col items-center justify-center">

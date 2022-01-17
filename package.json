@@ -23,6 +23,7 @@
 		"react-tooltip": "^4.2.21"
 	},
 	"devDependencies": {
+		"@types/bn.js": "^5.1.0",
 		"@types/node": "16.11.6",
 		"@types/react": "17.0.34",
 		"@typescript-eslint/eslint-plugin": "^5.9.0",

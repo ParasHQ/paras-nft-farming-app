@@ -6,6 +6,7 @@ import near, { CONTRACT } from 'services/near'
 import { IPool } from 'interfaces'
 import Head from 'components/Common/Head'
 import MainPool from 'components/MainPool'
+import Loader from 'components/Common/Loader'
 
 interface IUserStaked {
 	[key: string]: string
@@ -73,7 +74,11 @@ const Home: NextPage = () => {
 	}, [accountId])
 
 	if (!Array.isArray(poolList) || poolList.length === 0) {
-		return <div>Loading</div>
+		return (
+			<div>
+				<Loader isLoading={true} />
+			</div>
+		)
 	}
 
 	return (

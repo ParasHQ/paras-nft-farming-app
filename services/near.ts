@@ -2,9 +2,10 @@ import { Near, keyStores, WalletConnection } from 'near-api-js'
 import getConfig from './config'
 import BN from 'bn.js'
 import { GAS_FEE } from 'constants/gasFee'
-import { Action, createTransaction, FunctionCall, functionCall } from 'near-api-js/lib/transaction'
+import { Action, createTransaction, functionCall } from 'near-api-js/lib/transaction'
 import { PublicKey } from 'near-api-js/lib/utils'
 import { base_decode } from 'near-api-js/lib/utils/serialize'
+import { FunctionCallOptions } from 'near-api-js/lib/account'
 
 interface IViewFunction {
 	contractName: string
@@ -24,7 +25,8 @@ export const CONTRACT = {
 	FARM: process.env.NEXT_PUBLIC_NFT_FARM_CONTRACT || '',
 }
 
-export const getAmount = (amount: string | undefined) => (amount ? new BN(amount) : new BN('0'))
+export const getAmount = (amount: string | null | undefined) =>
+	amount ? new BN(amount) : new BN('0')
 
 class NearClass {
 	public near!: Near
@@ -112,7 +114,7 @@ class NearClass {
 	public async executeMultipleTransactions(
 		transactions: {
 			receiverId: string
-			functionCalls: FunctionCall[]
+			functionCalls: FunctionCallOptions[]
 		}[],
 		callbackUrl?: string
 	) {
@@ -122,7 +124,7 @@ class NearClass {
 					receiverId: t.receiverId,
 					nonceOffset: i + 1,
 					actions: t.functionCalls.map((fc) =>
-						functionCall(fc.methodName, fc.args, fc.gas, fc.deposit)
+						functionCall(fc.methodName, fc.args, fc.gas as BN, fc.attachedDeposit as BN)
 					),
 				})
 			})

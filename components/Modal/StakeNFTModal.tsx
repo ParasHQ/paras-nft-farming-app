@@ -11,8 +11,10 @@ import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
+import { FunctionCallOptions } from 'near-api-js/lib/account'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
+import near, { CONTRACT, getAmount } from 'services/near'
 import { prettyBalance } from 'utils/common'
 import InfoModal from './InfoModal'
 
@@ -33,6 +35,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 	const [ownedNFT, setOwnedNFT] = useState<INFToken[]>([])
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [showInfoPool, setShowInfoPool] = useState<boolean>(false)
+
 	const { accountId } = useNearProvider()
 
 	useEffect(() => {
@@ -59,17 +62,61 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 	}, [props.show, accountId, props.seedId, ownedNFT.length])
 
 	const stakeNFT = async (tokenId: string, contractId: string) => {
-		await near.nearFunctionCall({
-			contractName: contractId,
-			methodName: 'nft_transfer_call',
-			amount: '1',
-			args: {
-				receiver_id: CONTRACT.FARM,
-				token_id: tokenId,
-				msg: props.seedId,
-			},
-			gas: GAS_FEE[300],
-		})
+		try {
+			const txs: {
+				receiverId: string
+				functionCalls: FunctionCallOptions[]
+			}[] = []
+
+			for (const contractName of Object.keys(props.claimableRewards || {})) {
+				const deposited = await near.nearViewFunction({
+					contractName: contractName,
+					methodName: `storage_balance_of`,
+					args: {
+						account_id: near.wallet.getAccountId(),
+					},
+				})
+
+				if (deposited.total === '0') {
+					txs.push({
+						receiverId: contractName,
+						functionCalls: [
+							{
+								methodName: 'storage_deposit',
+								contractId: contractName,
+								args: {
+									registration_only: true,
+									account_id: accountId,
+								},
+								attachedDeposit: getAmount(parseNearAmount('0.00125')),
+								gas: getAmount(GAS_FEE[30]),
+							},
+						],
+					})
+				}
+			}
+
+			txs.push({
+				receiverId: contractId,
+				functionCalls: [
+					{
+						methodName: 'nft_transfer_call',
+						contractId: contractId,
+						args: {
+							receiver_id: CONTRACT.FARM,
+							token_id: tokenId,
+							msg: props.seedId,
+						},
+						attachedDeposit: getAmount('1'),
+						gas: getAmount(GAS_FEE[100]),
+					},
+				],
+			})
+
+			return await near.executeMultipleTransactions(txs)
+		} catch (err) {
+			console.log(err)
+		}
 	}
 
 	return (

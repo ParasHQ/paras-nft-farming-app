@@ -25,19 +25,13 @@ const PoolReward = ({ contractName, amount }: PoolRewardProps) => {
 	}, [])
 
 	if (!data) {
-		return (
-			<div>
-				<p>Loading...</p>
-			</div>
-		)
+		return <p>Loading...</p>
 	}
 
 	return (
-		<div>
-			<p>
-				{prettyBalance(amount, data.decimals, 3)} {data.symbol}
-			</p>
-		</div>
+		<p>
+			{prettyBalance(amount, data.decimals, 3)} {data.symbol}
+		</p>
 	)
 }
 

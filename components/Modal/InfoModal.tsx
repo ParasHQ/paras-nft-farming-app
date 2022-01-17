@@ -74,13 +74,9 @@ const InfoModal = (props: InfoModalProps) => {
 					<div className="absolute right-0 top-0 -m-4 cursor-pointer" onClick={props.onClose}>
 						<IconClose />
 					</div>
-					<div>NFT that can be applied in this pool</div>
+					<div>Eligible NFTs</div>
 				</div>
-				<div className="text-sm opacity-80 mb-4">
-					Paragraph description about the Pool. Lorem ipsum dolor sit amet, consectetur adipiscing
-					elit. Cras mollis a velit sed tristique. Nunc vehicula urna ac tempor condimentum.
-					Praesent bibendum id orci ac condimentum.
-				</div>
+
 				<div className="flex text-sm justify-between mb-2">
 					<div>NFT</div>
 					<div>Link</div>

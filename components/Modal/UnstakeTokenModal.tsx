@@ -144,7 +144,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 				{hasReward(Object.values(props.claimableRewards)) && (
 					<div className="text-center">
 						<p className="font-semibold text-sm mt-2">
-							Unstaking will automatically claim your rewards:
+							Unstaking will claim the rewards to your wallet:
 						</p>
 						{Object.keys(props.claimableRewards).map((k, idx) => {
 							return (

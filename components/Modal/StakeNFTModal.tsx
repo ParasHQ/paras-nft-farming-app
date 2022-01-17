@@ -142,7 +142,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 					{hasReward(Object.values(props.claimableRewards)) && (
 						<div className="text-center">
 							<p className="font-semibold text-sm mt-2">
-								Staking will automatically claim your rewards:
+								Staking will claim your rewards to your wallet:
 							</p>
 							{Object.keys(props.claimableRewards).map((k, idx) => {
 								return (

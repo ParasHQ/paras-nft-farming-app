@@ -143,7 +143,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 
 				{hasReward(Object.values(props.claimableRewards)) && (
 					<div className="font-semibold text-sm mt-2 text-center">
-						Unstaking will automatically claim your rewards:
+						Unstaking will claim the rewards to your wallet:
 						{Object.keys(props.claimableRewards).map((k, idx) => {
 							return (
 								<div key={idx} className="text-sm">

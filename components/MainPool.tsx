@@ -17,6 +17,7 @@ import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
+import ReactTooltip from 'react-tooltip'
 
 interface IPoolProcessed {
 	title: string
@@ -321,6 +322,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 
 	return (
 		<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
+			<ReactTooltip html={true} />
 			{FTPoolModal()}
 			{NFTPoolModal()}
 			<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
@@ -336,11 +338,19 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 					<div className="flex justify-between mt-4">
 						<div>
 							<p className="opacity-75">Total Staked</p>
-							<p className="text-4xl font-semibold">
-								{type === 'ft'
-									? `$${toHumanReadableNumbers(poolProcessed.totalStaked)}`
-									: `${toHumanReadableNumbers(poolProcessed.totalStaked)} Pts`}
-							</p>
+							{type === 'ft' && (
+								<p
+									className="text-4xl font-semibold"
+									data-tip={`<p class="text-base">${prettyBalance(data.amount, 18, 4)} Ⓟ</p>`}
+								>
+									${toHumanReadableNumbers(poolProcessed.totalStaked)}
+								</p>
+							)}
+							{type === 'nft' && (
+								<p className="text-4xl font-semibold">
+									{toHumanReadableNumbers(poolProcessed.totalStaked)} Pts
+								</p>
+							)}
 						</div>
 						<div className="text-right">
 							<p className="opacity-75">APR</p>

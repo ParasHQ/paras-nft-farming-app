@@ -330,7 +330,9 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 						<div>
 							<p className="opacity-75">Total Staked</p>
 							<p className="text-4xl font-semibold">
-								${toHumanReadableNumbers(poolProcessed.totalStaked)}
+								{type === 'ft'
+									? `$${toHumanReadableNumbers(poolProcessed.totalStaked)}`
+									: `${toHumanReadableNumbers(poolProcessed.totalStaked)} Pts`}
 							</p>
 						</div>
 						<div className="text-right">
@@ -385,7 +387,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 									<p className="opacity-75">Staked NFT</p>
 								</div>
 								<div className="text-right">
-									<p>{userStaked ? `${prettyBalance(userStaked, 18)} Ⓟ` : '-'} </p>
+									<p>{userStaked ? `${prettyBalance(userStaked, 18)} Pts` : '-'} </p>
 								</div>
 							</div>
 						)}

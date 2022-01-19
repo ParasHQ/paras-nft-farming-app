@@ -22,11 +22,11 @@ import ReactTooltip from 'react-tooltip'
 interface IPoolProcessed {
 	title: string
 	totalStaked: any
+	totalStakedInUSD: any
 	apr: string
 	realAPR: string
 	startDate: number | null
 	endDate: number | null
-	rewardPerWeek: any
 	rewards: {
 		[key: string]: string
 	}
@@ -37,6 +37,7 @@ interface IPoolProcessed {
 	nftPoints?: {
 		[key: string]: string
 	}
+	comingSoon: boolean
 }
 
 interface PoolProps {
@@ -68,11 +69,16 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 		const totalStakedInUSD = data.amount * parasPriceInDecimal
 
 		let startDate = null
+		let allStartDate = 0
 		let endDate = null
-		let totalRewardPerWeek = 0
+		let allEndDate = 0
 		let totalRewardPerYearInUSD = 0
+		let allTotalRewardPerYearInUSD = 0
 
 		const totalRewards: {
+			[key: string]: string
+		} = {}
+		const allTotalRewards: {
 			[key: string]: string
 		} = {}
 		const totalUnclaimedRewards: {
@@ -100,81 +106,115 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				farmDetails.start_at +
 				(farmDetails.session_interval * farmDetails.total_reward) / farmDetails.reward_per_session
 
-			// check if already started or expired
+			// check if hasn't started or expired
 			const currentTs = new Date().getTime() / 1000
 			if (farmDetails.start_at > currentTs || currentTs > farmEndDate) {
 				console.log(`${JSON.stringify(farmDetails)} inactive`)
-				continue
-			}
-
-			if (startDate) {
-				if (farmDetails.start_at < startDate) {
-					startDate = farmDetails.start_at
+				if (allStartDate) {
+					if (farmDetails.start_at < allStartDate) {
+						allStartDate = farmDetails.start_at
+					}
+				} else {
+					allStartDate = farmDetails.start_at
 				}
-			} else {
-				startDate = farmDetails.start_at
-			}
 
-			if (endDate) {
-				if (farmEndDate < endDate) {
-					endDate = farmEndDate
+				if (allEndDate) {
+					if (farmEndDate < allEndDate) {
+						allEndDate = farmEndDate
+					}
+				} else {
+					allEndDate = farmEndDate
 				}
-			} else {
-				endDate = farmEndDate
-			}
 
-			if (accountId) {
-				const unclaimedReward = await near.nearViewFunction({
-					contractName: CONTRACT.FARM,
-					methodName: `get_unclaimed_reward`,
-					args: {
-						account_id: near.wallet.getAccountId(),
-						farm_id: farmId,
-					},
-				})
-				if (totalUnclaimedRewards[farmDetails.reward_token]) {
-					totalUnclaimedRewards[farmDetails.reward_token] = JSBI.add(
-						JSBI.BigInt(unclaimedReward),
-						JSBI.BigInt(totalUnclaimedRewards[farmDetails.reward_token])
+				const farmTotalRewardPerWeek =
+					(farmDetails.reward_per_session * 86400 * 7) / farmDetails.session_interval
+				const farmTotalRewardPerWeekInUSD = farmTotalRewardPerWeek * parasPriceInDecimal
+
+				const farmTotalRewardPerYearInUSD = farmTotalRewardPerWeekInUSD * 52
+				allTotalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
+
+				if (allTotalRewards[farmDetails.reward_token]) {
+					allTotalRewards[farmDetails.reward_token] = JSBI.add(
+						JSBI.BigInt(allTotalRewards[farmDetails.reward_token]),
+						JSBI.BigInt(farmTotalRewardPerWeek)
 					).toString()
 				} else {
-					totalUnclaimedRewards[farmDetails.reward_token] = unclaimedReward
+					allTotalRewards[farmDetails.reward_token] = JSBI.BigInt(farmTotalRewardPerWeek).toString()
 				}
-			}
-
-			const farmTotalRewardPerWeek =
-				(farmDetails.reward_per_session * 86400 * 7) / farmDetails.session_interval
-			const farmTotalRewardPerWeekInUSD = farmTotalRewardPerWeek * parasPriceInDecimal
-
-			totalRewardPerWeek += farmTotalRewardPerWeek
-
-			const farmTotalRewardPerYearInUSD = farmTotalRewardPerWeekInUSD * 52
-			totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
-
-			if (totalRewards[farmDetails.reward_token]) {
-				totalRewards[farmDetails.reward_token] = JSBI.add(
-					JSBI.BigInt(totalRewards[farmDetails.reward_token]),
-					JSBI.BigInt(farmTotalRewardPerWeek)
-				).toString()
 			} else {
-				totalRewards[farmDetails.reward_token] = JSBI.BigInt(farmTotalRewardPerWeek).toString()
+				if (startDate) {
+					if (farmDetails.start_at < startDate) {
+						startDate = farmDetails.start_at
+					}
+				} else {
+					startDate = farmDetails.start_at
+				}
+
+				if (endDate) {
+					if (farmEndDate < endDate) {
+						endDate = farmEndDate
+					}
+				} else {
+					endDate = farmEndDate
+				}
+
+				if (accountId) {
+					const unclaimedReward = await near.nearViewFunction({
+						contractName: CONTRACT.FARM,
+						methodName: `get_unclaimed_reward`,
+						args: {
+							account_id: near.wallet.getAccountId(),
+							farm_id: farmId,
+						},
+					})
+					if (totalUnclaimedRewards[farmDetails.reward_token]) {
+						totalUnclaimedRewards[farmDetails.reward_token] = JSBI.add(
+							JSBI.BigInt(unclaimedReward),
+							JSBI.BigInt(totalUnclaimedRewards[farmDetails.reward_token])
+						).toString()
+					} else {
+						totalUnclaimedRewards[farmDetails.reward_token] = unclaimedReward
+					}
+				}
+
+				const farmTotalRewardPerWeek =
+					(farmDetails.reward_per_session * 86400 * 7) / farmDetails.session_interval
+				const farmTotalRewardPerWeekInUSD = farmTotalRewardPerWeek * parasPriceInDecimal
+
+				const farmTotalRewardPerYearInUSD = farmTotalRewardPerWeekInUSD * 52
+				totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
+
+				if (totalRewards[farmDetails.reward_token]) {
+					totalRewards[farmDetails.reward_token] = JSBI.add(
+						JSBI.BigInt(totalRewards[farmDetails.reward_token]),
+						JSBI.BigInt(farmTotalRewardPerWeek)
+					).toString()
+				} else {
+					totalRewards[farmDetails.reward_token] = JSBI.BigInt(farmTotalRewardPerWeek).toString()
+				}
 			}
 		}
 
-		const APR = totalStakedInUSD > 0 ? (totalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
+		// if has no start date, means the pool is coming soon
+		// use all data instead of active data
+		const activeAPR = totalStakedInUSD > 0 ? (totalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
+		const allAPR = totalStakedInUSD > 0 ? (allTotalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
+
+		const APR = startDate ? activeAPR : allAPR
 
 		const poolData: IPoolProcessed = {
 			title: data.title,
 			media: data.media,
 			apr: APR > 9999 ? `9,999%+` : `${prettyBalance(APR.toString(), 0, 1)}%`,
 			realAPR: `${prettyBalance(APR.toString(), 0, 1)}%`,
-			totalStaked: totalStakedInUSD,
-			rewardPerWeek: totalRewardPerWeek,
-			rewards: totalRewards,
-			startDate: startDate ? startDate * 1000 : null,
-			endDate: endDate ? endDate * 1000 : null,
+			totalStaked: data.amount / 10 ** 18,
+			totalStakedInUSD: totalStakedInUSD,
+			rewards: startDate ? totalRewards : allTotalRewards,
+			startDate: startDate ? startDate * 1000 : allStartDate * 1000,
+			endDate: endDate ? endDate * 1000 : allEndDate * 1000,
 			claimableRewards: totalUnclaimedRewards,
 			nftPoints: seedDetails.nft_balance,
+			comingSoon: startDate ? false : true,
 		}
 
 		setPoolProcessed(poolData)
@@ -321,165 +361,182 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 	}
 
 	return (
-		<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
-			<ReactTooltip html={true} />
-			{FTPoolModal()}
-			{NFTPoolModal()}
-			<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
-				<div className="absolute inset-0 opacity-20">
-					<div className="text-center h-full overflow-hidden">
-						{poolProcessed.media && (
-							<img className="w-full h-full" alt={poolProcessed.title} src={poolProcessed.media} />
-						)}
+		<div className="relative">
+			{poolProcessed.comingSoon && (
+				<div className="absolute -mt-3 z-30 text-center w-full">
+					<div className="bg-gray-100 text-parasGrey inline-block px-4 rounded-md font-semibold">
+						Coming Soon
 					</div>
 				</div>
-				<div className="relative">
-					<p className="text-3xl font-bold text-center">{poolProcessed.title}</p>
-					<div className="flex justify-between mt-4">
-						<div>
-							<p className="opacity-75">Total Staked</p>
+			)}
+			<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
+				<ReactTooltip html={true} />
+				{FTPoolModal()}
+				{NFTPoolModal()}
+				<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
+					<div className="absolute inset-0 opacity-20">
+						<div className="text-center h-full overflow-hidden">
+							{poolProcessed.media && (
+								<img
+									className="w-full h-full"
+									alt={poolProcessed.title}
+									src={poolProcessed.media}
+								/>
+							)}
+						</div>
+					</div>
+					<div className="relative">
+						<p className="text-3xl font-bold text-center">{poolProcessed.title}</p>
+						<div className="flex justify-between mt-4">
+							<div>
+								<p className="opacity-75">Total Staked</p>
+								{type === 'ft' && (
+									<p
+										className="text-4xl font-semibold"
+										data-tip={`<p class="text-base">${prettyBalance(data.amount, 18, 4)} Ⓟ</p>`}
+									>
+										${toHumanReadableNumbers(poolProcessed.totalStakedInUSD)}
+									</p>
+								)}
+								{type === 'nft' && (
+									<p className="text-4xl font-semibold">
+										{toHumanReadableNumbers(poolProcessed.totalStaked)} Pts
+									</p>
+								)}
+							</div>
+							<div className="text-right">
+								<p className="opacity-75">APR</p>
+								<PoolAPR
+									rewardsPerWeek={poolProcessed.rewards}
+									totalStakedInUSD={poolProcessed.totalStakedInUSD}
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div className="px-4 pb-4">
+					<div>
+						<div className="mt-4">
+							<div className="flex justify-between">
+								<div>
+									<p className="opacity-75">Start Date</p>
+									<p>{dayjs(poolProcessed.startDate).format('MMM D, YYYY')}</p>
+								</div>
+								<div className="text-right">
+									<p className="opacity-75">End Date</p>
+									<p>{dayjs(poolProcessed.endDate).format('MMM D, YYYY')}</p>
+								</div>
+							</div>
+						</div>
+						<div className="mt-4">
+							<div className="flex justify-between">
+								<div>
+									<p className="opacity-75">Reward per Week</p>
+								</div>
+								<div className="text-right">
+									{Object.keys(poolProcessed.rewards).map((k) => {
+										return <PoolReward key={k} contractName={k} amount={poolProcessed.rewards[k]} />
+									})}
+								</div>
+							</div>
 							{type === 'ft' && (
-								<p
-									className="text-4xl font-semibold"
-									data-tip={`<p class="text-base">${prettyBalance(data.amount, 18, 4)} Ⓟ</p>`}
-								>
-									${toHumanReadableNumbers(poolProcessed.totalStaked)}
-								</p>
+								<div className="flex justify-between mt-1">
+									<div>
+										<p className="opacity-75">Staked PARAS</p>
+									</div>
+									<div className="text-right">
+										<p>{userStaked ? `${prettyBalance(userStaked, 18)} Ⓟ` : '-'} </p>
+									</div>
+								</div>
 							)}
 							{type === 'nft' && (
-								<p className="text-4xl font-semibold">
-									{toHumanReadableNumbers(poolProcessed.totalStaked)} Pts
-								</p>
+								<div className="flex justify-between mt-1">
+									<div>
+										<p className="opacity-75">Staked NFT</p>
+									</div>
+									<div className="text-right">
+										<p>{userStaked ? `${prettyBalance(userStaked, 18)} Pts` : '-'} </p>
+									</div>
+								</div>
 							)}
 						</div>
-						<div className="text-right">
-							<p className="opacity-75">APR</p>
-							<PoolAPR
-								rewardsPerWeek={poolProcessed.rewards}
-								totalStakedInUSD={poolProcessed.totalStaked}
-							/>
+						<div className="mt-4">
+							{type === 'ft' && (
+								<div className="flex justify-between -mx-4">
+									<div className="w-1/2 px-4">
+										<Button isFullWidth onClick={() => onClickActionButton('stakePARAS')}>
+											Stake PARAS
+										</Button>
+									</div>
+									<div className="w-1/2 px-4 text-right">
+										<Button
+											color="blue-gray"
+											isFullWidth
+											onClick={() => onClickActionButton('unstakePARAS')}
+										>
+											Unstake PARAS
+										</Button>
+									</div>
+								</div>
+							)}
+							{type === 'nft' && (
+								<div className="flex justify-between -mx-4">
+									<div className="w-1/2 px-4">
+										<Button
+											isFullWidth
+											className=""
+											onClick={() => onClickActionButton('stakeNFT')}
+										>
+											Stake NFT
+										</Button>
+									</div>
+									<div className="w-1/2 px-4 text-right">
+										<Button
+											isFullWidth
+											color="blue-gray"
+											onClick={() => onClickActionButton('unstakeNFT')}
+										>
+											Unstake NFT
+										</Button>
+									</div>
+								</div>
+							)}
 						</div>
 					</div>
-				</div>
-			</div>
-
-			<div className="px-4 pb-4">
-				<div>
-					<div className="mt-4">
-						<div className="flex justify-between">
-							<div>
-								<p className="opacity-75">Start Date</p>
-								<p>{dayjs(poolProcessed.startDate).format('MMM D, YYYY')}</p>
-							</div>
-							<div className="text-right">
-								<p className="opacity-75">End Date</p>
-								<p>{dayjs(poolProcessed.endDate).format('MMM D, YYYY')}</p>
-							</div>
-						</div>
-					</div>
-					<div className="mt-4">
-						<div className="flex justify-between">
-							<div>
-								<p className="opacity-75">Reward per Week</p>
-							</div>
-							<div className="text-right">
-								{Object.keys(poolProcessed.rewards).map((k) => {
-									return <PoolReward key={k} contractName={k} amount={poolProcessed.rewards[k]} />
-								})}
-							</div>
-						</div>
-						{type === 'ft' && (
-							<div className="flex justify-between mt-1">
-								<div>
-									<p className="opacity-75">Staked PARAS</p>
+					{accountId && (
+						<div className="mt-4">
+							<div className="flex justify-between items-center p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
+								<div className="w-2/3">
+									<p className="opacity-75">Claimable Rewards</p>
+									{Object.keys(poolProcessed.claimableRewards).map((k) => {
+										return (
+											<PoolReward
+												key={k}
+												contractName={k}
+												amount={poolProcessed.claimableRewards[k]}
+											/>
+										)
+									})}
 								</div>
-								<div className="text-right">
-									<p>{userStaked ? `${prettyBalance(userStaked, 18)} Ⓟ` : '-'} </p>
-								</div>
-							</div>
-						)}
-						{type === 'nft' && (
-							<div className="flex justify-between mt-1">
-								<div>
-									<p className="opacity-75">Staked NFT</p>
-								</div>
-								<div className="text-right">
-									<p>{userStaked ? `${prettyBalance(userStaked, 18)} Pts` : '-'} </p>
-								</div>
-							</div>
-						)}
-					</div>
-					<div className="mt-4">
-						{type === 'ft' && (
-							<div className="flex justify-between -mx-4">
-								<div className="w-1/2 px-4">
-									<Button isFullWidth onClick={() => onClickActionButton('stakePARAS')}>
-										Stake PARAS
-									</Button>
-								</div>
-								<div className="w-1/2 px-4 text-right">
+								<div className="w-1/3">
 									<Button
-										color="blue-gray"
+										isDisabled={
+											Object.values(poolProcessed.claimableRewards).findIndex(
+												(x) => Number(x) > 0
+											) === -1
+										}
 										isFullWidth
-										onClick={() => onClickActionButton('unstakePARAS')}
+										color="green"
+										onClick={claimRewards}
 									>
-										Unstake PARAS
+										Claim
 									</Button>
 								</div>
-							</div>
-						)}
-						{type === 'nft' && (
-							<div className="flex justify-between -mx-4">
-								<div className="w-1/2 px-4">
-									<Button isFullWidth className="" onClick={() => onClickActionButton('stakeNFT')}>
-										Stake NFT
-									</Button>
-								</div>
-								<div className="w-1/2 px-4 text-right">
-									<Button
-										isFullWidth
-										color="blue-gray"
-										onClick={() => onClickActionButton('unstakeNFT')}
-									>
-										Unstake NFT
-									</Button>
-								</div>
-							</div>
-						)}
-					</div>
-				</div>
-				{accountId && (
-					<div className="mt-4">
-						<div className="flex justify-between items-center p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
-							<div className="w-2/3">
-								<p className="opacity-75">Claimable Rewards</p>
-								{Object.keys(poolProcessed.claimableRewards).map((k) => {
-									return (
-										<PoolReward
-											key={k}
-											contractName={k}
-											amount={poolProcessed.claimableRewards[k]}
-										/>
-									)
-								})}
-							</div>
-							<div className="w-1/3">
-								<Button
-									isDisabled={
-										Object.values(poolProcessed.claimableRewards).findIndex(
-											(x) => Number(x) > 0
-										) === -1
-									}
-									isFullWidth
-									color="green"
-									onClick={claimRewards}
-								>
-									Claim
-								</Button>
 							</div>
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 			</div>
 		</div>
 	)

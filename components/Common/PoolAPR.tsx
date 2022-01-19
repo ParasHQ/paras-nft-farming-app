@@ -65,7 +65,7 @@ const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
 		getMetadata()
 	}, [rewardsPerWeek])
 
-	if (!data) {
+	if (data === null) {
 		return (
 			<div>
 				<p>Loading...</p>

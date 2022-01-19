@@ -90,7 +90,9 @@ const Home: NextPage = () => {
 						<MainPool type="ft" data={poolListFT[0]} staked={userStaked[poolListFT[0].seed_id]} />
 					</div>
 					<div className="mt-12">
-						<p className="text-white text-3xl font-semibold text-center">NFT Staking</p>
+						{poolList.length > 0 && (
+							<p className="text-white text-3xl font-semibold text-center">NFT Staking</p>
+						)}
 						<div className="flex flex-wrap">
 							{poolList.map((pool, idx) => {
 								return (

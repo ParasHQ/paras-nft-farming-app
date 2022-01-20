@@ -33,7 +33,7 @@ class NearClass {
 	public wallet!: WalletConnection
 
 	public init(callback?: () => void) {
-		const config = getConfig(process.env.APP_ENV || 'development')
+		const config = getConfig(process.env.NEXT_APP_ENV || 'development')
 		const near = new Near({
 			keyStore: new keyStores.BrowserLocalStorageKeyStore(),
 			...config,

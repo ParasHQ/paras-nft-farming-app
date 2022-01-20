@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import { prettyBalance } from 'utils/common'
+import { CONTRACT } from 'services/near'
 
 interface IFTPriceData {
 	url: string
@@ -21,12 +22,12 @@ interface PoolAPRProps {
 }
 
 const contractPriceMap: IContractPriceData = {
-	'dev-1631277489384-75412609538902': {
+	[CONTRACT.TOKEN]: {
 		url: 'https://api.coingecko.com/api/v3/simple/price?ids=PARAS&vs_currencies=USD',
 		symbol: `paras`,
 		decimals: 18,
 	},
-	'wrap.testnet': {
+	[CONTRACT.WRAP]: {
 		url: 'https://api.coingecko.com/api/v3/simple/price?ids=NEAR&vs_currencies=USD',
 		symbol: 'near',
 		decimals: 24,

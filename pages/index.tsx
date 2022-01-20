@@ -72,7 +72,7 @@ const Home: NextPage = () => {
 		}
 	}, [accountId])
 
-	if (!Array.isArray(poolList) || poolList.length === 0) {
+	if (!Array.isArray(poolListFT) || poolListFT.length === 0) {
 		return (
 			<div>
 				<Loader isLoading={true} />

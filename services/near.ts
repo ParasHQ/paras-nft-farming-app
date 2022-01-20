@@ -23,6 +23,7 @@ interface IFunctionCall extends IViewFunction {
 export const CONTRACT = {
 	TOKEN: process.env.NEXT_PUBLIC_PARAS_TOKEN_CONTRACT || '',
 	FARM: process.env.NEXT_PUBLIC_NFT_FARM_CONTRACT || '',
+	WRAP: process.env.NEXT_PUBLIC_WRAP_NEAR_CONTRACT || '',
 }
 
 export const getAmount = (amount: string | null | undefined) =>
@@ -47,7 +48,7 @@ class NearClass {
 	}
 
 	public signIn() {
-		this.wallet.requestSignIn('example-contract.testnet', 'Paras NFT Farm')
+		this.wallet.requestSignIn(CONTRACT.FARM, 'Paras NFT Farm')
 	}
 
 	public signOut() {

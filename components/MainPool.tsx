@@ -1,0 +1,545 @@
+import dayjs from 'dayjs'
+import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
+import Button from './Common/Button'
+import { useCallback, useEffect, useState } from 'react'
+import near, { CONTRACT, getAmount } from 'services/near'
+import axios from 'axios'
+import StakeTokenModal from './Modal/StakeTokenModal'
+import UnstakeTokenModal from './Modal/UnstakeTokenModal'
+import { GAS_FEE } from 'constants/gasFee'
+import { useNearProvider } from 'hooks/useNearProvider'
+import { IFarm, IPool } from 'interfaces'
+import PoolLoader from './Common/PoolLoader'
+import JSBI from 'jsbi'
+import PoolReward from './Common/PoolReward'
+import PoolAPR from './Common/PoolAPR'
+import StakeNFTModal from './Modal/StakeNFTModal'
+import UnstakeNFTModal from './Modal/UnstakeNFTModal'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
+import { FunctionCallOptions } from 'near-api-js/lib/account'
+import ReactTooltip from 'react-tooltip'
+
+interface IPoolProcessed {
+	title: string
+	totalStaked: any
+	totalStakedInUSD: any
+	apr: string
+	realAPR: string
+	startDate: number | null
+	endDate: number | null
+	rewards: {
+		[key: string]: string
+	}
+	claimableRewards: {
+		[key: string]: string
+	}
+	media: string
+	nftPoints?: {
+		[key: string]: string
+	}
+	comingSoon: boolean
+}
+
+interface PoolProps {
+	type: string
+	data: IPool
+	staked?: string
+	stakedNFT?: string[]
+}
+
+type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
+
+const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
+	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
+	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
+	const [showModal, setShowModal] = useState<TShowModal>(null)
+	const [userStaked, setUserStaked] = useState<string | null>(null)
+
+	const getParasPrice = async () => {
+		const resp = await axios.get(
+			'https://api.coingecko.com/api/v3/simple/price?ids=PARAS&vs_currencies=USD'
+		)
+		return resp.data.paras.usd
+	}
+
+	const getFarms = useCallback(async () => {
+		const parasPrice = await getParasPrice()
+		const parasPriceInDecimal = parasPrice / 10 ** 18
+
+		const totalStakedInUSD = data.amount * parasPriceInDecimal
+
+		let startDate = null
+		let allStartDate = 0
+		let endDate = null
+		let allEndDate = 0
+		let totalRewardPerYearInUSD = 0
+		let allTotalRewardPerYearInUSD = 0
+
+		const totalRewards: {
+			[key: string]: string
+		} = {}
+		const allTotalRewards: {
+			[key: string]: string
+		} = {}
+		const totalUnclaimedRewards: {
+			[key: string]: string
+		} = {}
+
+		const seedDetails = await near.nearViewFunction({
+			contractName: CONTRACT.FARM,
+			methodName: `get_seed_info`,
+			args: {
+				seed_id: data.seed_id,
+			},
+		})
+
+		for (const farmId of data.farms) {
+			const farmDetails: IFarm = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `get_farm`,
+				args: {
+					farm_id: farmId,
+				},
+			})
+
+			const farmEndDate =
+				farmDetails.start_at +
+				(farmDetails.session_interval * farmDetails.total_reward) / farmDetails.reward_per_session
+
+			// check if hasn't started or expired
+			const currentTs = new Date().getTime() / 1000
+			if (farmDetails.start_at > currentTs || currentTs > farmEndDate) {
+				console.log(`${JSON.stringify(farmDetails)} inactive`)
+				if (allStartDate) {
+					if (farmDetails.start_at < allStartDate) {
+						allStartDate = farmDetails.start_at
+					}
+				} else {
+					allStartDate = farmDetails.start_at
+				}
+
+				if (allEndDate) {
+					if (farmEndDate < allEndDate) {
+						allEndDate = farmEndDate
+					}
+				} else {
+					allEndDate = farmEndDate
+				}
+
+				const farmTotalRewardPerWeek =
+					(farmDetails.reward_per_session * 86400 * 7) / farmDetails.session_interval
+				const farmTotalRewardPerWeekInUSD = farmTotalRewardPerWeek * parasPriceInDecimal
+
+				const farmTotalRewardPerYearInUSD = farmTotalRewardPerWeekInUSD * 52
+				allTotalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
+
+				if (allTotalRewards[farmDetails.reward_token]) {
+					allTotalRewards[farmDetails.reward_token] = JSBI.add(
+						JSBI.BigInt(allTotalRewards[farmDetails.reward_token]),
+						JSBI.BigInt(farmTotalRewardPerWeek)
+					).toString()
+				} else {
+					allTotalRewards[farmDetails.reward_token] = JSBI.BigInt(farmTotalRewardPerWeek).toString()
+				}
+			} else {
+				if (startDate) {
+					if (farmDetails.start_at < startDate) {
+						startDate = farmDetails.start_at
+					}
+				} else {
+					startDate = farmDetails.start_at
+				}
+
+				if (endDate) {
+					if (farmEndDate < endDate) {
+						endDate = farmEndDate
+					}
+				} else {
+					endDate = farmEndDate
+				}
+
+				if (accountId) {
+					const unclaimedReward = await near.nearViewFunction({
+						contractName: CONTRACT.FARM,
+						methodName: `get_unclaimed_reward`,
+						args: {
+							account_id: near.wallet.getAccountId(),
+							farm_id: farmId,
+						},
+					})
+					if (totalUnclaimedRewards[farmDetails.reward_token]) {
+						totalUnclaimedRewards[farmDetails.reward_token] = JSBI.add(
+							JSBI.BigInt(unclaimedReward),
+							JSBI.BigInt(totalUnclaimedRewards[farmDetails.reward_token])
+						).toString()
+					} else {
+						totalUnclaimedRewards[farmDetails.reward_token] = unclaimedReward
+					}
+				}
+
+				const farmTotalRewardPerWeek =
+					(farmDetails.reward_per_session * 86400 * 7) / farmDetails.session_interval
+				const farmTotalRewardPerWeekInUSD = farmTotalRewardPerWeek * parasPriceInDecimal
+
+				const farmTotalRewardPerYearInUSD = farmTotalRewardPerWeekInUSD * 52
+				totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
+
+				if (totalRewards[farmDetails.reward_token]) {
+					totalRewards[farmDetails.reward_token] = JSBI.add(
+						JSBI.BigInt(totalRewards[farmDetails.reward_token]),
+						JSBI.BigInt(farmTotalRewardPerWeek)
+					).toString()
+				} else {
+					totalRewards[farmDetails.reward_token] = JSBI.BigInt(farmTotalRewardPerWeek).toString()
+				}
+			}
+		}
+
+		// if has no start date, means the pool is coming soon
+		// use all data instead of active data
+		const activeAPR = totalStakedInUSD > 0 ? (totalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
+		const allAPR = totalStakedInUSD > 0 ? (allTotalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
+
+		const APR = startDate ? activeAPR : allAPR
+
+		const poolData: IPoolProcessed = {
+			title: data.title,
+			media: data.media,
+			apr: APR > 9999 ? `9,999%+` : `${prettyBalance(APR.toString(), 0, 1)}%`,
+			realAPR: `${prettyBalance(APR.toString(), 0, 1)}%`,
+			totalStaked: data.amount / 10 ** 18,
+			totalStakedInUSD: totalStakedInUSD,
+			rewards: startDate ? totalRewards : allTotalRewards,
+			startDate: startDate ? startDate * 1000 : allStartDate * 1000,
+			endDate: endDate ? endDate * 1000 : allEndDate * 1000,
+			claimableRewards: totalUnclaimedRewards,
+			nftPoints: seedDetails.nft_balance,
+			comingSoon: startDate ? false : true,
+		}
+
+		setPoolProcessed(poolData)
+	}, [data.amount, data.title, data.media, data.farms, accountId])
+
+	const FTPoolModal = () => {
+		return (
+			<>
+				<StakeTokenModal
+					seedId={data.seed_id}
+					title={data.title}
+					show={showModal === 'stakePARAS'}
+					onClose={() => setShowModal(null)}
+					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
+				/>
+				<UnstakeTokenModal
+					seedId={data.seed_id}
+					title={data.title}
+					show={showModal === 'unstakePARAS'}
+					onClose={() => setShowModal(null)}
+					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
+				/>
+			</>
+		)
+	}
+
+	const NFTPoolModal = () => {
+		return (
+			<>
+				<StakeNFTModal
+					seedId={data.seed_id}
+					nftPoints={poolProcessed && poolProcessed.nftPoints ? poolProcessed.nftPoints : {}}
+					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
+					title={data.title}
+					show={showModal === 'stakeNFT'}
+					onClose={() => setShowModal(null)}
+				/>
+				<UnstakeNFTModal
+					seedId={data.seed_id}
+					nftPoints={poolProcessed && poolProcessed.nftPoints ? poolProcessed.nftPoints : {}}
+					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
+					title={data.title}
+					show={showModal === 'unstakeNFT'}
+					onClose={() => setShowModal(null)}
+				/>
+			</>
+		)
+	}
+
+	const claimRewards = async () => {
+		if (!accountId) return
+
+		const txs: {
+			receiverId: string
+			functionCalls: FunctionCallOptions[]
+		}[] = []
+
+		for (const contractName of Object.keys(poolProcessed?.rewards || {})) {
+			const deposited = await near.nearViewFunction({
+				contractName: contractName,
+				methodName: `storage_balance_of`,
+				args: {
+					account_id: near.wallet.getAccountId(),
+				},
+			})
+			if (!deposited) {
+				txs.push({
+					receiverId: contractName,
+					functionCalls: [
+						{
+							methodName: 'storage_deposit',
+							contractId: contractName,
+							args: {
+								registration_only: true,
+								account_id: accountId,
+							},
+							attachedDeposit: getAmount(parseNearAmount('0.0125')),
+							gas: getAmount(GAS_FEE[30]),
+						},
+					],
+				})
+			}
+		}
+
+		txs.push({
+			receiverId: CONTRACT.FARM,
+			functionCalls: [
+				{
+					methodName: 'claim_reward_by_seed_and_withdraw',
+					contractId: CONTRACT.FARM,
+					args: {
+						seed_id: data.seed_id,
+						token_id: CONTRACT.TOKEN,
+					},
+					attachedDeposit: getAmount('1'),
+					gas: getAmount(GAS_FEE[150]),
+				},
+			],
+		})
+
+		return await near.executeMultipleTransactions(txs)
+	}
+
+	const onClickActionButton = (type: TShowModal) => {
+		if (!accountId) {
+			setCommonModal('login')
+			return
+		}
+
+		if (!hasDeposit) {
+			setCommonModal('deposit')
+			return
+		}
+
+		setShowModal(type)
+	}
+
+	useEffect(() => {
+		if (type === 'nft' && stakedNFT) {
+			const nftPtsStaked = stakedNFT.reduce((a, b) => {
+				const pts =
+					poolProcessed && poolProcessed.nftPoints
+						? poolProcessed.nftPoints[b] || poolProcessed.nftPoints[b.split(':')[0]]
+						: '0'
+				return JSBI.add(a, JSBI.BigInt(pts))
+			}, JSBI.BigInt(0))
+
+			setUserStaked(nftPtsStaked.toString())
+		}
+	}, [type, stakedNFT, poolProcessed])
+
+	useEffect(() => {
+		if (type === 'ft' && staked) {
+			setUserStaked(staked)
+		}
+	}, [type, staked])
+
+	useEffect(() => {
+		getFarms()
+	}, [getFarms])
+
+	if (!poolProcessed) {
+		return <PoolLoader />
+	}
+
+	return (
+		<div className="relative">
+			{poolProcessed.comingSoon && (
+				<div className="absolute -mt-3 z-30 text-center w-full">
+					<div className="bg-gray-100 text-parasGrey inline-block px-4 rounded-md font-semibold">
+						Coming Soon
+					</div>
+				</div>
+			)}
+			<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
+				<ReactTooltip html={true} />
+				{FTPoolModal()}
+				{NFTPoolModal()}
+				<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
+					<div className="absolute inset-0 opacity-20">
+						<div className="text-center h-full overflow-hidden">
+							{poolProcessed.media && (
+								<img
+									className="w-full h-full"
+									alt={poolProcessed.title}
+									src={poolProcessed.media}
+								/>
+							)}
+						</div>
+					</div>
+					<div className="relative">
+						<p className="text-3xl font-bold text-center">{poolProcessed.title}</p>
+						<div className="flex justify-between mt-4">
+							<div>
+								<p className="opacity-75">Total Staked</p>
+								{type === 'ft' && (
+									<p
+										className="text-4xl font-semibold"
+										data-tip={`<p class="text-base">${prettyBalance(data.amount, 18, 4)} Ⓟ</p>`}
+									>
+										${toHumanReadableNumbers(poolProcessed.totalStakedInUSD)}
+									</p>
+								)}
+								{type === 'nft' && (
+									<p className="text-4xl font-semibold">
+										{toHumanReadableNumbers(poolProcessed.totalStaked)} Pts
+									</p>
+								)}
+							</div>
+							<div className="text-right">
+								<p className="opacity-75">APR</p>
+								<PoolAPR
+									rewardsPerWeek={poolProcessed.rewards}
+									totalStakedInUSD={poolProcessed.totalStakedInUSD}
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div className="px-4 pb-4">
+					<div>
+						<div className="mt-4">
+							<div className="flex justify-between">
+								<div>
+									<p className="opacity-75">Start Date</p>
+									<p>{dayjs(poolProcessed.startDate).format('MMM D, YYYY')}</p>
+								</div>
+								<div className="text-right">
+									<p className="opacity-75">End Date</p>
+									<p>{dayjs(poolProcessed.endDate).format('MMM D, YYYY')}</p>
+								</div>
+							</div>
+						</div>
+						<div className="mt-4">
+							<div className="flex justify-between">
+								<div>
+									<p className="opacity-75">Reward per Week</p>
+								</div>
+								<div className="text-right">
+									{Object.keys(poolProcessed.rewards).map((k) => {
+										return <PoolReward key={k} contractName={k} amount={poolProcessed.rewards[k]} />
+									})}
+								</div>
+							</div>
+							{type === 'ft' && (
+								<div className="flex justify-between mt-1">
+									<div>
+										<p className="opacity-75">Staked PARAS</p>
+									</div>
+									<div className="text-right">
+										<p>{userStaked ? `${prettyBalance(userStaked, 18)} Ⓟ` : '-'} </p>
+									</div>
+								</div>
+							)}
+							{type === 'nft' && (
+								<div className="flex justify-between mt-1">
+									<div>
+										<p className="opacity-75">Staked NFT</p>
+									</div>
+									<div className="text-right">
+										<p>{userStaked ? `${prettyBalance(userStaked, 18)} Pts` : '-'} </p>
+									</div>
+								</div>
+							)}
+						</div>
+						<div className="mt-4">
+							{type === 'ft' && (
+								<div className="flex justify-between -mx-4">
+									<div className="w-1/2 px-4">
+										<Button isFullWidth onClick={() => onClickActionButton('stakePARAS')}>
+											Stake PARAS
+										</Button>
+									</div>
+									<div className="w-1/2 px-4 text-right">
+										<Button
+											color="blue-gray"
+											isFullWidth
+											onClick={() => onClickActionButton('unstakePARAS')}
+										>
+											Unstake PARAS
+										</Button>
+									</div>
+								</div>
+							)}
+							{type === 'nft' && (
+								<div className="flex justify-between -mx-4">
+									<div className="w-1/2 px-4">
+										<Button
+											isFullWidth
+											className=""
+											onClick={() => onClickActionButton('stakeNFT')}
+										>
+											Stake NFT
+										</Button>
+									</div>
+									<div className="w-1/2 px-4 text-right">
+										<Button
+											isFullWidth
+											color="blue-gray"
+											onClick={() => onClickActionButton('unstakeNFT')}
+										>
+											Unstake NFT
+										</Button>
+									</div>
+								</div>
+							)}
+						</div>
+					</div>
+					{accountId && (
+						<div className="mt-4">
+							<div className="flex justify-between items-center p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
+								<div className="w-2/3">
+									<p className="opacity-75">Claimable Rewards</p>
+									{Object.keys(poolProcessed.claimableRewards).map((k) => {
+										return (
+											<PoolReward
+												key={k}
+												contractName={k}
+												amount={poolProcessed.claimableRewards[k]}
+											/>
+										)
+									})}
+								</div>
+								<div className="w-1/3">
+									<Button
+										isDisabled={
+											Object.values(poolProcessed.claimableRewards).findIndex(
+												(x) => Number(x) > 0
+											) === -1
+										}
+										isFullWidth
+										color="green"
+										onClick={claimRewards}
+									>
+										Claim
+									</Button>
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+			</div>
+		</div>
+	)
+}
+
+export default MainPool

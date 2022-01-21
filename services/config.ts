@@ -1,4 +1,4 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME || 'near-blank-project'
+const CONTRACT_NAME = process.env.NEXT_PUBLIC_NFT_FARM_CONTRACT || 'near-blank-project'
 
 export default function getConfig(env: string) {
 	switch (env) {

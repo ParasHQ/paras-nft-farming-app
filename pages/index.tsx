@@ -1,63 +1,111 @@
-import Pool from 'components/Pool'
+import Header from 'components/Common/Header'
+import { useNearProvider } from 'hooks/useNearProvider'
 import type { NextPage } from 'next'
+import { useEffect, useState } from 'react'
+import near, { CONTRACT } from 'services/near'
+import { IPool } from 'interfaces'
+import Head from 'components/Common/Head'
+import MainPool from 'components/MainPool'
+import Loader from 'components/Common/Loader'
 
-const DUMMY_POOL = [
-	{
-		title: `Pillars of Paras Pool`,
-		image: `https://paras-ipfs.s3.ap-southeast-1.amazonaws.com/bafybeiarzwl5svvygc7jjoes2xniizawxyj5qweq2ppdvkcmtr3xe6qvq4`,
-		totalStaked: `150000`,
-		apr: `69`,
-		startDate: new Date().getTime(),
-		endDate: new Date().getTime(),
-		rewardPerWeek: `69000000000000000000000`,
-		userStaked: `12000000000000000000000`,
-		nftMultiplier: 42,
-		claimableRewards: `2000000000000000000000`,
-	},
-	{
-		title: `Pillars of Paras Pool`,
-		image: `https://paras-ipfs.s3.ap-southeast-1.amazonaws.com/bafybeiarzwl5svvygc7jjoes2xniizawxyj5qweq2ppdvkcmtr3xe6qvq4`,
-		totalStaked: `150000`,
-		apr: `69`,
-		startDate: new Date().getTime(),
-		endDate: new Date().getTime(),
-		rewardPerWeek: `69000000000000000000000`,
-		userStaked: `12000000000000000000000`,
-		nftMultiplier: 42,
-		claimableRewards: `2000000000000000000000`,
-	},
-	{
-		title: `Pillars of Paras Pool`,
-		image: `https://paras-ipfs.s3.ap-southeast-1.amazonaws.com/bafybeiarzwl5svvygc7jjoes2xniizawxyj5qweq2ppdvkcmtr3xe6qvq4`,
-		totalStaked: `150000`,
-		apr: `69`,
-		startDate: new Date().getTime(),
-		endDate: new Date().getTime(),
-		rewardPerWeek: `69000000000000000000000`,
-		userStaked: `12000000000000000000000`,
-		nftMultiplier: 42,
-		claimableRewards: `2000000000000000000000`,
-	},
-]
+interface IUserStaked {
+	[key: string]: string
+}
+
+interface IUserStakedNFT {
+	[key: string]: string[]
+}
 
 const Home: NextPage = () => {
-	return (
-		<div className="bg-gray-900 min-h-screen">
-			<div className="p-4">
-				<p className="text-3xl text-white text-center font-bold">PARAS Staking</p>
+	const { isInit, accountId } = useNearProvider()
+	const [poolListFT, setPoolListFT] = useState<IPool[]>([])
+	const [poolList, setPoolList] = useState<IPool[]>([])
+	const [userStaked, setUserStaked] = useState<IUserStaked>({})
+	const [userStakedNFT, setUserStakedNFT] = useState<IUserStakedNFT>({})
+
+	useEffect(() => {
+		const getPoolList = async () => {
+			const poolList: IPool[] = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `list_seeds_info`,
+				args: {
+					from_index: 0,
+					limit: 10,
+				},
+			})
+			const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
+			const poolNFT = Object.values(poolList).filter((x) => x.seed_type === 'NFT')
+
+			setPoolListFT(poolFT)
+			setPoolList(poolNFT)
+		}
+
+		if (isInit) {
+			getPoolList()
+		}
+	}, [isInit])
+
+	useEffect(() => {
+		const getUserStaked = async () => {
+			const userStakedToken = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `list_user_seeds`,
+				args: {
+					account_id: accountId,
+				},
+			})
+
+			const userStakedNFTData = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `list_user_nft_seeds`,
+				args: {
+					account_id: accountId,
+				},
+			})
+
+			setUserStaked(userStakedToken)
+			setUserStakedNFT(userStakedNFTData)
+		}
+
+		if (accountId) {
+			getUserStaked()
+		}
+	}, [accountId])
+
+	if (!Array.isArray(poolListFT) || poolListFT.length === 0) {
+		return (
+			<div>
+				<Loader isLoading={true} />
 			</div>
-			<div className="max-w-6xl mx-auto">
-				<div className="flex flex-wrap ">
-					{DUMMY_POOL.map((x, idx) => {
-						return (
-							<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>
-								<Pool data={x} />
-							</div>
-						)
-					})}
+		)
+	}
+
+	return (
+		<>
+			<Head />
+			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
+				<Header />
+				<div className="mt-4 max-w-6xl mx-auto">
+					<div className="md:max-w-md mx-auto p-4">
+						<MainPool type="ft" data={poolListFT[0]} staked={userStaked[poolListFT[0].seed_id]} />
+					</div>
+					<div className="mt-12">
+						{poolList.length > 0 && (
+							<p className="text-white text-3xl font-semibold text-center">NFT Staking</p>
+						)}
+						<div className="flex flex-wrap">
+							{poolList.map((pool, idx) => {
+								return (
+									<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>
+										<MainPool type="nft" data={pool} stakedNFT={userStakedNFT[pool.seed_id]} />
+									</div>
+								)
+							})}
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	)
 }
 

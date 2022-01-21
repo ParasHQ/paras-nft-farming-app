@@ -88,6 +88,15 @@ const Home: NextPage = () => {
 				<div className="mt-4 max-w-6xl mx-auto">
 					<div className="md:max-w-md mx-auto p-4">
 						<MainPool type="ft" data={poolListFT[0]} staked={userStaked[poolListFT[0].seed_id]} />
+						<p className="text-white text-center text-sm mt-3">
+							<span className="opacity-80">Learn more about PARAS Staking </span>
+							<a
+								className="font-bold text-white opacity-100 border-b-2 border-transparent hover:border-gray-100"
+								href="https://paras.id/publication/now-live-earn-more-paras-by-paras-nft-staking-61e97465e26ebffd22443d4a "
+							>
+								HERE
+							</a>
+						</p>
 					</div>
 					<div className="mt-12">
 						{poolList.length > 0 && (

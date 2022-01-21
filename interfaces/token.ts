@@ -9,15 +9,15 @@ export interface INFToken {
 		title: string
 		description: string
 		media: string
-		media_hash: any
+		media_hash: never
 		copies: number
 		issued_at: string
-		expires_at: any
-		starts_at: any
-		updated_at: any
-		extra: any
+		expires_at: never
+		starts_at: never
+		updated_at: never
+		extra: never
 		reference: string
-		reference_hash: any
+		reference_hash: never
 		collection: string
 		collection_id: string
 		creator_id: string
@@ -25,7 +25,7 @@ export interface INFToken {
 	}
 	royalty: { [key: string]: number }
 	price: null | string
-	approval_id: any
-	ft_token_id: any
+	approval_id: never
+	ft_token_id: never
 	categories: []
 }

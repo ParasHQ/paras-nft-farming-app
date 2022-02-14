@@ -119,7 +119,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				}
 
 				if (allEndDate) {
-					if (farmEndDate < allEndDate) {
+					if (allEndDate < farmEndDate) {
 						allEndDate = farmEndDate
 					}
 				} else {
@@ -151,7 +151,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				}
 
 				if (endDate) {
-					if (farmEndDate < endDate) {
+					if (endDate < farmEndDate) {
 						endDate = farmEndDate
 					}
 				} else {

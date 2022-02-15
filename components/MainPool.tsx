@@ -8,7 +8,7 @@ import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
-import { IFarm, IPool } from 'interfaces'
+import { IFarm, IPool, IReward } from 'interfaces'
 import PoolLoader from './Common/PoolLoader'
 import JSBI from 'jsbi'
 import PoolReward from './Common/PoolReward'
@@ -18,6 +18,7 @@ import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import ReactTooltip from 'react-tooltip'
+import IconInfo from './Icon/IconInfo'
 
 interface IPoolProcessed {
 	title: string
@@ -28,7 +29,7 @@ interface IPoolProcessed {
 	startDate: number | null
 	endDate: number | null
 	rewards: {
-		[key: string]: string
+		[key: string]: IReward
 	}
 	claimableRewards: {
 		[key: string]: string
@@ -76,10 +77,10 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 		let allTotalRewardPerYearInUSD = 0
 
 		const totalRewards: {
-			[key: string]: string
+			[key: string]: IReward
 		} = {}
 		const allTotalRewards: {
-			[key: string]: string
+			[key: string]: IReward
 		} = {}
 		const totalUnclaimedRewards: {
 			[key: string]: string
@@ -134,12 +135,20 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				allTotalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
 
 				if (allTotalRewards[farmDetails.reward_token]) {
-					allTotalRewards[farmDetails.reward_token] = JSBI.add(
-						JSBI.BigInt(allTotalRewards[farmDetails.reward_token]),
-						JSBI.BigInt(farmTotalRewardPerWeek)
-					).toString()
+					allTotalRewards[farmDetails.reward_token] = {
+						amount: JSBI.add(
+							JSBI.BigInt(allTotalRewards[farmDetails.reward_token]),
+							JSBI.BigInt(farmTotalRewardPerWeek)
+						).toString(),
+						startDateTs: farmDetails.start_at,
+						endDateTs: farmEndDate,
+					}
 				} else {
-					allTotalRewards[farmDetails.reward_token] = JSBI.BigInt(farmTotalRewardPerWeek).toString()
+					allTotalRewards[farmDetails.reward_token] = {
+						amount: JSBI.BigInt(farmTotalRewardPerWeek).toString(),
+						startDateTs: farmDetails.start_at,
+						endDateTs: farmEndDate,
+					}
 				}
 			} else {
 				if (startDate) {
@@ -185,12 +194,20 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
 
 				if (totalRewards[farmDetails.reward_token]) {
-					totalRewards[farmDetails.reward_token] = JSBI.add(
-						JSBI.BigInt(totalRewards[farmDetails.reward_token]),
-						JSBI.BigInt(farmTotalRewardPerWeek)
-					).toString()
+					totalRewards[farmDetails.reward_token] = {
+						amount: JSBI.add(
+							JSBI.BigInt(totalRewards[farmDetails.reward_token]),
+							JSBI.BigInt(farmTotalRewardPerWeek)
+						).toString(),
+						startDateTs: farmDetails.start_at,
+						endDateTs: farmEndDate,
+					}
 				} else {
-					totalRewards[farmDetails.reward_token] = JSBI.BigInt(farmTotalRewardPerWeek).toString()
+					totalRewards[farmDetails.reward_token] = {
+						amount: JSBI.BigInt(farmTotalRewardPerWeek).toString(),
+						startDateTs: farmDetails.start_at,
+						endDateTs: farmEndDate,
+					}
 				}
 			}
 		}
@@ -434,9 +451,27 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 								<div>
 									<p className="opacity-75">Reward per Week</p>
 								</div>
-								<div className="text-right">
+								<div className="flex flex-col items-end">
 									{Object.keys(poolProcessed.rewards).map((k) => {
-										return <PoolReward key={k} contractName={k} amount={poolProcessed.rewards[k]} />
+										return (
+											<div
+												key={k}
+												data-tip={`<div>
+												<p class="text-base">Start: ${dayjs(poolProcessed.rewards[k].startDateTs * 1000).format(
+													'MMM D, YYYY h:mm A'
+												)}</p>
+												<p class="text-base">End: ${dayjs(poolProcessed.rewards[k].endDateTs * 1000).format(
+													'MMM D, YYYY h:mm A'
+												)}</p>
+												</div>`}
+												className="flex items-center"
+											>
+												<PoolReward contractName={k} amount={poolProcessed.rewards[k].amount} />
+												<div className="pl-1 opacity-75">
+													<IconInfo className="w-4 h-4" />
+												</div>
+											</div>
+										)
 									})}
 								</div>
 							</div>

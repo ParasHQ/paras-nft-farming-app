@@ -12,6 +12,12 @@ export interface IPool {
 	media: string
 }
 
+export interface IReward {
+	amount: string
+	startDateTs: number
+	endDateTs: number
+}
+
 export interface IFarm {
 	beneficiary_reward: string
 	claimed_reward: string

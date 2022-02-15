@@ -77,7 +77,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 					},
 				})
 
-				if (deposited.total === '0') {
+				if (deposited === null || (deposited && deposited.total === '0')) {
 					txs.push({
 						receiverId: contractName,
 						functionCalls: [
@@ -135,7 +135,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 						</div>
 						<div className="w-1/5 text-right">
 							<div className="inline-block cursor-pointer" onClick={() => setShowInfoPool(true)}>
-								<IconInfo />
+								<IconInfo className="w-6 h-6" />
 							</div>
 						</div>
 					</div>

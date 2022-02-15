@@ -137,7 +137,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				if (allTotalRewards[farmDetails.reward_token]) {
 					allTotalRewards[farmDetails.reward_token] = {
 						amount: JSBI.add(
-							JSBI.BigInt(allTotalRewards[farmDetails.reward_token]),
+							JSBI.BigInt(allTotalRewards[farmDetails.reward_token].amount),
 							JSBI.BigInt(farmTotalRewardPerWeek)
 						).toString(),
 						startDateTs: farmDetails.start_at,
@@ -194,9 +194,10 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
 
 				if (totalRewards[farmDetails.reward_token]) {
+					console.log(totalRewards[farmDetails.reward_token])
 					totalRewards[farmDetails.reward_token] = {
 						amount: JSBI.add(
-							JSBI.BigInt(totalRewards[farmDetails.reward_token]),
+							JSBI.BigInt(totalRewards[farmDetails.reward_token].amount),
 							JSBI.BigInt(farmTotalRewardPerWeek)
 						).toString(),
 						startDateTs: farmDetails.start_at,

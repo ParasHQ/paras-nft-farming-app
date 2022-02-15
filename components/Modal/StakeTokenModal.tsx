@@ -59,7 +59,7 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 					},
 				})
 
-				if (!deposited || (deposited && deposited.total === '0')) {
+				if (deposited === null || (deposited && deposited.total === '0')) {
 					txs.push({
 						receiverId: contractName,
 						functionCalls: [

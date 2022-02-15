@@ -83,7 +83,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 					},
 				})
 
-				if (deposited.total === '0') {
+				if (deposited === null || (deposited && deposited.total === '0')) {
 					txs.push({
 						receiverId: contractName,
 						functionCalls: [

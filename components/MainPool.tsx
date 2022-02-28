@@ -392,7 +392,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				{FTPoolModal()}
 				{NFTPoolModal()}
 				<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
-					<div className="absolute inset-0 opacity-20">
+					<div className="absolute inset-0 opacity-70">
 						<div className="text-center h-full overflow-hidden">
 							{poolProcessed.media && (
 								<img

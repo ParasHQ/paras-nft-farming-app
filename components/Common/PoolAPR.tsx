@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import ReactTooltip from 'react-tooltip'
 import { prettyBalance } from 'utils/common'
 import { CONTRACT } from 'services/near'
+import { IReward } from 'interfaces'
 
 interface IFTPriceData {
 	url: string
@@ -16,7 +16,7 @@ interface IContractPriceData {
 
 interface PoolAPRProps {
 	rewardsPerWeek: {
-		[key: string]: string
+		[key: string]: IReward
 	}
 	totalStakedInUSD: number
 }
@@ -51,7 +51,7 @@ const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
 					contractPriceMap[ftContract].symbol,
 					contractPriceMap[ftContract].decimals
 				)
-				const rewardPerYearInUSD = parseInt(rewardsPerWeek[ftContract]) * 52 * currPrice
+				const rewardPerYearInUSD = parseInt(rewardsPerWeek[ftContract].amount) * 52 * currPrice
 
 				const APR = totalStakedInUSD > 0 ? (rewardPerYearInUSD * 100) / totalStakedInUSD : 0
 				apr[ftContract] = APR
@@ -76,7 +76,6 @@ const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
 
 	return (
 		<div>
-			<ReactTooltip html={true} />
 			<p
 				className="text-4xl font-semibold"
 				data-tip={`<p class="text-base">${prettyBalance(data.toString(), 0, 1)}%</p>`}

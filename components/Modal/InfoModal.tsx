@@ -1,11 +1,6 @@
-import axios from 'axios'
-import Media from 'components/Common/Media'
 import Modal from 'components/Common/Modal'
+import NFTInfo from 'components/Common/NFTInfo'
 import IconClose from 'components/Icon/IconClose'
-import { apiParasUrl } from 'constants/apiURL'
-import { INFToken } from 'interfaces/token'
-import { useEffect, useState } from 'react'
-import { prettyBalance } from 'utils/common'
 
 interface InfoModalProps {
 	show: boolean
@@ -15,97 +10,36 @@ interface InfoModalProps {
 	onClose: () => void
 }
 
-interface NFTProps {
-	contractId: string
-	tokenSeriesId: string
-}
-
-const NFT = ({ contractId, tokenSeriesId }: NFTProps) => {
-	const [data, setData] = useState<INFToken>()
-
-	useEffect(() => {
-		if (contractId && tokenSeriesId) {
-			const fetchNFT = async () => {
-				try {
-					const resp = await axios.get(`${apiParasUrl}/token-series`, {
-						params: {
-							contract_id: contractId,
-							token_series_id: tokenSeriesId,
-						},
-					})
-
-					setData(resp.data.data.results[0])
-				} catch (error) {
-					console.log(error)
-				}
-			}
-
-			fetchNFT()
-		}
-	}, [contractId, tokenSeriesId])
-
-	return (
-		<div className="w-24 h-24 rounded-md overflow-hidden relative">
-			{data?.metadata && (
-				<div className="absolute inset-0">
-					<Media
-						className="h-full object-cover relative z-10 img-hor-vert"
-						url={data.metadata.media}
-						videoControls={false}
-						videoMuted={true}
-						videoLoop={true}
-					/>
-				</div>
-			)}
-		</div>
-	)
-}
-
 const InfoModal = (props: InfoModalProps) => {
-	const formatText = (text: string) => {
-		const [contractId, tokenId] = text.split('@')
-		return `https://paras.id/token/${contractId}::${tokenId}`
-	}
-
 	return (
 		<Modal isShow={props.show} onClose={props.onClose}>
-			<div className="max-w-sm md:max-w-md w-full bg-parasGrey rounded-lg m-auto shadow-xl p-8">
-				<div className="font-medium mb-2 flex gap-3 items-center text-xl relative">
-					<div className="absolute right-0 top-0 -m-4 cursor-pointer" onClick={props.onClose}>
+			<div className="max-w-sm md:max-w-md w-full bg-parasGrey rounded-lg m-auto shadow-xl p-6 md:p-8">
+				<div className="font-bold mb-4 flex gap-3 items-center text-xl relative">
+					<div
+						className="absolute right-0 top-0 -m-3 md:-m-4 cursor-pointer"
+						onClick={props.onClose}
+					>
 						<IconClose />
 					</div>
 					<div>Eligible NFTs</div>
 				</div>
-
-				<div className="flex text-sm justify-between mb-2">
+				<div className="flex text-sm font-medium justify-between">
 					<div>NFT</div>
-					<div>Link</div>
 					<div>Value</div>
 				</div>
-				<div className="h-[40vh] md:h-[50vh] overflow-y-scroll no-scrollbar">
+				<div className="h-[40vh] md:h-[50vh] no-scrollbar">
 					{props.nftPoints &&
 						Object.entries(props.nftPoints).map(([key, value], index) => {
-							const [contract_id, token_series_id] = key.split(`@`)
+							const [contract_id, token] = key.split(`@`)
+							const [token_series_id, token_id] = token.split(`::`)
 							return (
-								<div key={index} className="mt-4 flex items-center justify-between">
-									<div className="w-1/3">
-										<NFT contractId={contract_id} tokenSeriesId={token_series_id.split(':')[0]} />
-									</div>
-
-									<div className="w-1/3">
-										<a
-											href={formatText(key)}
-											target="_blank"
-											className="opacity-80 hover:opacity-60 text-xs"
-											rel="noreferrer"
-										>
-											{formatText(key)}
-										</a>
-									</div>
-									<div className="w-1/3 text-right">
-										<p>{prettyBalance(value, 18, 4)} Pts</p>
-									</div>
-								</div>
+								<NFTInfo
+									key={index}
+									contractId={contract_id}
+									tokenSeriesId={token_series_id}
+									tokenId={token_id}
+									value={value}
+								/>
 							)
 						})}
 				</div>

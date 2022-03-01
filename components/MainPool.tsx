@@ -167,25 +167,6 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 					endDate = farmEndDate
 				}
 
-				if (accountId) {
-					const unclaimedReward = await near.nearViewFunction({
-						contractName: CONTRACT.FARM,
-						methodName: `get_unclaimed_reward`,
-						args: {
-							account_id: near.wallet.getAccountId(),
-							farm_id: farmId,
-						},
-					})
-					if (totalUnclaimedRewards[farmDetails.reward_token]) {
-						totalUnclaimedRewards[farmDetails.reward_token] = JSBI.add(
-							JSBI.BigInt(unclaimedReward),
-							JSBI.BigInt(totalUnclaimedRewards[farmDetails.reward_token])
-						).toString()
-					} else {
-						totalUnclaimedRewards[farmDetails.reward_token] = unclaimedReward
-					}
-				}
-
 				const farmTotalRewardPerWeek =
 					(farmDetails.reward_per_session * 86400 * 7) / farmDetails.session_interval
 				const farmTotalRewardPerWeekInUSD = farmTotalRewardPerWeek * parasPriceInDecimal
@@ -209,6 +190,25 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 						startDateTs: farmDetails.start_at,
 						endDateTs: farmEndDate,
 					}
+				}
+			}
+
+			if (accountId) {
+				const unclaimedReward = await near.nearViewFunction({
+					contractName: CONTRACT.FARM,
+					methodName: `get_unclaimed_reward`,
+					args: {
+						account_id: near.wallet.getAccountId(),
+						farm_id: farmId,
+					},
+				})
+				if (totalUnclaimedRewards[farmDetails.reward_token]) {
+					totalUnclaimedRewards[farmDetails.reward_token] = JSBI.add(
+						JSBI.BigInt(unclaimedReward),
+						JSBI.BigInt(totalUnclaimedRewards[farmDetails.reward_token])
+					).toString()
+				} else {
+					totalUnclaimedRewards[farmDetails.reward_token] = unclaimedReward
 				}
 			}
 		}

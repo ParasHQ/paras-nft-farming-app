@@ -27,7 +27,7 @@ const InfoModal = (props: InfoModalProps) => {
 					<div>NFT</div>
 					<div>Value</div>
 				</div>
-				<div className="h-[40vh] md:h-[50vh] no-scrollbar">
+				<div className="h-[40vh] md:h-[50vh] no-scrollbar overflow-y-auto">
 					{props.nftPoints &&
 						Object.entries(props.nftPoints).map(([key, value], index) => {
 							const [contract_id, token] = key.split(`@`)

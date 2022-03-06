@@ -42,32 +42,36 @@ const NFTInfo = ({ contractId, tokenSeriesId, value }: NFTProps) => {
 	}
 
 	return (
-		<div className="flex items-center mt-4 gap-4">
-			<div className="w-16 rounded-md overflow-hidden relative">
-				{data?.metadata && (
-					<Media
-						className="h-full object-cover relative z-10 img-hor-vert"
-						url={data.metadata.media}
-						videoControls={false}
-						videoMuted={true}
-						videoLoop={true}
-					/>
-				)}
-			</div>
-			<div className="flex-1 truncate w-full">
-				<p
-					onClick={openLink}
-					className="font-bold text-lg truncate cursor-pointer hover:underline inline"
-				>
-					{data?.metadata.title}
-				</p>
-				<p className="text-sm opacity-80 truncate">
-					by {data?.metadata.creator_id || data?.contract_id}
-				</p>
-			</div>
-			<div className="text-right">
-				<p>{prettyBalance(value, 18, 4)} Pts</p>
-			</div>
+		<div>
+			{data?.metadata && (
+				<div className="flex items-center mt-4 gap-4">
+					<div className="w-16 rounded-md overflow-hidden relative">
+						{data?.metadata && (
+							<Media
+								className="h-full object-cover relative z-10 img-hor-vert"
+								url={data.metadata.media}
+								videoControls={false}
+								videoMuted={true}
+								videoLoop={true}
+							/>
+						)}
+					</div>
+					<div className="flex-1 truncate w-full">
+						<p
+							onClick={openLink}
+							className="font-bold text-lg truncate cursor-pointer hover:underline inline"
+						>
+							{data?.metadata.title}
+						</p>
+						<p className="text-sm opacity-80 truncate">
+							by {data?.metadata.creator_id || data?.contract_id}
+						</p>
+					</div>
+					<div className="text-right">
+						<p>{prettyBalance(value, 18, 2)} Pts</p>
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }

@@ -114,7 +114,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 							nft_token_id: tokenId,
 						},
 						attachedDeposit: getAmount('1'),
-						gas: getAmount(GAS_FEE[150]),
+						gas: getAmount(GAS_FEE[200]),
 					},
 				],
 			})

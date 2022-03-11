@@ -355,7 +355,9 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 			const nftPtsStaked = stakedNFT.reduce((a, b) => {
 				const pts =
 					poolProcessed && poolProcessed.nftPoints
-						? poolProcessed.nftPoints[b] || poolProcessed.nftPoints[b.split(':')[0]]
+						? poolProcessed.nftPoints[b] ||
+						  poolProcessed.nftPoints[b.split(':')[0]] ||
+						  poolProcessed.nftPoints[b.split('@')[0]]
 						: '0'
 				return JSBI.add(a, JSBI.BigInt(pts))
 			}, JSBI.BigInt(0))

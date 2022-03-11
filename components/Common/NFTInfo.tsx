@@ -48,7 +48,7 @@ const NFTInfo = ({ contractId, tokenSeriesId, value }: NFTProps) => {
 					<div className="w-16 rounded-md overflow-hidden relative">
 						{data?.metadata && (
 							<Media
-								className="h-full object-cover relative z-10 img-hor-vert"
+								className="h-full object-cover relative z-10"
 								url={data.metadata.media}
 								videoControls={false}
 								videoMuted={true}
@@ -67,7 +67,7 @@ const NFTInfo = ({ contractId, tokenSeriesId, value }: NFTProps) => {
 							by {data?.metadata.creator_id || data?.contract_id}
 						</p>
 					</div>
-					<div className="text-right">
+					<div className="text-right font-bold">
 						<p>{prettyBalance(value, 18, 2)} Pts</p>
 					</div>
 				</div>

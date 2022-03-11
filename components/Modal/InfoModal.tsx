@@ -1,3 +1,4 @@
+import ContractInfo from 'components/Common/ContractInfo'
 import Modal from 'components/Common/Modal'
 import NFTInfo from 'components/Common/NFTInfo'
 import IconClose from 'components/Icon/IconClose'
@@ -69,16 +70,22 @@ const InfoModal = (props: InfoModalProps) => {
 					>
 						{tokens.map(([key, value], index) => {
 							const [contract_id, token] = key.split(`@`)
-							const [token_series_id, token_id] = token.split(`::`)
-							return (
-								<NFTInfo
-									key={index}
-									contractId={contract_id}
-									tokenSeriesId={token_series_id}
-									tokenId={token_id}
-									value={value}
-								/>
-							)
+							if (token) {
+								const [token_series_id, token_id] = token.split(`::`)
+								return (
+									<NFTInfo
+										key={index}
+										contractId={contract_id}
+										tokenSeriesId={token_series_id}
+										tokenId={token_id}
+										value={value}
+									/>
+								)
+							}
+							// For same token value in contract
+							else {
+								return <ContractInfo contractId={contract_id} value={value} />
+							}
 						})}
 					</InfiniteScroll>
 				</div>

@@ -170,7 +170,8 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 										type="unstake"
 										point={prettyBalance(
 											props.nftPoints[`${nft.contract_id}@${nft.token_id}`] ||
-												props.nftPoints[`${nft.contract_id}@${nft.token_series_id}`],
+												props.nftPoints[`${nft.contract_id}@${nft.token_series_id}`] ||
+												props.nftPoints[`${nft.contract_id}`],
 											18,
 											4
 										)}

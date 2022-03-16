@@ -106,6 +106,10 @@ const Header = () => {
 		}
 	}, [showGetParas])
 
+	const openParas = () => {
+		window.location.replace('https://paras.id')
+	}
+
 	return (
 		<div className="sticky top-0 z-50 bg-gray-900">
 			<ProfileModal
@@ -115,7 +119,7 @@ const Header = () => {
 			/>
 			<div className="flex items-center p-4 max-w-6xl mx-auto justify-between">
 				<div className="flex items-center">
-					<div className="w-24">
+					<div className="w-24 cursor-pointer" onClick={openParas}>
 						<IconParas />
 					</div>
 				</div>

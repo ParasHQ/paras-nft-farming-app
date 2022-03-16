@@ -1,6 +1,7 @@
 import axios from 'axios'
 import IconParas from 'components/Icon/IconParas'
 import ProfileModal from 'components/Modal/ProfileModal'
+import { baseURLParas } from 'constants/baseUrl'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IProfile } from 'interfaces'
 import { useEffect, useRef, useState } from 'react'
@@ -107,7 +108,7 @@ const Header = () => {
 	}, [showGetParas])
 
 	const openParas = () => {
-		window.location.replace('https://paras.id')
+		window.location.replace(baseURLParas)
 	}
 
 	return (

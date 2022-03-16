@@ -1,3 +1,4 @@
+import { baseURLParas } from 'constants/baseUrl'
 import { INFToken } from 'interfaces/token'
 import Button from './Button'
 import Media from './Media'
@@ -10,8 +11,8 @@ interface NFTokenFarmProps {
 }
 
 const NFTokenFarm = ({ token, stakeNFT, type, point }: NFTokenFarmProps) => {
-	const tokenUrl = `https://paras.id/token/${token.contract_id}::${token.token_series_id}/${token.token_id}`
-	const collectionUrl = `https://paras.id/collection/${token.metadata.collection_id}`
+	const tokenUrl = `${baseURLParas}/token/${token.contract_id}::${token.token_series_id}/${token.token_id}`
+	const collectionUrl = `${baseURLParas}/collection/${token.metadata.collection_id}`
 
 	return (
 		<div className="flex justify-between mb-4 md:mb-0 p-3 border-2 border-borderGray rounded-xl h-[11rem] shadow-lg overflow-hidden">

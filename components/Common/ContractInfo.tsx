@@ -1,6 +1,7 @@
 import axios from 'axios'
 import Media from 'components/Common/Media'
 import { apiParasUrl } from 'constants/apiURL'
+import { baseURLParas } from 'constants/baseUrl'
 import { ICollection } from 'interfaces/collection'
 import { useEffect, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
@@ -13,7 +14,7 @@ interface NFTProps {
 
 const ContractInfo = ({ contractId, value }: NFTProps) => {
 	const [data, setData] = useState<ICollection>()
-	const formatText = `https://paras.id/collection/${contractId}`
+	const formatText = `${baseURLParas}/collection/${contractId}`
 	const tooltipText = prettyBalance(value, 18, 2)
 
 	useEffect(() => {

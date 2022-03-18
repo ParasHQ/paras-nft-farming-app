@@ -108,7 +108,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 							msg: props.seedId,
 						},
 						attachedDeposit: getAmount('1'),
-						gas: getAmount(GAS_FEE[250]),
+						gas: getAmount(GAS_FEE[200]),
 					},
 				],
 			})

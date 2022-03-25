@@ -32,6 +32,11 @@ const contractPriceMap: IContractPriceData = {
 		symbol: 'near',
 		decimals: 24,
 	},
+	[CONTRACT.REF]: {
+		url: 'https://api.coingecko.com/api/v3/simple/price?ids=ref-finance&vs_currencies=USD',
+		symbol: 'ref-finance',
+		decimals: 18,
+	},
 }
 
 const getPrice = async (url: string, symbol: string, decimals: number) => {

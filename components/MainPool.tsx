@@ -110,7 +110,6 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 			// check if hasn't started or expired
 			const currentTs = new Date().getTime() / 1000
 			if (farmDetails.start_at > currentTs || currentTs > farmEndDate) {
-				console.log(`${JSON.stringify(farmDetails)} inactive`)
 				if (allStartDate) {
 					if (farmDetails.start_at < allStartDate) {
 						allStartDate = farmDetails.start_at
@@ -175,7 +174,6 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
 
 				if (totalRewards[farmDetails.reward_token]) {
-					console.log(totalRewards[farmDetails.reward_token])
 					totalRewards[farmDetails.reward_token] = {
 						amount: JSBI.add(
 							JSBI.BigInt(totalRewards[farmDetails.reward_token].amount),

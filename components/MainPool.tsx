@@ -381,7 +381,19 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	}, [getFarms])
 
 	if (!poolProcessed) {
-		return <PoolLoader />
+		return (
+			<div className={className}>
+				<PoolLoader />
+			</div>
+		)
+	}
+
+	if (filterType === 'ended' && !poolProcessed.expired) {
+		return null
+	}
+
+	if (filterType === 'active' && poolProcessed.expired) {
+		return null
 	}
 
 	return (

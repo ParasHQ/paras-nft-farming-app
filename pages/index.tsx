@@ -3,10 +3,11 @@ import { useNearProvider } from 'hooks/useNearProvider'
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
-import { IPool } from 'interfaces'
+import { IDataInputDropdown, IPool } from 'interfaces'
 import Head from 'components/Common/Head'
 import MainPool from 'components/MainPool'
 import Loader from 'components/Common/Loader'
+import InputDropdown from 'components/Common/InputDropdown'
 
 interface IUserStaked {
 	[key: string]: string
@@ -16,12 +17,19 @@ interface IUserStakedNFT {
 	[key: string]: string[]
 }
 
+const filterData = [
+	{ id: 'all', label: 'All Pool' },
+	{ id: 'active', label: 'Active' },
+	{ id: 'ended', label: 'Ended' },
+]
+
 const Home: NextPage = () => {
 	const { isInit, accountId } = useNearProvider()
 	const [poolListFT, setPoolListFT] = useState<IPool[]>([])
 	const [poolList, setPoolList] = useState<IPool[]>([])
 	const [userStaked, setUserStaked] = useState<IUserStaked>({})
 	const [userStakedNFT, setUserStakedNFT] = useState<IUserStakedNFT>({})
+	const [filterPool, setFilterPool] = useState<IDataInputDropdown>(filterData[0])
 
 	useEffect(() => {
 		const getPoolList = async () => {
@@ -30,7 +38,7 @@ const Home: NextPage = () => {
 				methodName: `list_seeds_info`,
 				args: {
 					from_index: 0,
-					limit: 10,
+					limit: 13,
 				},
 			})
 			const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
@@ -99,16 +107,30 @@ const Home: NextPage = () => {
 							</a>
 						</p>
 					</div>
-					<div className="mt-12">
-						{poolList.length > 0 && (
-							<p className="text-white text-3xl font-semibold text-center">NFT Staking</p>
-						)}
+					<div className="mt-12 relative">
+						<div className="flex justify-center gap-4 md:gap-0 md:block">
+							{poolList.length > 0 && (
+								<p className="text-white text-3xl font-semibold text-center mb-4">NFT Staking</p>
+							)}
+							<div className="md:absolute top-0 right-0 md:pr-4 flex justify-center mb-4">
+								<InputDropdown
+									defaultValue="All Pool"
+									selectItem={setFilterPool}
+									data={filterData}
+								/>
+							</div>
+						</div>
 						<div className="flex flex-wrap">
 							{poolList.map((pool, idx) => {
 								return (
-									<div className="w-full md:w-1/2 lg:w-1/3 p-4" key={idx}>
-										<MainPool type="nft" data={pool} stakedNFT={userStakedNFT[pool.seed_id]} />
-									</div>
+									<MainPool
+										type="nft"
+										data={pool}
+										stakedNFT={userStakedNFT[pool.seed_id]}
+										filterType={filterPool.id}
+										key={idx}
+										className="w-full md:w-1/2 lg:w-1/3 p-4"
+									/>
 								)
 							})}
 						</div>

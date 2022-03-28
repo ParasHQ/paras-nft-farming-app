@@ -29,7 +29,7 @@ const Home: NextPage = () => {
 	const [poolList, setPoolList] = useState<IPool[]>([])
 	const [userStaked, setUserStaked] = useState<IUserStaked>({})
 	const [userStakedNFT, setUserStakedNFT] = useState<IUserStakedNFT>({})
-	const [filterPool, setFilterPool] = useState<IDataInputDropdown>(filterData[0])
+	const [filterPool, setFilterPool] = useState<IDataInputDropdown>(filterData[1])
 
 	useEffect(() => {
 		const getPoolList = async () => {
@@ -114,7 +114,7 @@ const Home: NextPage = () => {
 							)}
 							<div className="md:absolute top-0 right-0 md:pr-4 flex justify-center mb-4">
 								<InputDropdown
-									defaultValue="All Pool"
+									defaultValue={filterPool.label}
 									selectItem={setFilterPool}
 									data={filterData}
 								/>

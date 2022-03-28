@@ -39,6 +39,7 @@ interface IPoolProcessed {
 		[key: string]: string
 	}
 	comingSoon: boolean
+	expired: boolean
 }
 
 interface PoolProps {
@@ -46,11 +47,13 @@ interface PoolProps {
 	data: IPool
 	staked?: string
 	stakedNFT?: string[]
+	filterType?: string
+	className?: string
 }
 
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
-const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
+const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className }: PoolProps) => {
 	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
@@ -217,6 +220,8 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 		const allAPR = totalStakedInUSD > 0 ? (allTotalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
 
 		const APR = startDate ? activeAPR : allAPR
+		const poolStartDate = startDate ? startDate * 1000 : allStartDate * 1000
+		const poolEndDate = endDate ? endDate * 1000 : allEndDate * 1000
 
 		const poolData: IPoolProcessed = {
 			title: data.title,
@@ -226,11 +231,12 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 			totalStaked: data.amount / 10 ** 18,
 			totalStakedInUSD: totalStakedInUSD,
 			rewards: startDate ? totalRewards : allTotalRewards,
-			startDate: startDate ? startDate * 1000 : allStartDate * 1000,
-			endDate: endDate ? endDate * 1000 : allEndDate * 1000,
+			startDate: poolStartDate,
+			endDate: poolEndDate,
 			claimableRewards: totalUnclaimedRewards,
 			nftPoints: seedDetails.nft_balance,
-			comingSoon: startDate ? false : true,
+			comingSoon: poolStartDate < new Date().getTime() ? false : true,
+			expired: poolEndDate > new Date().getTime() ? false : true,
 		}
 
 		setPoolProcessed(poolData)
@@ -357,7 +363,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 						  poolProcessed.nftPoints[b.split(':')[0]] ||
 						  poolProcessed.nftPoints[b.split('@')[0]]
 						: '0'
-				return JSBI.add(a, JSBI.BigInt(pts))
+				return JSBI.add(a, JSBI.BigInt(pts || '0'))
 			}, JSBI.BigInt(0))
 
 			setUserStaked(nftPtsStaked.toString())
@@ -375,15 +381,34 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 	}, [getFarms])
 
 	if (!poolProcessed) {
-		return <PoolLoader />
+		return (
+			<div className={className}>
+				<PoolLoader />
+			</div>
+		)
+	}
+
+	if (filterType === 'ended' && !poolProcessed.expired) {
+		return null
+	}
+
+	if (filterType === 'active' && poolProcessed.expired) {
+		return null
 	}
 
 	return (
-		<div className="relative">
+		<div className={`relative ${poolProcessed.expired && 'saturate-50 opacity-70'} ${className}`}>
 			{poolProcessed.comingSoon && (
-				<div className="absolute -mt-3 z-30 text-center w-full">
+				<div className="absolute -mt-3 z-30 text-center inset-x-0">
 					<div className="bg-gray-100 text-parasGrey inline-block px-4 rounded-md font-semibold">
 						Coming Soon
+					</div>
+				</div>
+			)}
+			{poolProcessed.expired && (
+				<div className="absolute -mt-3 z-30 text-center inset-x-0">
+					<div className="bg-gray-100 text-parasGrey inline-block px-4 rounded-md font-semibold">
+						Expired
 					</div>
 				</div>
 			)}
@@ -519,13 +544,11 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 							{type === 'nft' && (
 								<div className="flex justify-between -mx-4">
 									<div className="w-1/2 px-4">
-										<Button
-											isFullWidth
-											className=""
-											onClick={() => onClickActionButton('stakeNFT')}
-										>
-											Stake NFT
-										</Button>
+										{!poolProcessed.expired && (
+											<Button isFullWidth onClick={() => onClickActionButton('stakeNFT')}>
+												Stake NFT
+											</Button>
+										)}
 									</div>
 									<div className="w-1/2 px-4 text-right">
 										<Button

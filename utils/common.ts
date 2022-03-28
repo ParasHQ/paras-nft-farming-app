@@ -94,8 +94,8 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 	if (url.includes('://')) {
 		const [protocol, path] = url.split('://')
 		if (protocol === 'ipfs') {
+			const cid = new CID(path)
 			if (opts.useOriginal || process.env.APP_ENV !== 'production') {
-				const cid = new CID(path)
 				if (cid.version === 0) {
 					return `https://ipfs-gateway.paras.id/ipfs/${path}`
 				} else {
@@ -105,11 +105,11 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 
 			const transformationList = []
 			if (opts.width) {
-				transformationList.push(`tr:w-${opts.width}`)
+				transformationList.push(`w=${opts.width}`)
 			} else {
-				transformationList.push('tr:w-0.8')
+				transformationList.push('w=800')
 			}
-			return `https://cdn.paras.id/${transformationList.join(',')}/${path}`
+			return `https://paras-cdn.imgix.net/${cid}?${transformationList.join('&')}`
 		}
 		return url
 	} else {
@@ -125,11 +125,11 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 
 			const transformationList = []
 			if (opts.width) {
-				transformationList.push(`tr:w-${opts.width}`)
+				transformationList.push(`w=${opts.width}`)
 			} else {
-				transformationList.push('tr:w-0.8')
+				transformationList.push('w=800')
 			}
-			return `https://paras-cdn.imgix.net/${cid}?q=60`
+			return `https://paras-cdn.imgix.net/${cid}?${transformationList.join('&')}`
 		} catch (err) {
 			return url
 		}

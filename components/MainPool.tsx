@@ -12,7 +12,7 @@ import { IFarm, IPool, IReward } from 'interfaces'
 import PoolLoader from './Common/PoolLoader'
 import JSBI from 'jsbi'
 import PoolReward from './Common/PoolReward'
-import PoolAPR from './Common/PoolAPR'
+import PoolAPR, { contractPriceMap, getPrice } from './Common/PoolAPR'
 import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
@@ -40,6 +40,7 @@ interface IPoolProcessed {
 	}
 	comingSoon: boolean
 	expired: boolean
+	totalPoolReward: number
 }
 
 interface PoolProps {
@@ -78,6 +79,9 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		let allEndDate = 0
 		let totalRewardPerYearInUSD = 0
 		let allTotalRewardPerYearInUSD = 0
+
+		// sum all rewards from the pool
+		let allTotalRewardsPoolInUSD = 0
 
 		const totalRewards: {
 			[key: string]: IReward
@@ -176,6 +180,18 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				const farmTotalRewardPerYearInUSD = farmTotalRewardPerWeekInUSD * 52
 				totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
 
+				const ftTokenDetail = contractPriceMap[farmDetails.reward_token]
+				const ftTokenPriceInUSD = await getPrice(ftTokenDetail.url, ftTokenDetail.symbol)
+				const ftTokenRewardFormatted = JSBI.toNumber(
+					JSBI.divide(
+						JSBI.BigInt(farmDetails.total_reward),
+						JSBI.BigInt(10 ** ftTokenDetail.decimals)
+					)
+				)
+
+				const rewardFarm = ftTokenPriceInUSD * ftTokenRewardFormatted
+				allTotalRewardsPoolInUSD += rewardFarm
+
 				if (totalRewards[farmDetails.reward_token]) {
 					totalRewards[farmDetails.reward_token] = {
 						amount: JSBI.add(
@@ -237,6 +253,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			nftPoints: seedDetails.nft_balance,
 			comingSoon: poolStartDate < new Date().getTime() ? false : true,
 			expired: poolEndDate > new Date().getTime() ? false : true,
+			totalPoolReward: allTotalRewardsPoolInUSD,
 		}
 
 		setPoolProcessed(poolData)
@@ -396,6 +413,13 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		return null
 	}
 
+	if (
+		filterType === 'staked' &&
+		Object.values(poolProcessed.claimableRewards).findIndex((x) => Number(x) > 0) === -1
+	) {
+		return null
+	}
+
 	return (
 		<div className={`relative ${poolProcessed.expired && 'saturate-50 opacity-70'} ${className}`}>
 			{poolProcessed.comingSoon && (
@@ -448,11 +472,23 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 								)}
 							</div>
 							<div className="text-right">
-								<p className="opacity-75">APR</p>
-								<PoolAPR
-									rewardsPerWeek={poolProcessed.rewards}
-									totalStakedInUSD={poolProcessed.totalStakedInUSD}
-								/>
+								{type === 'ft' && (
+									<>
+										<p className="opacity-75">APR</p>
+										<PoolAPR
+											rewardsPerWeek={poolProcessed.rewards}
+											totalStakedInUSD={poolProcessed.totalStakedInUSD}
+										/>
+									</>
+								)}
+								{type === 'nft' && (
+									<>
+										<p className="opacity-75">Total Reward</p>
+										<p className="text-4xl font-semibold">
+											${toHumanReadableNumbers(poolProcessed.totalPoolReward.toString())}
+										</p>
+									</>
+								)}
 							</div>
 						</div>
 					</div>

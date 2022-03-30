@@ -20,6 +20,7 @@ interface IUserStakedNFT {
 const filterData = [
 	{ id: 'all', label: 'All Pool' },
 	{ id: 'active', label: 'Active' },
+	{ id: 'staked', label: 'Staked' },
 	{ id: 'ended', label: 'Ended' },
 ]
 

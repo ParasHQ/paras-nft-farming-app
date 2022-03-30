@@ -413,6 +413,13 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		return null
 	}
 
+	if (
+		filterType === 'staked' &&
+		Object.values(poolProcessed.claimableRewards).findIndex((x) => Number(x) > 0) === -1
+	) {
+		return null
+	}
+
 	return (
 		<div className={`relative ${poolProcessed.expired && 'saturate-50 opacity-70'} ${className}`}>
 			{poolProcessed.comingSoon && (

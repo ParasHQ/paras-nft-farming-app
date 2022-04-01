@@ -421,7 +421,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	}
 
 	return (
-		<div className={`relative ${poolProcessed.expired && 'saturate-50 opacity-70'} ${className}`}>
+		<div className={`relative text-white ${className}`}>
 			{poolProcessed.comingSoon && (
 				<div className="absolute -mt-3 z-30 text-center inset-x-0">
 					<div className="bg-gray-100 text-parasGrey inline-block px-4 rounded-md font-semibold">
@@ -432,14 +432,18 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			{poolProcessed.expired && (
 				<div className="absolute -mt-3 z-30 text-center inset-x-0">
 					<div className="bg-gray-100 text-parasGrey inline-block px-4 rounded-md font-semibold">
-						Expired
+						Ended
 					</div>
 				</div>
 			)}
-			<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
+			{FTPoolModal()}
+			{NFTPoolModal()}
+			<div
+				className={`bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl ${
+					poolProcessed.expired && 'saturate-50 opacity-70'
+				}`}
+			>
 				<ReactTooltip html={true} />
-				{FTPoolModal()}
-				{NFTPoolModal()}
 				<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
 					<div className="absolute inset-0 opacity-20">
 						<div className="text-center h-full overflow-hidden">

@@ -3,7 +3,7 @@ import Media from 'components/Common/Media'
 import { apiParasUrl } from 'constants/apiURL'
 import { INFToken } from 'interfaces/token'
 import { useEffect, useState } from 'react'
-import { prettyBalance } from 'utils/common'
+import { parseImgUrl, prettyBalance } from 'utils/common'
 
 interface NFTProps {
 	contractId: string
@@ -49,7 +49,7 @@ const NFTInfo = ({ contractId, tokenSeriesId, value }: NFTProps) => {
 						{data?.metadata && (
 							<Media
 								className="h-full object-cover relative z-10"
-								url={data.metadata.media}
+								url={parseImgUrl(data.metadata.media, '', { isMediaCdn: data.isMediaCdn })}
 								videoControls={false}
 								videoMuted={true}
 								videoLoop={true}

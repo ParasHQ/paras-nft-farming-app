@@ -1,5 +1,6 @@
 import { baseURLParas } from 'constants/baseUrl'
 import { INFToken } from 'interfaces/token'
+import { parseImgUrl } from 'utils/common'
 import Button from './Button'
 import Media from './Media'
 
@@ -19,7 +20,7 @@ const NFTokenFarm = ({ token, stakeNFT, type, point }: NFTokenFarmProps) => {
 			<div className="w-1/2 pr-4">
 				<div className="w-full h-full">
 					<Media
-						url={token.metadata.media}
+						url={parseImgUrl(token.metadata.media, '', { isMediaCdn: token.isMediaCdn })}
 						videoControls={false}
 						videoMuted={true}
 						videoLoop={true}

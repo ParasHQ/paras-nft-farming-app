@@ -28,4 +28,5 @@ export interface INFToken {
 	approval_id: never
 	ft_token_id: never
 	categories: []
+	isMediaCdn?: boolean
 }

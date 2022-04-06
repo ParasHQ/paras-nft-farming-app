@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Button from 'components/Common/Button'
 import { LogoBounce } from 'components/Common/Loader'
 import Modal from 'components/Common/Modal'
 import NFTokenFarm from 'components/Common/NFTokenFarm'
@@ -67,7 +68,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 		}
 	}, [accountId, props.seedId, props.show, stakedNFT.length])
 
-	const unstakeNFT = async (tokenId: string, contractId: string) => {
+	const unstakeNFT = async (tokenId: string, contractId: string, unstakeAll = false) => {
 		try {
 			const txs: {
 				receiverId: string
@@ -102,22 +103,43 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 				}
 			}
 
-			txs.push({
-				receiverId: CONTRACT.FARM,
-				functionCalls: [
-					{
-						methodName: 'withdraw_nft',
-						contractId: CONTRACT.FARM,
-						args: {
-							seed_id: props.seedId,
-							nft_contract_id: contractId,
-							nft_token_id: tokenId,
+			if (unstakeAll) {
+				stakedNFT.forEach((nft) => {
+					txs.push({
+						receiverId: CONTRACT.FARM,
+						functionCalls: [
+							{
+								methodName: 'withdraw_nft',
+								contractId: CONTRACT.FARM,
+								args: {
+									seed_id: props.seedId,
+									nft_contract_id: nft.contract_id,
+									nft_token_id: nft.token_id,
+								},
+								attachedDeposit: getAmount('1'),
+								gas: getAmount(GAS_FEE[200]),
+							},
+						],
+					})
+				})
+			} else {
+				txs.push({
+					receiverId: CONTRACT.FARM,
+					functionCalls: [
+						{
+							methodName: 'withdraw_nft',
+							contractId: CONTRACT.FARM,
+							args: {
+								seed_id: props.seedId,
+								nft_contract_id: contractId,
+								nft_token_id: tokenId,
+							},
+							attachedDeposit: getAmount('1'),
+							gas: getAmount(GAS_FEE[200]),
 						},
-						attachedDeposit: getAmount('1'),
-						gas: getAmount(GAS_FEE[200]),
-					},
-				],
-			})
+					],
+				})
+			}
 
 			return await near.executeMultipleTransactions(txs)
 		} catch (err) {
@@ -183,6 +205,18 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 								<p>{"You haven't staked any NFT for this Pool"}</p>
 							</div>
 						)}
+					</div>
+				)}
+
+				{stakedNFT.length >= 2 && (
+					<div className="text-right">
+						<Button
+							className="mt-4 px-4"
+							color="blue-gray"
+							onClick={() => unstakeNFT('', '', true)}
+						>
+							Unstake all NFT
+						</Button>
 					</div>
 				)}
 			</div>

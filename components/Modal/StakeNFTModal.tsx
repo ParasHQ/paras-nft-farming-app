@@ -213,7 +213,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 					)}
 					{ownedNFT.length >= 2 && (
 						<div className="text-right">
-							<Button className="mt-4 px-4" onClick={() => stakeNFT('', '', true)}>
+							<Button className="mt-4 px-8" onClick={() => stakeNFT('', '', true)}>
 								Stake all NFT
 							</Button>
 						</div>

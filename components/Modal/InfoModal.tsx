@@ -84,7 +84,7 @@ const InfoModal = (props: InfoModalProps) => {
 							}
 							// For same token value in contract
 							else {
-								return <ContractInfo contractId={contract_id} value={value} />
+								return <ContractInfo key={index} contractId={contract_id} value={value} />
 							}
 						})}
 					</InfiniteScroll>

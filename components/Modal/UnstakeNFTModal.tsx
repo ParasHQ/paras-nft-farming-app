@@ -211,7 +211,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 				{stakedNFT.length >= 2 && (
 					<div className="text-right">
 						<Button
-							className="mt-4 px-4"
+							className="mt-4 px-8"
 							color="blue-gray"
 							onClick={() => unstakeNFT('', '', true)}
 						>

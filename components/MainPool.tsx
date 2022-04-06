@@ -19,6 +19,7 @@ import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import ReactTooltip from 'react-tooltip'
 import IconInfo from './Icon/IconInfo'
+import ClaimModal from './Modal/ClaimModal'
 
 interface IPoolProcessed {
 	title: string
@@ -52,7 +53,7 @@ interface PoolProps {
 	className?: string
 }
 
-type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
+type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | 'claim' | null
 
 const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className }: PoolProps) => {
 	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
@@ -303,7 +304,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		)
 	}
 
-	const claimRewards = async () => {
+	const claimRewards = async (restaked = false) => {
 		if (!accountId) return
 
 		const txs: {
@@ -342,11 +343,17 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			receiverId: CONTRACT.FARM,
 			functionCalls: [
 				{
-					methodName: 'claim_reward_by_seed_and_withdraw',
+					methodName: restaked
+						? 'claim_reward_by_seed_and_deposit'
+						: 'claim_reward_by_seed_and_withdraw',
 					contractId: CONTRACT.FARM,
 					args: {
 						seed_id: data.seed_id,
 						token_id: CONTRACT.TOKEN,
+						...(restaked && {
+							seed_id_deposit: CONTRACT.TOKEN,
+							is_deposit_seed_reward: type === 'ft' ? false : true,
+						}),
 					},
 					attachedDeposit: getAmount('1'),
 					gas: getAmount(GAS_FEE[150]),
@@ -438,6 +445,15 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			)}
 			{FTPoolModal()}
 			{NFTPoolModal()}
+			<ClaimModal
+				type={type}
+				show={showModal === 'claim'}
+				onClose={() => setShowModal(null)}
+				claimAndDeposit={() => claimRewards(true)}
+				claimAndWithdraw={() => claimRewards(false)}
+				poolname={data.title}
+				claimableRewards={poolProcessed.claimableRewards}
+			/>
 			<div
 				className={`bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl ${
 					poolProcessed.expired && 'saturate-50 opacity-70'
@@ -627,7 +643,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 										}
 										isFullWidth
 										color="green"
-										onClick={claimRewards}
+										onClick={() => setShowModal('claim')}
 									>
 										Claim
 									</Button>

@@ -6,9 +6,10 @@ import { prettyBalance } from 'utils/common'
 interface PoolRewardProps {
 	contractName: string
 	amount: string
+	className?: string
 }
 
-const PoolReward = ({ contractName, amount }: PoolRewardProps) => {
+const PoolReward = ({ contractName, amount, className = '' }: PoolRewardProps) => {
 	const [data, setData] = useState<IFTMetadata | null>(null)
 
 	useEffect(() => {
@@ -29,7 +30,7 @@ const PoolReward = ({ contractName, amount }: PoolRewardProps) => {
 	}
 
 	return (
-		<p>
+		<p className={className}>
 			{prettyBalance(amount, data.decimals, 3)} {data.symbol}
 		</p>
 	)

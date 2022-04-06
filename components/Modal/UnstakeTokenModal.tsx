@@ -87,7 +87,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 							amount: parseParasAmount(inputUnstake),
 						},
 						attachedDeposit: getAmount('1'),
-						gas: getAmount(GAS_FEE[150]),
+						gas: getAmount(GAS_FEE[200]),
 					},
 				],
 			})

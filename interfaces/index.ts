@@ -46,3 +46,8 @@ export interface IFTMetadata {
 	symbol: string
 	decimals: number
 }
+
+export interface IDataInputDropdown {
+	label: string
+	id: string
+}

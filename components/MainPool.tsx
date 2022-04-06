@@ -12,7 +12,7 @@ import { IFarm, IPool, IReward } from 'interfaces'
 import PoolLoader from './Common/PoolLoader'
 import JSBI from 'jsbi'
 import PoolReward from './Common/PoolReward'
-import PoolAPR from './Common/PoolAPR'
+import PoolAPR, { contractPriceMap, getPrice } from './Common/PoolAPR'
 import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
@@ -39,6 +39,8 @@ interface IPoolProcessed {
 		[key: string]: string
 	}
 	comingSoon: boolean
+	expired: boolean
+	totalPoolReward: number
 }
 
 interface PoolProps {
@@ -46,11 +48,13 @@ interface PoolProps {
 	data: IPool
 	staked?: string
 	stakedNFT?: string[]
+	filterType?: string
+	className?: string
 }
 
 type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | null
 
-const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
+const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className }: PoolProps) => {
 	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
@@ -75,6 +79,9 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 		let allEndDate = 0
 		let totalRewardPerYearInUSD = 0
 		let allTotalRewardPerYearInUSD = 0
+
+		// sum all rewards from the pool
+		let allTotalRewardsPoolInUSD = 0
 
 		const totalRewards: {
 			[key: string]: IReward
@@ -110,7 +117,6 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 			// check if hasn't started or expired
 			const currentTs = new Date().getTime() / 1000
 			if (farmDetails.start_at > currentTs || currentTs > farmEndDate) {
-				console.log(`${JSON.stringify(farmDetails)} inactive`)
 				if (allStartDate) {
 					if (farmDetails.start_at < allStartDate) {
 						allStartDate = farmDetails.start_at
@@ -174,8 +180,19 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 				const farmTotalRewardPerYearInUSD = farmTotalRewardPerWeekInUSD * 52
 				totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
 
+				const ftTokenDetail = contractPriceMap[farmDetails.reward_token]
+				const ftTokenPriceInUSD = await getPrice(ftTokenDetail.url, ftTokenDetail.symbol)
+				const ftTokenRewardFormatted = JSBI.toNumber(
+					JSBI.divide(
+						JSBI.BigInt(farmDetails.total_reward),
+						JSBI.BigInt(10 ** ftTokenDetail.decimals)
+					)
+				)
+
+				const rewardFarm = ftTokenPriceInUSD * ftTokenRewardFormatted
+				allTotalRewardsPoolInUSD += rewardFarm
+
 				if (totalRewards[farmDetails.reward_token]) {
-					console.log(totalRewards[farmDetails.reward_token])
 					totalRewards[farmDetails.reward_token] = {
 						amount: JSBI.add(
 							JSBI.BigInt(totalRewards[farmDetails.reward_token].amount),
@@ -219,6 +236,8 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 		const allAPR = totalStakedInUSD > 0 ? (allTotalRewardPerYearInUSD * 100) / totalStakedInUSD : 0
 
 		const APR = startDate ? activeAPR : allAPR
+		const poolStartDate = startDate ? startDate * 1000 : allStartDate * 1000
+		const poolEndDate = endDate ? endDate * 1000 : allEndDate * 1000
 
 		const poolData: IPoolProcessed = {
 			title: data.title,
@@ -228,11 +247,13 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 			totalStaked: data.amount / 10 ** 18,
 			totalStakedInUSD: totalStakedInUSD,
 			rewards: startDate ? totalRewards : allTotalRewards,
-			startDate: startDate ? startDate * 1000 : allStartDate * 1000,
-			endDate: endDate ? endDate * 1000 : allEndDate * 1000,
+			startDate: poolStartDate,
+			endDate: poolEndDate,
 			claimableRewards: totalUnclaimedRewards,
 			nftPoints: seedDetails.nft_balance,
-			comingSoon: startDate ? false : true,
+			comingSoon: poolStartDate < new Date().getTime() ? false : true,
+			expired: poolEndDate > new Date().getTime() ? false : true,
+			totalPoolReward: allTotalRewardsPoolInUSD,
 		}
 
 		setPoolProcessed(poolData)
@@ -359,7 +380,7 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 						  poolProcessed.nftPoints[b.split(':')[0]] ||
 						  poolProcessed.nftPoints[b.split('@')[0]]
 						: '0'
-				return JSBI.add(a, JSBI.BigInt(pts))
+				return JSBI.add(a, JSBI.BigInt(pts || '0'))
 			}, JSBI.BigInt(0))
 
 			setUserStaked(nftPtsStaked.toString())
@@ -377,22 +398,52 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 	}, [getFarms])
 
 	if (!poolProcessed) {
-		return <PoolLoader />
+		return (
+			<div className={className}>
+				<PoolLoader />
+			</div>
+		)
+	}
+
+	if (filterType === 'ended' && !poolProcessed.expired) {
+		return null
+	}
+
+	if (filterType === 'active' && poolProcessed.expired) {
+		return null
+	}
+
+	if (
+		filterType === 'staked' &&
+		Object.values(poolProcessed.claimableRewards).findIndex((x) => Number(x) > 0) === -1
+	) {
+		return null
 	}
 
 	return (
-		<div className="relative">
+		<div className={`relative text-white ${className}`}>
 			{poolProcessed.comingSoon && (
-				<div className="absolute -mt-3 z-30 text-center w-full">
+				<div className="absolute -mt-3 z-30 text-center inset-x-0">
 					<div className="bg-gray-100 text-parasGrey inline-block px-4 rounded-md font-semibold">
 						Coming Soon
 					</div>
 				</div>
 			)}
-			<div className="bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl">
+			{poolProcessed.expired && (
+				<div className="absolute -mt-3 z-30 text-center inset-x-0">
+					<div className="bg-gray-100 text-parasGrey inline-block px-4 rounded-md font-semibold">
+						Ended
+					</div>
+				</div>
+			)}
+			{FTPoolModal()}
+			{NFTPoolModal()}
+			<div
+				className={`bg-parasGrey text-white rounded-xl overflow-hidden shadow-xl ${
+					poolProcessed.expired && 'saturate-50 opacity-70'
+				}`}
+			>
 				<ReactTooltip html={true} />
-				{FTPoolModal()}
-				{NFTPoolModal()}
 				<div className="bg-center bg-no-repeat bg-black bg-opacity-40 p-4 relative">
 					<div className="absolute inset-0 opacity-20">
 						<div className="text-center h-full overflow-hidden">
@@ -425,11 +476,23 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 								)}
 							</div>
 							<div className="text-right">
-								<p className="opacity-75">APR</p>
-								<PoolAPR
-									rewardsPerWeek={poolProcessed.rewards}
-									totalStakedInUSD={poolProcessed.totalStakedInUSD}
-								/>
+								{type === 'ft' && (
+									<>
+										<p className="opacity-75">APR</p>
+										<PoolAPR
+											rewardsPerWeek={poolProcessed.rewards}
+											totalStakedInUSD={poolProcessed.totalStakedInUSD}
+										/>
+									</>
+								)}
+								{type === 'nft' && (
+									<>
+										<p className="opacity-75">Total Reward</p>
+										<p className="text-4xl font-semibold">
+											${toHumanReadableNumbers(poolProcessed.totalPoolReward.toString())}
+										</p>
+									</>
+								)}
 							</div>
 						</div>
 					</div>
@@ -521,13 +584,11 @@ const MainPool = ({ data, staked, stakedNFT, type }: PoolProps) => {
 							{type === 'nft' && (
 								<div className="flex justify-between -mx-4">
 									<div className="w-1/2 px-4">
-										<Button
-											isFullWidth
-											className=""
-											onClick={() => onClickActionButton('stakeNFT')}
-										>
-											Stake NFT
-										</Button>
+										{!poolProcessed.expired && (
+											<Button isFullWidth onClick={() => onClickActionButton('stakeNFT')}>
+												Stake NFT
+											</Button>
+										)}
 									</div>
 									<div className="w-1/2 px-4 text-right">
 										<Button

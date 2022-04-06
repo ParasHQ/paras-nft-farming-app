@@ -1,9 +1,11 @@
 import JSBI from 'jsbi'
 import CID from 'cids'
+import crypto from 'crypto'
 
 interface IParseImgOpts {
 	useOriginal?: boolean
 	width?: string
+	isMediaCdn?: boolean
 }
 
 export const toHumanReadableNumbers = (val: string) => {
@@ -94,8 +96,8 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 	if (url.includes('://')) {
 		const [protocol, path] = url.split('://')
 		if (protocol === 'ipfs') {
-			if (opts.useOriginal || process.env.APP_ENV !== 'production') {
-				const cid = new CID(path)
+			const cid = new CID(path)
+			if (opts.useOriginal || process.env.NEXT_PUBLIC_APP_ENV !== 'mainnet') {
 				if (cid.version === 0) {
 					return `https://ipfs-gateway.paras.id/ipfs/${path}`
 				} else {
@@ -105,17 +107,26 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 
 			const transformationList = []
 			if (opts.width) {
-				transformationList.push(`tr:w-${opts.width}`)
+				transformationList.push(`w=${opts.width}`)
 			} else {
-				transformationList.push('tr:w-0.8')
+				transformationList.push('w=400')
 			}
-			return `https://cdn.paras.id/${transformationList.join(',')}/${path}`
+			return `https://paras-cdn.imgix.net/${cid}?${transformationList.join('&')}`
+		} else if (opts.isMediaCdn) {
+			const sha1Url = sha1(url)
+			const transformationList = []
+			if (opts.width) {
+				transformationList.push(`w=${opts.width}`)
+			} else {
+				transformationList.push('w=400')
+			}
+			return `https://paras-cdn.imgix.net/${sha1Url}?${transformationList.join('&')}`
 		}
 		return url
 	} else {
 		try {
 			const cid = new CID(url)
-			if (opts.useOriginal || process.env.APP_ENV !== 'production') {
+			if (opts.useOriginal || process.env.NEXT_PUBLIC_APP_ENV !== 'mainnet') {
 				if (cid.version === 0) {
 					return `https://ipfs-gateway.paras.id/ipfs/${cid}`
 				} else if (cid.version === 1) {
@@ -125,15 +136,22 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 
 			const transformationList = []
 			if (opts.width) {
-				transformationList.push(`tr:w-${opts.width}`)
+				transformationList.push(`w=${opts.width}`)
 			} else {
-				transformationList.push('tr:w-0.8')
+				transformationList.push('w=400')
 			}
-			return `https://paras-cdn.imgix.net/${cid}?q=60`
+			return `https://paras-cdn.imgix.net/${cid}?${transformationList.join('&')}`
 		} catch (err) {
 			return url
 		}
 	}
+}
+
+export default function sha1(data: crypto.BinaryLike, encoding = 'hex') {
+	return crypto
+		.createHash('sha1')
+		.update(data)
+		.digest(encoding as any)
 }
 
 export const prettyTruncate = (str: string | null = '', len = 8, type: string) => {

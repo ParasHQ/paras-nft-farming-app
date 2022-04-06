@@ -21,7 +21,7 @@ interface PoolAPRProps {
 	totalStakedInUSD: number
 }
 
-const contractPriceMap: IContractPriceData = {
+export const contractPriceMap: IContractPriceData = {
 	[CONTRACT.TOKEN]: {
 		url: 'https://api.coingecko.com/api/v3/simple/price?ids=PARAS&vs_currencies=USD',
 		symbol: `paras`,
@@ -32,9 +32,14 @@ const contractPriceMap: IContractPriceData = {
 		symbol: 'near',
 		decimals: 24,
 	},
+	[CONTRACT.REF]: {
+		url: 'https://api.coingecko.com/api/v3/simple/price?ids=ref-finance&vs_currencies=USD',
+		symbol: 'ref-finance',
+		decimals: 18,
+	},
 }
 
-const getPrice = async (url: string, symbol: string, decimals: number) => {
+export const getPrice = async (url: string, symbol: string, decimals = 0) => {
 	const resp = await axios.get(url)
 	return resp.data[symbol].usd / 10 ** decimals
 }

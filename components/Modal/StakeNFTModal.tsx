@@ -99,7 +99,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 			if (stakeAll) {
 				ownedNFT.forEach((nft) => {
 					txs.push({
-						receiverId: contractId,
+						receiverId: nft.contract_id,
 						functionCalls: [
 							{
 								methodName: 'nft_transfer_call',
@@ -134,6 +134,8 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 				})
 			}
 
+			console.log('txs', txs, ownedNFT)
+			return
 			return await near.executeMultipleTransactions(txs)
 		} catch (err) {
 			console.log(err)

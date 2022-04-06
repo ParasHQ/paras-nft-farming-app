@@ -134,8 +134,6 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 				})
 			}
 
-			console.log('txs', txs, ownedNFT)
-			return
 			return await near.executeMultipleTransactions(txs)
 		} catch (err) {
 			console.log(err)

@@ -20,8 +20,9 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import ReactTooltip from 'react-tooltip'
 import IconInfo from './Icon/IconInfo'
 import ClaimModal from './Modal/ClaimModal'
+import { useStore } from 'services/store'
 
-interface IPoolProcessed {
+export interface IPoolProcessed {
 	title: string
 	totalStaked: any
 	totalStakedInUSD: any
@@ -45,7 +46,7 @@ interface IPoolProcessed {
 }
 
 interface PoolProps {
-	type: string
+	type: 'ft' | 'nft'
 	data: IPool
 	staked?: string
 	stakedNFT?: string[]
@@ -60,6 +61,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [userStaked, setUserStaked] = useState<string | null>(null)
+	const { setFTPool } = useStore()
 
 	const getParasPrice = async () => {
 		const resp = await axios.get(
@@ -258,6 +260,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		}
 
 		setPoolProcessed(poolData)
+		type === 'ft' && setFTPool(poolData)
 	}, [data.amount, data.title, data.media, data.farms, accountId])
 
 	const FTPoolModal = () => {

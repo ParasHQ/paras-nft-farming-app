@@ -1,9 +1,7 @@
 import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
-import IconInfo from 'components/Icon/IconInfo'
 import { useState } from 'react'
-import ReactTooltip from 'react-tooltip'
 import { CONTRACT } from 'services/near'
 import { useStore } from 'services/store'
 
@@ -52,16 +50,7 @@ const ClaimModal = ({
 		return (
 			<div className={hideReward ? 'hidden' : ''}>
 				<div className={`justify-between ${hideReward ? 'hidden' : 'flex'}`}>
-					<ReactTooltip html={true} />
-					<div
-						className="flex"
-						// data-tip={`<p class="text-xs w-64">*The reward from $PARAS pool will also be compounded to the $PARAS pool and your wNEAR will be withdrawn to your wallet</p>`}
-					>
-						<p>Paras Pool</p>
-						{/* <div className="pl-1 opacity-75">
-							<IconInfo className="w-4 h-4" />
-						</div> */}
-					</div>
+					<p>Paras Pool</p>
 					<div className="text-right">
 						{ftPool?.claimableRewards &&
 							Object.keys(ftPool.claimableRewards).map((k) => {
@@ -78,12 +67,12 @@ const ClaimModal = ({
 							})}
 					</div>
 				</div>
-				{/* {type === 'nft' && (
+				{type === 'nft' && (
 					<p className="text-xs text-gray-400 mt-1">
 						*The reward from $PARAS pool will also be compounded to the $PARAS pool and your wNEAR
 						will be withdrawn to your wallet
 					</p>
-				)} */}
+				)}
 			</div>
 		)
 	}
@@ -103,13 +92,6 @@ const ClaimModal = ({
 						<p className="text-xs text-gray-400">
 							Claim your {poolname} reward and deposit your $PARAS to the $PARAS pool (compounding)
 						</p>
-						{type === 'nft' && (
-							<p className="text-xs text-gray-400 mt-1">
-								{/* *This will also compound your reward from $PARAS pool */}
-								*The reward from $PARAS pool will also be compounded to the $PARAS pool and your
-								wNEAR will be withdrawn to your wallet
-							</p>
-						)}
 					</div>
 					<div
 						className={`${

@@ -61,7 +61,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 		}
 	}, [props.show, accountId, props.seedId, ownedNFT.length])
 
-	const stakeNFT = async (tokenId: string, contractId: string) => {
+	const stakeNFT = async (tokenId: string, contractId: string, stakeAll = false) => {
 		try {
 			const txs: {
 				receiverId: string
@@ -96,22 +96,43 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 				}
 			}
 
-			txs.push({
-				receiverId: contractId,
-				functionCalls: [
-					{
-						methodName: 'nft_transfer_call',
-						contractId: contractId,
-						args: {
-							receiver_id: CONTRACT.FARM,
-							token_id: tokenId,
-							msg: props.seedId,
+			if (stakeAll) {
+				ownedNFT.forEach((nft) => {
+					txs.push({
+						receiverId: nft.contract_id,
+						functionCalls: [
+							{
+								methodName: 'nft_transfer_call',
+								contractId: nft.contract_id,
+								args: {
+									receiver_id: CONTRACT.FARM,
+									token_id: nft.token_id,
+									msg: props.seedId,
+								},
+								attachedDeposit: getAmount('1'),
+								gas: getAmount(GAS_FEE[200]),
+							},
+						],
+					})
+				})
+			} else {
+				txs.push({
+					receiverId: contractId,
+					functionCalls: [
+						{
+							methodName: 'nft_transfer_call',
+							contractId: contractId,
+							args: {
+								receiver_id: CONTRACT.FARM,
+								token_id: tokenId,
+								msg: props.seedId,
+							},
+							attachedDeposit: getAmount('1'),
+							gas: getAmount(GAS_FEE[200]),
 						},
-						attachedDeposit: getAmount('1'),
-						gas: getAmount(GAS_FEE[200]),
-					},
-				],
-			})
+					],
+				})
+			}
 
 			return await near.executeMultipleTransactions(txs)
 		} catch (err) {
@@ -188,6 +209,13 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 									</div>
 								</div>
 							)}
+						</div>
+					)}
+					{ownedNFT.length >= 2 && (
+						<div className="text-right">
+							<Button className="mt-4 px-8" onClick={() => stakeNFT('', '', true)}>
+								Stake all NFT
+							</Button>
 						</div>
 					)}
 				</div>

@@ -233,6 +233,25 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			}
 		}
 
+		if (type === 'ft') {
+			const rewardwnear = await near.nearViewFunction({
+				contractName: CONTRACT.FARM,
+				methodName: `get_reward`,
+				args: {
+					account_id: near.wallet.getAccountId(),
+					token_id: CONTRACT.WRAP,
+				},
+			})
+			if (totalUnclaimedRewards[CONTRACT.WRAP]) {
+				totalUnclaimedRewards[CONTRACT.WRAP] = JSBI.add(
+					JSBI.BigInt(rewardwnear),
+					JSBI.BigInt(totalUnclaimedRewards[CONTRACT.WRAP])
+				).toString()
+			} else {
+				totalUnclaimedRewards[CONTRACT.WRAP] = rewardwnear
+			}
+		}
+
 		// if has no start date, means the pool is coming soon
 		// use all data instead of active data
 		const activeAPR = totalStakedInUSD > 0 ? (totalRewardPerYearInUSD * 100) / totalStakedInUSD : 0

@@ -88,7 +88,7 @@ const ClaimModal = ({
 						} px-3 py-2 cursor-pointer rounded-md`}
 						onClick={() => setActiveOption('claim-and-stake')}
 					>
-						<p className="font-semibold">Claim and Stake</p>
+						<p className="font-semibold">Claim and Stake PARAS</p>
 						<p className="text-xs text-gray-400">
 							Claim your {poolname} reward and deposit your $PARAS to the $PARAS pool (compounding)
 						</p>

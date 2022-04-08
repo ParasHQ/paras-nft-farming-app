@@ -355,7 +355,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 						token_id: CONTRACT.TOKEN,
 						...(restaked && {
 							seed_id_deposit: CONTRACT.TOKEN,
-							is_deposit_seed_reward: type === 'ft' ? false : true,
+							is_deposit_seed_reward: true,
 						}),
 					},
 					attachedDeposit: getAmount('1'),

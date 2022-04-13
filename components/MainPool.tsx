@@ -233,7 +233,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			}
 		}
 
-		if (type === 'ft') {
+		if (type === 'ft' && accountId) {
 			const rewardwnear = await near.nearViewFunction({
 				contractName: CONTRACT.FARM,
 				methodName: `get_reward`,

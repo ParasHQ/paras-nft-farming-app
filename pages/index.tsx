@@ -24,6 +24,10 @@ const filterData = [
 	{ id: 'ended', label: 'Ended' },
 ]
 
+interface IContinousFetch {
+	(page?: number): Promise<IPool[]>
+}
+
 const Home: NextPage = () => {
 	const { isInit, accountId } = useNearProvider()
 	const [poolListFT, setPoolListFT] = useState<IPool[]>([])
@@ -33,15 +37,27 @@ const Home: NextPage = () => {
 	const [filterPool, setFilterPool] = useState<IDataInputDropdown>(filterData[1])
 
 	useEffect(() => {
-		const getPoolList = async () => {
-			const poolList: IPool[] = await near.nearViewFunction({
+		const continousFetch: IContinousFetch = async (page = 0) => {
+			const fetchLimit = 7
+			const rawPoolList: IPool[] = await near.nearViewFunction({
 				contractName: CONTRACT.FARM,
 				methodName: `list_seeds_info`,
 				args: {
-					from_index: 0,
-					limit: 13,
+					from_index: page * fetchLimit,
+					limit: fetchLimit,
 				},
 			})
+			const _poolList = Object.values(rawPoolList)
+
+			return [
+				..._poolList,
+				...(_poolList.length === fetchLimit ? await continousFetch(page + 1) : []),
+			]
+		}
+
+		const getPoolList = async () => {
+			const poolList = await continousFetch()
+
 			const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
 			const poolNFT = Object.values(poolList).filter((x) => x.seed_type === 'NFT')
 

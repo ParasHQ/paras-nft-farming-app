@@ -148,10 +148,13 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 }
 
 export default function sha1(data: crypto.BinaryLike, encoding = 'hex') {
-	return crypto
-		.createHash('sha1')
-		.update(data)
-		.digest(encoding as any)
+	return (
+		crypto
+			.createHash('sha1')
+			.update(data)
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			.digest(encoding as any)
+	)
 }
 
 export const prettyTruncate = (str: string | null = '', len = 8, type: string) => {

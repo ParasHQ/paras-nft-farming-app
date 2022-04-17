@@ -1,8 +1,8 @@
-import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { prettyBalance } from 'utils/common'
 import { CONTRACT } from 'services/near'
 import { IReward } from 'interfaces'
+import cachios from 'cachios'
 
 interface IFTPriceData {
 	url: string
@@ -40,7 +40,8 @@ export const contractPriceMap: IContractPriceData = {
 }
 
 export const getPrice = async (url: string, symbol: string, decimals = 0) => {
-	const resp = await axios.get(url)
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const resp = await cachios.get<any>(url)
 	return resp.data[symbol].usd / 10 ** decimals
 }
 

@@ -110,7 +110,7 @@ const ClaimModal = ({
 						<PoolReward
 							key={CONTRACT.WRAP}
 							contractName={CONTRACT.WRAP}
-							amount={compoundedReward[CONTRACT.WRAP]}
+							amount={ftPool?.claimableRewards[CONTRACT.WRAP] || '0'}
 							className="text-lg"
 						/>
 						{type === 'nft' && <IconInfo className="w-4 h-4" />}

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import cachios from 'cachios'
 import Button from 'components/Common/Button'
 import { LogoBounce } from 'components/Common/Loader'
 import Modal from 'components/Common/Modal'
@@ -57,8 +58,8 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 		const fetchToken = (scNft: string) => {
 			const [contract_id, token_id] = scNft.split('@')
 			const params = { token_id, contract_id }
-			return axios
-				.get(`${apiParasUrl}/token`, { params })
+			return cachios
+				.get<{ data: { results: INFToken[] } }>(`${apiParasUrl}/token`, { params, ttl: 600 })
 				.then((response) => response.data.data.results[0])
 				.catch((error) => error)
 		}

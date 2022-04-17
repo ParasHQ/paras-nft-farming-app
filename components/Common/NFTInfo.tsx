@@ -1,4 +1,4 @@
-import axios from 'axios'
+import cachios from 'cachios'
 import Media from 'components/Common/Media'
 import { apiParasUrl } from 'constants/apiURL'
 import { INFToken } from 'interfaces/token'
@@ -20,12 +20,16 @@ const NFTInfo = ({ contractId, tokenSeriesId, value }: NFTProps) => {
 		if (contractId && tokenSeriesId) {
 			const fetchNFT = async () => {
 				try {
-					const resp = await axios.get(`${apiParasUrl}/token-series`, {
-						params: {
-							contract_id: contractId,
-							token_series_id: tokenSeriesId,
-						},
-					})
+					const resp = await cachios.get<{ data: { results: INFToken[] } }>(
+						`${apiParasUrl}/token-series`,
+						{
+							params: {
+								contract_id: contractId,
+								token_series_id: tokenSeriesId,
+							},
+							ttl: 600,
+						}
+					)
 
 					setData(resp.data.data.results[0])
 				} catch (error) {

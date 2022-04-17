@@ -3,7 +3,6 @@ import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import axios from 'axios'
 import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
 import { GAS_FEE } from 'constants/gasFee'
@@ -21,6 +20,7 @@ import ReactTooltip from 'react-tooltip'
 import IconInfo from './Icon/IconInfo'
 import ClaimModal from './Modal/ClaimModal'
 import { useStore } from 'services/store'
+import cachios from 'cachios'
 
 export interface IPoolProcessed {
 	title: string
@@ -64,7 +64,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	const { setFTPool } = useStore()
 
 	const getParasPrice = async () => {
-		const resp = await axios.get(
+		const resp = await cachios.get<{ paras: { usd: number } }>(
 			'https://api.coingecko.com/api/v3/simple/price?ids=PARAS&vs_currencies=USD'
 		)
 		return resp.data.paras.usd

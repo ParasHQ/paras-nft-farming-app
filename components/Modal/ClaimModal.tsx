@@ -3,7 +3,7 @@ import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
 import IconInfo from 'components/Icon/IconInfo'
 import JSBI from 'jsbi'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import { CONTRACT } from 'services/near'
 import { useStore } from 'services/store'
@@ -21,7 +21,7 @@ interface ClaimModalProps {
 	}
 }
 
-type TActiveOption = 'claim-and-stake' | 'claim-and-withdraw'
+type TActiveOption = 'claim-and-stake' | 'claim-and-withdraw' | null
 
 const ClaimModal = ({
 	show,
@@ -32,8 +32,27 @@ const ClaimModal = ({
 	poolname,
 	claimableRewards,
 }: ClaimModalProps) => {
-	const [activeOption, setActiveOption] = useState<TActiveOption>('claim-and-stake')
+	const [activeOption, setActiveOption] = useState<TActiveOption>(
+		type === 'ft' ? 'claim-and-stake' : null
+	)
+	const [showError, setShowError] = useState<boolean>(false)
 	const { ftPool } = useStore()
+	const hasNoParasRewardFromPool =
+		claimableRewards[CONTRACT.TOKEN] && claimableRewards[CONTRACT.TOKEN] === '0'
+
+	useEffect(() => {
+		if (type === 'ft') {
+			setActiveOption('claim-and-stake')
+		} else {
+			setActiveOption(null)
+		}
+	}, [show])
+
+	useEffect(() => {
+		if (activeOption) {
+			setShowError(false)
+		}
+	}, [activeOption])
 
 	const getCompoundedReward = () => {
 		const reward = Object.assign({}, claimableRewards)
@@ -148,16 +167,28 @@ const ClaimModal = ({
 		)
 	}
 
+	const onClickProceedButton = () => {
+		if (activeOption === null) {
+			setShowError(true)
+		} else if (activeOption === 'claim-and-stake') {
+			claimAndDeposit()
+		} else if (activeOption === 'claim-and-withdraw') {
+			claimAndWithdraw()
+		}
+	}
+
 	return (
 		<Modal isShow={show} onClose={onClose}>
 			<div className="max-w-sm w-full bg-parasGrey text-white p-4 rounded-lg mx-4 sm:m-auto shadow-xl">
 				<p className="font-semibold text-xl mb-2 text-center">Reward</p>
-				<div className="-mx-2">
+				<div className="-mx-2 rounded-md">
 					<div
 						className={`${
 							activeOption === 'claim-and-stake' && 'bg-gray-100 bg-opacity-10'
-						} px-3 py-2 cursor-pointer rounded-md`}
-						onClick={() => setActiveOption('claim-and-stake')}
+						} px-3 py-2 rounded-md ${
+							hasNoParasRewardFromPool ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+						}`}
+						onClick={() => !hasNoParasRewardFromPool && setActiveOption('claim-and-stake')}
 					>
 						<p className="font-semibold">Claim and Stake PARAS</p>
 						<p className="text-xs text-gray-400">
@@ -178,14 +209,12 @@ const ClaimModal = ({
 				</div>
 				<hr className="my-2 -mx-2 border-gray-500" />
 				<div className="my-2">
-					{activeOption === 'claim-and-stake' ? rewardCompounded() : rewardToWallet()}
+					{activeOption === 'claim-and-stake' && rewardCompounded()}
+					{activeOption === 'claim-and-withdraw' && rewardToWallet()}
 				</div>
+				{showError && <div className="text-red-500 my-2 text-sm">Please choose an option</div>}
 				<div className="mt-3 text-right">
-					<Button
-						color="green"
-						className="px-8"
-						onClick={activeOption === 'claim-and-stake' ? claimAndDeposit : claimAndWithdraw}
-					>
+					<Button color="green" className="px-8" onClick={onClickProceedButton}>
 						Proceed
 					</Button>
 				</div>

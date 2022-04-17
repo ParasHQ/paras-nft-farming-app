@@ -658,11 +658,11 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 								</div>
 								<div className="w-1/3">
 									<Button
-										isDisabled={
-											Object.values(poolProcessed.claimableRewards).findIndex(
-												(x) => Number(x) > 0
-											) === -1
-										}
+										// isDisabled={
+										// 	Object.values(poolProcessed.claimableRewards).findIndex(
+										// 		(x) => Number(x) > 0
+										// 	) === -1
+										// }
 										isFullWidth
 										color="green"
 										onClick={() => setShowModal('claim')}

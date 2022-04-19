@@ -218,7 +218,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					contractName: CONTRACT.FARM,
 					methodName: `get_unclaimed_reward`,
 					args: {
-						account_id: near.wallet.getAccountId(),
+						account_id: accountId,
 						farm_id: farmId,
 					},
 				})
@@ -238,7 +238,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				contractName: CONTRACT.FARM,
 				methodName: `get_reward`,
 				args: {
-					account_id: near.wallet.getAccountId(),
+					account_id: accountId,
 					token_id: CONTRACT.WRAP,
 				},
 			})
@@ -339,7 +339,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				contractName: contractName,
 				methodName: `storage_balance_of`,
 				args: {
-					account_id: near.wallet.getAccountId(),
+					account_id: accountId,
 				},
 			})
 			if (!deposited) {

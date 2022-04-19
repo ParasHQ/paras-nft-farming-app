@@ -1,11 +1,11 @@
-import axios from 'axios'
 import IconParas from 'components/Icon/IconParas'
 import ProfileModal from 'components/Modal/ProfileModal'
 import { baseURLParas } from 'constants/baseUrl'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IProfile } from 'interfaces'
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
+import near from 'services/near'
 import { parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
 import Button from './Button'
 
@@ -26,40 +26,9 @@ const NAV_LINK = [
 
 const Header = () => {
 	const bgRef = useRef<null | HTMLDivElement>(null)
-	const { accountId } = useNearProvider()
-	const [balance, setBalance] = useState('0')
-	const [userProfile, setUserProfile] = useState<IProfile>({})
+	const { accountId, userProfile, parasBalance } = useNearProvider()
 	const [showProfileModal, setShowProfileModal] = useState(false)
 	const [showGetParas, setShowGetParas] = useState(false)
-
-	useEffect(() => {
-		const getParasBalance = async () => {
-			const balanceParas = await near.nearViewFunction({
-				methodName: 'ft_balance_of',
-				contractName: CONTRACT.TOKEN,
-				args: {
-					account_id: near.wallet.getAccountId(),
-				},
-			})
-			setBalance(balanceParas)
-		}
-
-		const getUserProfile = async () => {
-			const resp = await axios.get(`${process.env.NEXT_PUBLIC_API_PARAS}/profiles`, {
-				params: {
-					accountId: accountId,
-				},
-			})
-			if (resp.data.data.results[0]) {
-				setUserProfile(resp.data.data.results[0])
-			}
-		}
-
-		if (accountId) {
-			getParasBalance()
-			getUserProfile()
-		}
-	}, [accountId])
 
 	const Profile = () => {
 		return (
@@ -68,7 +37,7 @@ const Header = () => {
 				className="hover:opacity-80 cursor-pointer flex items-center rounded-md overflow-hidden py-1 bg-gray-800"
 			>
 				<div className="text-white px-2">
-					<p>{prettyBalance(balance, 18, 4)} Ⓟ</p>
+					<p>{prettyBalance(parasBalance, 18, 4)} Ⓟ</p>
 				</div>
 				<div className="px-1">
 					<div className="flex items-center bg-black bg-opacity-80 rounded-md px-2 py-1">
@@ -76,7 +45,7 @@ const Header = () => {
 							{prettyTruncate(accountId, 16, `address`)}
 						</p>
 						<div className="w-6 h-6 rounded-full bg-parasGrey">
-							{userProfile.imgUrl && (
+							{userProfile?.imgUrl && (
 								<img
 									className="w-6 h-6 border border-gray-600 rounded-full"
 									src={parseImgUrl(userProfile.imgUrl)}
@@ -116,7 +85,7 @@ const Header = () => {
 			<ProfileModal
 				show={showProfileModal}
 				onClose={() => setShowProfileModal(false)}
-				profile={userProfile}
+				profile={userProfile as IProfile}
 			/>
 			<div className="flex items-center p-4 max-w-6xl mx-auto justify-between">
 				<div className="flex items-center">
@@ -126,6 +95,9 @@ const Header = () => {
 				</div>
 
 				<div className="flex items-center">
+					<Link href="/proposal">
+						<a className="text-white mx-4 font-bold border-b-2 border-white">Vote</a>
+					</Link>
 					<div className="relative">
 						<Button
 							onClick={() => {

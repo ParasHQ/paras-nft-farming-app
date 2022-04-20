@@ -80,7 +80,7 @@ const Proposal = () => {
 						<div className="text-lg text-white text-opacity-80">
 							Your voting power:{' '}
 							<span className="font-bold text-white text-opacity-100">
-								{prettyBalance(formatParasAmount(10000000000000000000), 0)} PARAS
+								{prettyBalance(formatParasAmount(delegationBalance), 0)} PARAS
 							</span>
 						</div>
 						<div className="flex gap-2">

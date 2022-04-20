@@ -9,7 +9,7 @@ export interface IProposal {
 				vote_options: string[]
 			}
 		}
-		status: string
+		status: string | any
 		total_vote_counts: number
 		vote_counts: {
 			[key: string]: string

@@ -72,7 +72,7 @@ const ProposalVote = ({ options, delegationBalance, id, userVotes }: IProposalVo
 			<p className="text-xl font-bold mb-2 text-center">Vote</p>
 
 			<div className="overflow-hidden rounded-xl divide-y divide-gray-700">
-				{options.map((option) => (
+				{options.sort().map((option) => (
 					<div
 						key={option}
 						className={`${
@@ -87,7 +87,6 @@ const ProposalVote = ({ options, delegationBalance, id, userVotes }: IProposalVo
 							value={option}
 							onChange={() => !userVotes && setChoosenVote(option)}
 							checked={option === choosenVote}
-							disabled={userVotes !== undefined}
 							id={option}
 						/>
 						<label
@@ -109,7 +108,7 @@ const ProposalVote = ({ options, delegationBalance, id, userVotes }: IProposalVo
 						</span>
 					</p>
 					<p className="font-light text-white text-opacity-80 text-sm">
-						Voting power are deposited from your staked PARAS
+						Voting power are added from your staked PARAS
 					</p>
 				</div>
 				<div>

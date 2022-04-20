@@ -15,7 +15,7 @@ interface UndelegateTokenModalProps {
 }
 
 const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
-	const [inputWithdraw, setInputWithdraw] = useState<string>('')
+	const [inputUndelegate, setInputUndelegate] = useState<string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const undelegateToken = async () => {
@@ -34,7 +34,7 @@ const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
 						methodName: 'undelegate_seed',
 						contractId: CONTRACT.FARM,
 						args: {
-							amount: parseParasAmount(inputWithdraw),
+							amount: parseParasAmount(inputUndelegate),
 						},
 						attachedDeposit: getAmount('1'),
 						gas: getAmount(GAS_FEE[200]),
@@ -59,7 +59,7 @@ const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
 						</div>
 					</div>
 					<div className="w-3/5 flex-1 text-center">
-						<p className="font-bold text-xl text-white">Withdraw</p>
+						<p className="font-bold text-xl text-white">Remove</p>
 						<p className="text-white text-sm -mt-1">DAO Contract</p>
 					</div>
 					<div className="w-1/5" />
@@ -71,8 +71,8 @@ const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
 					</p>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
-							value={inputWithdraw}
-							onChange={(event) => setInputWithdraw(event.target.value)}
+							value={inputUndelegate}
+							onChange={(event) => setInputUndelegate(event.target.value)}
 							className="border-none"
 							type="number"
 							placeholder="0.0"
@@ -81,7 +81,7 @@ const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
 					</div>
 					<div className="text-left">
 						<Button
-							onClick={() => setInputWithdraw(formatParasAmount(props.delegationBalance))}
+							onClick={() => setInputUndelegate(formatParasAmount(props.delegationBalance))}
 							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
@@ -89,17 +89,23 @@ const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
 							use max
 						</Button>
 					</div>
+					<div className="p-3 rounded-md bg-blueGray bg-opacity-25 mt-4">
+						<p className="text-white text-xs text-center font-medium m-auto">
+							Please note you won't be able to unstake PARAS immediately.{' '}
+							{prettyBalance(inputUndelegate || '0', 0)} PARAS will be available after 1 day
+						</p>
+					</div>
 				</div>
 				<Button
 					isLoading={isSubmitting}
-					isDisabled={inputWithdraw === '' || isSubmitting}
+					isDisabled={inputUndelegate === '' || isSubmitting}
 					onClick={undelegateToken}
 					isFullWidth
 					color="blue-gray"
 					size="lg"
 					className="mt-4"
 				>
-					Withdraw
+					Undelegate
 				</Button>
 			</div>
 		</Modal>

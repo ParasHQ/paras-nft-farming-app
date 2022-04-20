@@ -6,6 +6,7 @@ import DelegateTokenModal from 'components/Modal/DelegateModal'
 import UndelegateTokenModal from 'components/Modal/UndelegateModal'
 import ProposalVote from 'components/Proposal/ProposalVote'
 import VotesPeople from 'components/Proposal/VotesPeople'
+import dayjs from 'dayjs'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IProposal } from 'interfaces/proposal'
 import { useRouter } from 'next/dist/client/router'
@@ -14,7 +15,7 @@ import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { formatParasAmount, prettyBalance } from 'utils/common'
 
-type TShowModal = 'delegate' | 'undelegate' | null
+export type TShowModal = 'delegate' | 'undelegate' | null
 
 const ProposalItemDetail = () => {
 	const [proposal, setProposal] = useState<IProposal>()
@@ -82,7 +83,6 @@ const ProposalItemDetail = () => {
 	}
 
 	const onClickDelegate = (type: TShowModal) => {
-		console.log('onclickk')
 		if (!accountId) {
 			setCommonModal('login')
 			return
@@ -105,6 +105,7 @@ const ProposalItemDetail = () => {
 					show={showModal === 'delegate'}
 					onClose={() => setShowModal(null)}
 					hasRegister={hasRegister}
+					delegationBalance={delegationBalance}
 				/>
 				<UndelegateTokenModal
 					show={showModal === 'undelegate'}
@@ -114,7 +115,7 @@ const ProposalItemDetail = () => {
 				<div className="max-w-5xl w-full mx-auto px-4">
 					<div className="md:flex md:gap-6 mt-8">
 						<div className="md:w-3/5 text-white">
-							<div className="flex items-center gap-2 text-white text-opacity-70 mb-4 text-sm">
+							<div className="flex items-center gap-2 text-white text-opacity-70 mb-4 text-sm font-extralight">
 								<Link href="/proposal">
 									<a>Proposal</a>
 								</Link>
@@ -126,38 +127,56 @@ const ProposalItemDetail = () => {
 							<p className="my-8 text-white text-opacity-80">{proposal.proposal.description}</p>
 							<hr className="my-8" />
 							<div className="flex justify-between">
-								<div className="text-lg">
-									In voting contract: {prettyBalance(formatParasAmount(delegationBalance), 0)} PARAS
+								<div className="text-lg text-white text-opacity-80">
+									Your voting power:{' '}
+									<span className="font-bold text-white text-opacity-100">
+										{prettyBalance(formatParasAmount(delegationBalance), 0)} PARAS
+									</span>
 								</div>
 								<div className="flex gap-2">
 									<div>
-										<Button onClick={() => onClickDelegate('delegate')} className="px-6" size="md">
-											Deposit
+										<Button
+											onClick={() => onClickDelegate('delegate')}
+											className="px-6 w-28"
+											size="md"
+										>
+											Add
 										</Button>
 									</div>
 									<div>
 										<Button
 											onClick={() => onClickDelegate('undelegate')}
-											className="px-6"
+											className="px-6 w-28"
 											size="md"
 											color="blue-gray"
 										>
-											Withdraw
+											Remove
 										</Button>
 									</div>
 								</div>
 							</div>
 
-							<ProposalVote
-								id={router.query.id as string}
-								options={proposal.proposal.kind.Vote.vote_options}
-								delegationBalance={delegationBalance}
-								userVotes={proposal.proposal.votes[accountId || '']}
-							/>
+							{proposal.proposal.status === 'InProgress' && (
+								<ProposalVote
+									id={router.query.id as string}
+									options={proposal.proposal.kind.Vote.vote_options}
+									delegationBalance={delegationBalance}
+									userVotes={proposal.proposal.votes[accountId || '']}
+								/>
+							)}
+
+							{proposal.proposal.votes[accountId || ''] && (
+								<div className="italic font-bold text-blueButton mt-4">{`You voted ${
+									proposal.proposal.votes[accountId || ''].vote_option
+								} ~ ${prettyBalance(
+									formatParasAmount(proposal.proposal.votes[accountId || ''].user_weight),
+									0
+								)} PARAS`}</div>
+							)}
 
 							<div className="text-white py-4 my-6">
 								<p className="text-xl font-bold mb-2">Votes</p>
-								<div className="flex justify-between items-end text-white text-opacity-80 text-sm">
+								<div className="flex justify-between items-end text-white text-opacity-80 text-sm font-light">
 									<div className="w-2/5">
 										<p>Account</p>
 									</div>
@@ -194,21 +213,27 @@ const ProposalItemDetail = () => {
 							<div className="text-white p-4 rounded-md shadow-xl bg-parasGrey">
 								<p className="text-xl font-bold mb-2">Information</p>
 								<div className="flex justify-between">
-									<p className="font-medium">Voting System</p>
-									<p className="text-white text-opacity-80">Single choice voting</p>
+									<p>Voting System</p>
+									<p className="text-white text-opacity-80 font-light">Single choice voting</p>
 								</div>
 								<div className="flex justify-between">
-									<p className="font-medium">Start date</p>
-									<p className="text-white text-opacity-80">{startTime.toUTCString()}</p>
+									<p>Start date</p>
+									<p className="text-white text-opacity-80 font-light">
+										{dayjs(startTime.getTime()).format('MMM D, YYYY h:mm A')}
+									</p>
 								</div>
 								<div className="flex justify-between">
-									<p className="font-medium">End date</p>
-									<p className="text-white text-opacity-80">{endTime.toUTCString()}</p>
+									<p>End date</p>
+									<p className="text-white text-opacity-80 font-light">
+										{dayjs(endTime.getTime()).format('MMM D, YYYY h:mm A')}
+									</p>
 								</div>
 							</div>
 
 							<div className="mt-4 text-white p-4 rounded-md shadow-xl bg-parasGrey">
-								<p className="text-xl font-bold">Current Result</p>
+								<p className="text-xl font-bold">
+									{proposal.proposal.status === 'InProgress' ? 'Current Result' : 'Results'}
+								</p>
 								{Object.keys(proposal.proposal.vote_counts).map((key) => {
 									const optionWeight = proposal.proposal.vote_counts[key]
 									const percentage = (
@@ -221,7 +246,7 @@ const ProposalItemDetail = () => {
 										<div className="mt-3" key={key}>
 											<div className="flex justify-between">
 												<p className="text-white text-opacity-80 capitalize">{key}</p>
-												<p className="text-white text-opacity-80 text-right">
+												<p className="text-white text-opacity-80 text-right font-light">
 													{prettyBalance(formatParasAmount(optionWeight), 0)} PARAS ({percentage}%)
 												</p>
 											</div>
@@ -239,14 +264,14 @@ const ProposalItemDetail = () => {
 							<div className="mt-4 text-white p-4 rounded-md shadow-xl bg-parasGrey">
 								<p className="text-xl font-bold mb-2">Voting Stats</p>
 								<div className="flex justify-between">
-									<p className="font-medium">Total Votes</p>
-									<p className="text-white text-opacity-80">
+									<p>Total Votes</p>
+									<p className="text-white text-opacity-80 font-light">
 										{prettyBalance(formatParasAmount(proposal.proposal.total_vote_counts), 0)} PARAS
 									</p>
 								</div>
 								<div className="flex justify-between">
-									<p className="font-medium">Unique Voters</p>
-									<p className="text-white text-opacity-80">
+									<p>Unique Voters</p>
+									<p className="text-white text-opacity-80 font-light">
 										{Object.keys(proposal.proposal.votes).length}
 									</p>
 								</div>

@@ -88,16 +88,21 @@ const Header = () => {
 				profile={userProfile as IProfile}
 			/>
 			<div className="flex items-center p-4 max-w-6xl mx-auto justify-between">
-				<div className="flex items-center">
-					<div className="w-24 cursor-pointer" onClick={openParas}>
+				<div className="flex items-baseline">
+					<div className="w-24 cursor-pointer mr-2 md:mr-4" onClick={openParas}>
 						<IconParas />
+					</div>
+					<div className="flex items-center gap-2 md:gap-8 mx-4 md:mx-8">
+						<Link href="/">
+							<a className="text-white font-bold">Stake</a>
+						</Link>
+						<Link href="/proposal">
+							<a className="text-white font-bold">Vote</a>
+						</Link>
 					</div>
 				</div>
 
 				<div className="flex items-center">
-					<Link href="/proposal">
-						<a className="text-white mx-4 font-bold border-b-2 border-white">Vote</a>
-					</Link>
 					<div className="relative">
 						<Button
 							onClick={() => {

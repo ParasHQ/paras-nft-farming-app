@@ -6,9 +6,11 @@ import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
+import JSBI from 'jsbi'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { formatParasAmount, hasReward, parseParasAmount, prettyBalance } from 'utils/common'
 
@@ -18,11 +20,26 @@ interface UnstakeTokenModalProps extends ModalCommonProps {
 	}
 }
 
+interface UnstakesTokenForm {
+	inputUnstake: string
+}
+
 const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
-	const [inputUnstake, setInputUnstake] = useState<number | string>('')
+	const {
+		register,
+		handleSubmit,
+		setValue,
+		formState: { errors },
+	} = useForm<UnstakesTokenForm>()
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [userDelegations, setUserDelegations] = useState({
+		next_withdraw_timestamp: (new Date().getTime() - 1).toString(),
+		undelegated_seeds: '0',
+		delegated_seeds: '0',
+		free_seeds: '0',
+	})
 
 	const getStakedBalance = useCallback(async () => {
 		const balanceStaked = await near.nearViewFunction({
@@ -35,13 +52,25 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 		setBalance(balanceStaked[props.seedId])
 	}, [props.seedId])
 
+	const getUserDelegations = async () => {
+		const userDelegate = await near.nearViewFunction({
+			methodName: 'get_user_delegations',
+			contractName: CONTRACT.FARM,
+			args: {
+				account_id: near.wallet.getAccountId(),
+			},
+		})
+		setUserDelegations(userDelegate)
+	}
+
 	useEffect(() => {
 		if (props.show) {
 			getStakedBalance()
+			getUserDelegations()
 		}
 	}, [props.show, getStakedBalance])
 
-	const unstakeToken = async () => {
+	const unstakeToken = async ({ inputUnstake }: UnstakesTokenForm) => {
 		try {
 			const txs: {
 				receiverId: string
@@ -99,6 +128,26 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 		}
 	}
 
+	const getPendingFromUndelegate = () => {
+		const nextWithdrawUndelegate = new Date(
+			parseInt(userDelegations.next_withdraw_timestamp) / 10 ** 6
+		)
+		if (nextWithdrawUndelegate.getTime() < new Date().getTime()) {
+			return '0'
+		} else {
+			return userDelegations.undelegated_seeds
+		}
+	}
+
+	const getAvailableToUnstake = () => {
+		const nonDelegated = JSBI.subtract(
+			JSBI.BigInt(balance),
+			JSBI.BigInt(userDelegations.delegated_seeds)
+		)
+		const availableToUnstake = JSBI.subtract(nonDelegated, JSBI.BigInt(getPendingFromUndelegate()))
+		return availableToUnstake.toString()
+	}
+
 	return (
 		<Modal isShow={props.show} onClose={props.onClose}>
 			<div className="max-w-sm w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
@@ -116,22 +165,58 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 				</div>
 
 				<div>
-					<p className="opacity-80 text-right text-white text-sm mb-1">
-						Balance: {prettyBalance(balance)}
-					</p>
+					<div className="opacity-80 text-white text-sm flex justify-between">
+						<p>Staked PARAS:</p>
+						<p>{prettyBalance(balance)} ℗</p>
+					</div>
+					{userDelegations.delegated_seeds !== '0' && (
+						<div className="opacity-80 text-white text-sm flex justify-between">
+							<p>Added to Voting Power:</p>
+							<p>-{prettyBalance(userDelegations.delegated_seeds)} ℗</p>
+						</div>
+					)}
+					{getPendingFromUndelegate() !== '0' && (
+						<div className="opacity-80 text-white text-sm flex justify-between">
+							<p>Pending from vote balance:</p>
+							<p>-{prettyBalance(getPendingFromUndelegate())} ℗</p>
+						</div>
+					)}
+					<div className="text-white text-sm mt-1 mb-2 flex justify-between font-medium">
+						<p>Available to Unstake:</p>
+						<p>{prettyBalance(getAvailableToUnstake())} ℗</p>
+					</div>
+
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
-							value={inputUnstake}
-							onChange={(event) => setInputUnstake(event.target.value)}
+							{...register('inputUnstake', {
+								required: true,
+								min: 0.1,
+								max: formatParasAmount(getAvailableToUnstake()),
+							})}
 							className="border-none"
 							type="number"
 							placeholder="0.0"
 						/>
 						<p className="text-white font-bold mr-3 shado">PARAS</p>
 					</div>
+					{errors.inputUnstake?.type === 'min' && (
+						<span className="text-red-500 text-xs">Min is 0.1 PARAS</span>
+					)}
+					{errors.inputUnstake?.type === 'required' && (
+						<span className="text-red-500 text-xs">This field is required</span>
+					)}
+					{errors.inputUnstake?.type === 'max' && (
+						<span className="text-red-500 text-xs">
+							Max is {prettyBalance(getAvailableToUnstake(), 18, 4)} PARAS
+						</span>
+					)}
 					<div className="text-left">
 						<Button
-							onClick={() => balance && setInputUnstake(formatParasAmount(balance))}
+							onClick={() =>
+								setValue('inputUnstake', formatParasAmount(getAvailableToUnstake()), {
+									shouldValidate: true,
+								})
+							}
 							className="float-none mt-2 w-16"
 							isDisabled={!balance}
 							size="sm"
@@ -157,8 +242,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 				)}
 				<Button
 					isLoading={isSubmitting}
-					isDisabled={inputUnstake === '' || isSubmitting}
-					onClick={unstakeToken}
+					onClick={handleSubmit(unstakeToken)}
 					isFullWidth
 					size="lg"
 					color="blue-gray"

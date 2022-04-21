@@ -5,6 +5,7 @@ import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
@@ -14,11 +15,21 @@ interface UndelegateTokenModalProps {
 	delegationBalance: number
 }
 
+interface UndelegateTokenForm {
+	inputUndelegate: string
+}
+
 const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
-	const [inputUndelegate, setInputUndelegate] = useState<string>('')
+	const {
+		register,
+		handleSubmit,
+		watch,
+		setValue,
+		formState: { errors },
+	} = useForm<UndelegateTokenForm>()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
-	const undelegateToken = async () => {
+	const undelegateToken = async ({ inputUndelegate }: UndelegateTokenForm) => {
 		setIsSubmitting(true)
 
 		try {
@@ -67,21 +78,39 @@ const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
 
 				<div>
 					<p className="opacity-80 text-right text-white text-sm mb-1">
-						Balance: {prettyBalance(props.delegationBalance.toString())}
+						Balance: {prettyBalance(props.delegationBalance.toString())} ℗
 					</p>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
-							value={inputUndelegate}
-							onChange={(event) => setInputUndelegate(event.target.value)}
+							{...register('inputUndelegate', {
+								required: true,
+								min: 0.1,
+								max: formatParasAmount(props.delegationBalance),
+							})}
 							className="border-none"
 							type="number"
 							placeholder="0.0"
 						/>
 						<p className="text-white font-bold mr-3 shado">PARAS</p>
 					</div>
+					{errors.inputUndelegate?.type === 'min' && (
+						<span className="text-red-500 text-xs">Min is 0.1 PARAS</span>
+					)}
+					{errors.inputUndelegate?.type === 'required' && (
+						<span className="text-red-500 text-xs">This field is required</span>
+					)}
+					{errors.inputUndelegate?.type === 'max' && (
+						<span className="text-red-500 text-xs">
+							Max is {prettyBalance(props.delegationBalance.toString(), 18, 4)} PARAS
+						</span>
+					)}
 					<div className="text-left">
 						<Button
-							onClick={() => setInputUndelegate(formatParasAmount(props.delegationBalance))}
+							onClick={() =>
+								setValue('inputUndelegate', formatParasAmount(props.delegationBalance), {
+									shouldValidate: true,
+								})
+							}
 							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
@@ -92,20 +121,20 @@ const UndelegateTokenModal = (props: UndelegateTokenModalProps) => {
 					<div className="p-3 rounded-md bg-blueGray bg-opacity-25 mt-4">
 						<p className="text-white text-xs text-center font-medium m-auto">
 							Please note you won't be able to unstake PARAS immediately.{' '}
-							{prettyBalance(inputUndelegate || '0', 0)} PARAS will be available after 1 day
+							{prettyBalance(watch('inputUndelegate') || '0', 0)} PARAS will be available after 1
+							day
 						</p>
 					</div>
 				</div>
 				<Button
 					isLoading={isSubmitting}
-					isDisabled={inputUndelegate === '' || isSubmitting}
-					onClick={undelegateToken}
+					onClick={handleSubmit(undelegateToken)}
 					isFullWidth
 					color="blue-gray"
 					size="lg"
 					className="mt-4"
 				>
-					Undelegate
+					Remove
 				</Button>
 			</div>
 		</Modal>

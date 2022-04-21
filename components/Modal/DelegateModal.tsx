@@ -7,6 +7,7 @@ import JSBI from 'jsbi'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { formatParasAmount, parseParasAmount, prettyBalance } from 'utils/common'
 
@@ -17,9 +18,18 @@ interface DelegateTokenModalProps {
 	delegationBalance: number
 }
 
+interface DelegateTokenForm {
+	inputDelegate: string
+}
+
 const DelegateTokenModal = (props: DelegateTokenModalProps) => {
 	const [balance, setBalance] = useState('0')
-	const [inputDelegate, setInputDelegate] = useState<string>('')
+	const {
+		register,
+		handleSubmit,
+		setValue,
+		formState: { errors },
+	} = useForm<DelegateTokenForm>()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const availableForDelegate = JSBI.subtract(
@@ -44,7 +54,7 @@ const DelegateTokenModal = (props: DelegateTokenModalProps) => {
 		setBalance(balanceStaked[CONTRACT.TOKEN])
 	}
 
-	const delegateToken = async () => {
+	const delegateToken = async ({ inputDelegate }: DelegateTokenForm) => {
 		setIsSubmitting(true)
 
 		try {
@@ -109,25 +119,43 @@ const DelegateTokenModal = (props: DelegateTokenModalProps) => {
 				<div>
 					<div className="opacity-80 text-white text-sm flex justify-between">
 						<p>Staked Paras:</p>
-						<p>{prettyBalance(balance)}</p>
+						<p>{prettyBalance(balance)} ℗</p>
 					</div>
 					<div className="opacity-80 text-white text-sm mb-2 flex justify-between">
 						<p>Available for Add:</p>
-						<p>{prettyBalance(availableForDelegate)}</p>
+						<p>{prettyBalance(availableForDelegate)} ℗</p>
 					</div>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
-							value={inputDelegate}
-							onChange={(event) => setInputDelegate(event.target.value)}
+							{...register('inputDelegate', {
+								required: true,
+								min: 0.1,
+								max: formatParasAmount(availableForDelegate),
+							})}
 							className="border-none"
 							type="number"
 							placeholder="0.0"
 						/>
 						<p className="text-white font-bold mr-3 shado">PARAS</p>
 					</div>
+					{errors.inputDelegate?.type === 'min' && (
+						<span className="text-red-500 text-xs">Min is 0.1 PARAS</span>
+					)}
+					{errors.inputDelegate?.type === 'required' && (
+						<span className="text-red-500 text-xs">This field is required</span>
+					)}
+					{errors.inputDelegate?.type === 'max' && (
+						<span className="text-red-500 text-xs">
+							Max is {prettyBalance(availableForDelegate, 18, 4)} PARAS
+						</span>
+					)}
 					<div className="text-left">
 						<Button
-							onClick={() => setInputDelegate(formatParasAmount(availableForDelegate))}
+							onClick={() =>
+								setValue('inputDelegate', formatParasAmount(availableForDelegate), {
+									shouldValidate: true,
+								})
+							}
 							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
@@ -144,8 +172,7 @@ const DelegateTokenModal = (props: DelegateTokenModalProps) => {
 				</div>
 				<Button
 					isLoading={isSubmitting}
-					isDisabled={inputDelegate === '' || isSubmitting}
-					onClick={delegateToken}
+					onClick={handleSubmit(delegateToken)}
 					isFullWidth
 					size="lg"
 					className="mt-4"

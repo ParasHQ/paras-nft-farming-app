@@ -94,10 +94,14 @@ const Header = () => {
 					</div>
 					<div className="flex items-center gap-2 md:gap-8 mx-4 md:mx-8">
 						<Link href="/">
-							<a className="text-white font-bold">Stake</a>
+							<a className="text-white font-bold transition-colors duration-200 hover:text-blueButton">
+								Stake
+							</a>
 						</Link>
 						<Link href="/proposal">
-							<a className="text-white font-bold">Vote</a>
+							<a className="text-white font-bold transition-colors duration-200 hover:text-blueButton">
+								Vote
+							</a>
 						</Link>
 					</div>
 				</div>

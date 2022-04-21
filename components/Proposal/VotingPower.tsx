@@ -53,8 +53,8 @@ const VotingPower = ({ className = '' }: IVotingPowerProps) => {
 				delegationBalance={delegationBalance}
 			/>
 			<div className="mt-4 max-w-3xl mx-auto">
-				<div className="flex justify-between mb-4">
-					<div className="text-lg text-white text-opacity-80">
+				<div className="md:flex justify-between mb-4">
+					<div className="text-lg text-white text-opacity-80 mb-4">
 						Your voting power:{' '}
 						<span className="font-bold text-white text-opacity-100">
 							{prettyBalance(formatParasAmount(delegationBalance), 0)} PARAS

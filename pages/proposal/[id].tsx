@@ -1,11 +1,9 @@
-import Button from 'components/Common/Button'
 import Head from 'components/Common/Head'
 import Header from 'components/Common/Header'
 import Loader from 'components/Common/Loader'
-import DelegateTokenModal from 'components/Modal/DelegateModal'
-import UndelegateTokenModal from 'components/Modal/UndelegateModal'
 import ProposalVote from 'components/Proposal/ProposalVote'
 import VotesPeople from 'components/Proposal/VotesPeople'
+import VotingPower from 'components/Proposal/VotingPower'
 import dayjs from 'dayjs'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IProposal } from 'interfaces/proposal'
@@ -20,10 +18,8 @@ export type TShowModal = 'delegate' | 'undelegate' | null
 const ProposalItemDetail = () => {
 	const [proposal, setProposal] = useState<IProposal>()
 	const [delegationBalance, setDelegationBalance] = useState<number>(0)
-	const [hasRegister, setHasRegister] = useState(false)
-	const [showModal, setShowModal] = useState<TShowModal>(null)
 
-	const { accountId, setCommonModal, hasDeposit } = useNearProvider()
+	const { accountId } = useNearProvider()
 	const router = useRouter()
 
 	const startTime = new Date((proposal?.proposal.proposal_start_time || 0) / 10 ** 6)
@@ -60,7 +56,6 @@ const ProposalItemDetail = () => {
 					},
 				})
 				setDelegationBalance(delegationBalance)
-				setHasRegister(true)
 			} catch (error) {
 				console.log(error)
 			}
@@ -82,36 +77,11 @@ const ProposalItemDetail = () => {
 		)
 	}
 
-	const onClickDelegate = (type: TShowModal) => {
-		if (!accountId) {
-			setCommonModal('login')
-			return
-		}
-
-		if (!hasDeposit) {
-			setCommonModal('deposit')
-			return
-		}
-
-		setShowModal(type)
-	}
-
 	return (
 		<>
 			<Head />
 			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
 				<Header />
-				<DelegateTokenModal
-					show={showModal === 'delegate'}
-					onClose={() => setShowModal(null)}
-					hasRegister={hasRegister}
-					delegationBalance={delegationBalance}
-				/>
-				<UndelegateTokenModal
-					show={showModal === 'undelegate'}
-					onClose={() => setShowModal(null)}
-					delegationBalance={delegationBalance}
-				/>
 				<div className="max-w-5xl w-full mx-auto px-4">
 					<div className="md:flex md:gap-6 mt-8">
 						<div className="md:w-3/5 text-white">
@@ -126,35 +96,8 @@ const ProposalItemDetail = () => {
 							<p>by {proposal.proposal.proposer}</p>
 							<p className="my-8 text-white text-opacity-80">{proposal.proposal.description}</p>
 							<hr className="my-8" />
-							<div className="flex justify-between">
-								<div className="text-lg text-white text-opacity-80">
-									Your voting power:{' '}
-									<span className="font-bold text-white text-opacity-100">
-										{prettyBalance(formatParasAmount(delegationBalance), 0)} PARAS
-									</span>
-								</div>
-								<div className="flex gap-2">
-									<div>
-										<Button
-											onClick={() => onClickDelegate('delegate')}
-											className="px-6 w-28"
-											size="md"
-										>
-											Add
-										</Button>
-									</div>
-									<div>
-										<Button
-											onClick={() => onClickDelegate('undelegate')}
-											className="px-6 w-28"
-											size="md"
-											color="blue-gray"
-										>
-											Remove
-										</Button>
-									</div>
-								</div>
-							</div>
+
+							<VotingPower />
 
 							{proposal.proposal.status === 'InProgress' && (
 								<ProposalVote

@@ -7,17 +7,11 @@ import near, { CONTRACT } from 'services/near'
 import Link from 'next/link'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { formatParasAmount, getTimeRemaining, prettyBalance } from 'utils/common'
-import Button from 'components/Common/Button'
-import DelegateTokenModal from 'components/Modal/DelegateModal'
-import UndelegateTokenModal from 'components/Modal/UndelegateModal'
-import { TShowModal } from './proposal/[id]'
+import VotingPower from 'components/Proposal/VotingPower'
 
 const Proposal = () => {
 	const [proposals, setProposals] = useState<IProposal[]>([])
-	const [delegationBalance, setDelegationBalance] = useState<number>(0)
-	const [hasRegister, setHasRegister] = useState(false)
-	const [showModal, setShowModal] = useState<TShowModal>(null)
-	const { isInit, accountId } = useNearProvider()
+	const { isInit } = useNearProvider()
 
 	useEffect(() => {
 		const getProposals = async () => {
@@ -37,70 +31,13 @@ const Proposal = () => {
 		}
 	}, [isInit])
 
-	useEffect(() => {
-		const getDelegation = async () => {
-			try {
-				const delegationBalance = await near.nearViewFunction({
-					contractName: CONTRACT.DAO,
-					methodName: 'delegation_balance_of',
-					args: {
-						account_id: accountId,
-					},
-				})
-				setDelegationBalance(delegationBalance)
-				setHasRegister(true)
-			} catch (error) {
-				console.log(error)
-			}
-		}
-
-		if (accountId) {
-			getDelegation()
-		}
-	}, [accountId])
-
 	return (
 		<>
 			<Head />
 			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
 				<Header />
-				<DelegateTokenModal
-					show={showModal === 'delegate'}
-					onClose={() => setShowModal(null)}
-					hasRegister={hasRegister}
-					delegationBalance={delegationBalance}
-				/>
-				<UndelegateTokenModal
-					show={showModal === 'undelegate'}
-					onClose={() => setShowModal(null)}
-					delegationBalance={delegationBalance}
-				/>
 				<div className="mt-4 max-w-3xl px-4 mx-auto pb-12">
-					<div className="flex justify-between mb-4">
-						<div className="text-lg text-white text-opacity-80">
-							Your voting power:{' '}
-							<span className="font-bold text-white text-opacity-100">
-								{prettyBalance(formatParasAmount(delegationBalance), 0)} PARAS
-							</span>
-						</div>
-						<div className="flex gap-2">
-							<div>
-								<Button onClick={() => setShowModal('delegate')} className="px-6 w-28" size="md">
-									Add
-								</Button>
-							</div>
-							<div>
-								<Button
-									onClick={() => setShowModal('undelegate')}
-									className="px-6 w-28"
-									size="md"
-									color="blue-gray"
-								>
-									Remove
-								</Button>
-							</div>
-						</div>
-					</div>
+					<VotingPower />
 					<p className="my-4 font-bold text-2xl text-white">Proposal</p>
 					{proposals.map((proposal) => (
 						<ProposalItem key={proposal.id} data={proposal} />

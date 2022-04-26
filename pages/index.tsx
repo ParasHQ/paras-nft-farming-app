@@ -99,8 +99,11 @@ const Home: NextPage = () => {
 
 	if (!Array.isArray(poolListFT) || poolListFT.length === 0) {
 		return (
-			<div>
+			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
 				<Loader isLoading={true} />
+				<div className="relative z-50">
+					<Header />
+				</div>
 			</div>
 		)
 	}

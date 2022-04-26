@@ -133,22 +133,28 @@ const ProposalItemDetail = () => {
 										<p>Staked Paras</p>
 									</div>
 								</div>
-								{Object.keys(proposal.proposal.votes).map((key) => {
-									const user = proposal.proposal.votes[key]
-									const percentage =
-										(parseInt(formatParasAmount(user.user_weight)) /
-											parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
-										100
-									return (
-										<VotesPeople
-											key={key}
-											option={user.vote_option}
-											userId={key}
-											percentage={percentage.toFixed(2)}
-											weight={user.user_weight}
-										/>
+								{Object.entries(proposal.proposal.votes)
+									.sort(
+										([, value1], [, value2]) =>
+											parseInt(formatParasAmount(value2.user_weight)) -
+											parseInt(formatParasAmount(value1.user_weight))
 									)
-								})}
+									.map(([key, value]) => {
+										const user = value
+										const percentage =
+											(parseInt(formatParasAmount(user.user_weight)) /
+												parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
+											100
+										return (
+											<VotesPeople
+												key={key}
+												option={user.vote_option}
+												userId={key}
+												percentage={percentage.toFixed(2)}
+												weight={user.user_weight}
+											/>
+										)
+									})}
 							</div>
 						</div>
 
@@ -177,31 +183,35 @@ const ProposalItemDetail = () => {
 								<p className="text-xl font-bold">
 									{proposal.proposal.status === 'InProgress' ? 'Current Result' : 'Results'}
 								</p>
-								{Object.keys(proposal.proposal.vote_counts).map((key) => {
-									const optionWeight = proposal.proposal.vote_counts[key]
-									const percentage = (
-										(parseInt(formatParasAmount(optionWeight)) /
-											parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
-										100
-									).toFixed(2)
-
-									return (
-										<div className="mt-3" key={key}>
-											<div className="flex justify-between">
-												<p className="text-white text-opacity-80 capitalize">{key}</p>
-												<p className="text-white text-opacity-80 text-right font-light">
-													{prettyBalance(formatParasAmount(optionWeight), 0)} PARAS ({percentage}%)
-												</p>
-											</div>
-											<div className="mt-2 relative w-full h-[0.45rem] rounded-md bg-gray-200 overflow-hidden">
-												<div
-													className="absolute h-full bg-blueButton"
-													style={{ width: `${percentage}%` }}
-												/>
-											</div>
-										</div>
+								{Object.entries(proposal.proposal.vote_counts)
+									.sort(
+										([, value1], [, value2]) =>
+											parseInt(formatParasAmount(value2)) - parseInt(formatParasAmount(value1))
 									)
-								})}
+									.map(([key, value]) => {
+										const percentage = (
+											(parseInt(formatParasAmount(value)) /
+												parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
+											100
+										).toFixed(2)
+
+										return (
+											<div className="mt-3" key={key}>
+												<div className="flex justify-between">
+													<p className="text-white text-opacity-80 capitalize">{key}</p>
+													<p className="text-white text-opacity-80 text-right font-light">
+														{prettyBalance(formatParasAmount(value), 0)} PARAS ({percentage}%)
+													</p>
+												</div>
+												<div className="mt-2 relative w-full h-[0.45rem] rounded-md bg-gray-200 overflow-hidden">
+													<div
+														className="absolute h-full bg-blueButton"
+														style={{ width: `${percentage}%` }}
+													/>
+												</div>
+											</div>
+										)
+									})}
 							</div>
 
 							<div className="mt-4 text-white p-4 rounded-md shadow-xl bg-parasGrey">

@@ -15,7 +15,7 @@ interface IProposalVoteProps {
 const ProposalVote = ({ options, delegationBalance, id, userVotes }: IProposalVoteProps) => {
 	const [choosenVote, setChoosenVote] = useState<string>()
 	const [isSubmitting, setIsSubmitting] = useState(false)
-	const [showError, setShowError] = useState(false)
+	const [showError, setShowError] = useState<null | 'option' | 'no-power'>(null)
 	const cursorStatus = userVotes ? 'cursor-not-allowed' : 'cursor-pointer'
 
 	useEffect(() => {
@@ -26,13 +26,18 @@ const ProposalVote = ({ options, delegationBalance, id, userVotes }: IProposalVo
 
 	useEffect(() => {
 		if (choosenVote) {
-			setShowError(false)
+			setShowError(null)
 		}
 	}, [choosenVote])
 
 	const handleVote = async () => {
 		if (!choosenVote) {
-			setShowError(true)
+			setShowError('option')
+			return
+		}
+
+		if (delegationBalance === 0) {
+			setShowError('no-power')
 			return
 		}
 
@@ -98,7 +103,12 @@ const ProposalVote = ({ options, delegationBalance, id, userVotes }: IProposalVo
 					</div>
 				))}
 			</div>
-			{showError && <p className="text-sm text-red-500 mt-1">*Please choose an option</p>}
+			{showError === 'option' && (
+				<p className="text-sm text-red-500 mt-1">*Please choose an option</p>
+			)}
+			{showError === 'no-power' && (
+				<p className="text-sm text-red-500 mt-1">You don't have voting power</p>
+			)}
 			<div className="mt-6 flex justify-between items-end">
 				<div>
 					<p className="text-lg text-white text-opacity-80">

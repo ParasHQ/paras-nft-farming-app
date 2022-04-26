@@ -51,7 +51,7 @@ const DelegateTokenModal = (props: DelegateTokenModalProps) => {
 				account_id: near.wallet.getAccountId(),
 			},
 		})
-		setBalance(balanceStaked[CONTRACT.TOKEN])
+		setBalance(balanceStaked[CONTRACT.TOKEN] || '0')
 	}
 
 	const delegateToken = async ({ inputDelegate }: DelegateTokenForm) => {

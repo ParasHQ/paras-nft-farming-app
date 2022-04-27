@@ -7,7 +7,7 @@ interface ButtonProps {
 	isFullWidth?: boolean
 	isLoading?: boolean
 	size?: 'xs' | 'sm' | 'md' | 'lg'
-	color?: 'blue' | 'red' | 'green' | 'gray' | 'blue-gray'
+	color?: 'blue' | 'red' | 'green' | 'gray' | 'blue-gray' | ''
 	className?: string
 	style?: React.CSSProperties
 }

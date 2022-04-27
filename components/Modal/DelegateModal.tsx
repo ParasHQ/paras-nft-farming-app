@@ -6,6 +6,7 @@ import { GAS_FEE } from 'constants/gasFee'
 import JSBI from 'jsbi'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import near, { CONTRACT, getAmount } from 'services/near'
@@ -23,7 +24,7 @@ interface DelegateTokenForm {
 }
 
 const DelegateTokenModal = (props: DelegateTokenModalProps) => {
-	const [balance, setBalance] = useState('0')
+	const [balance, setBalance] = useState('')
 	const {
 		register,
 		handleSubmit,
@@ -163,6 +164,18 @@ const DelegateTokenModal = (props: DelegateTokenModalProps) => {
 							use max
 						</Button>
 					</div>
+					{balance === '0' && (
+						<div className="p-3 rounded-md bg-blueButton bg-opacity-25 mt-4 ">
+							<p className="text-white text-xs text-center font-medium">
+								You don't have staked paras. Please stake some paras to add voting power in PARAS
+								Pool{' '}
+								<Link href="/">
+									<a className="underline">here</a>
+								</Link>
+								.
+							</p>
+						</div>
+					)}
 					<div className="p-3 rounded-md bg-blueButton bg-opacity-25 mt-4 ">
 						<p className="text-white text-xs text-center font-medium">
 							Please note if you add PARAS, you won't be able to unstake your added PARAS
@@ -177,7 +190,7 @@ const DelegateTokenModal = (props: DelegateTokenModalProps) => {
 					size="lg"
 					className="mt-4"
 				>
-					Deposit
+					Add
 				</Button>
 			</div>
 		</Modal>

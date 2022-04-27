@@ -89,7 +89,7 @@ const ClaimModal = ({
 
 	const rewardCompounded = () => {
 		const compoundedReward = getCompoundedReward()
-		const parasRewardFromNFTPool = formatParasAmount(claimableRewards[CONTRACT.TOKEN])
+		const parasRewardFromNFTPool = formatParasAmount(claimableRewards[CONTRACT.TOKEN] || '0')
 		const parasRewardFromFTPool = formatParasAmount(ftPool?.claimableRewards[CONTRACT.TOKEN] || '0')
 
 		return (

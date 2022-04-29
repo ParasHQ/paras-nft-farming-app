@@ -3,7 +3,9 @@ import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
+import IconInfo from 'components/Icon/IconInfo'
 import { GAS_FEE } from 'constants/gasFee'
+import dayjs from 'dayjs'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
 import JSBI from 'jsbi'
@@ -11,6 +13,7 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import ReactTooltip from 'react-tooltip'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { formatParasAmount, hasReward, parseParasAmount, prettyBalance } from 'utils/common'
 
@@ -49,7 +52,9 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 				account_id: near.wallet.getAccountId(),
 			},
 		})
-		setBalance(balanceStaked[props.seedId])
+		if (balanceStaked[props.seedId]) {
+			setBalance(balanceStaked[props.seedId])
+		}
 	}, [props.seedId])
 
 	const getUserDelegations = async () => {
@@ -177,7 +182,23 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 					)}
 					{getPendingFromUndelegate() !== '0' && (
 						<div className="opacity-80 text-white text-sm flex justify-between">
-							<p>Pending from vote balance:</p>
+							<ReactTooltip html={true} id="tooltip-unstake-token" />
+							<div
+								data-for="tooltip-unstake-token"
+								data-tip={`
+									<div class="w-64">
+										<p class="text-sm">Your token are still locked from voting power and will be unlocked at ${dayjs(
+											parseInt(userDelegations.next_withdraw_timestamp) / 10 ** 6
+										).format('MMM D, YYYY h:mm A')}</p>
+									</div>`}
+								className="flex items-center"
+							>
+								Pending from vote balance
+								<div>
+									<IconInfo className="w-4 h-4" />
+								</div>
+								:
+							</div>
 							<p>-{prettyBalance(getPendingFromUndelegate())} ℗</p>
 						</div>
 					)}

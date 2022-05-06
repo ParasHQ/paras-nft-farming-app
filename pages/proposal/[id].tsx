@@ -6,7 +6,7 @@ import VotesPeople from 'components/Proposal/VotesPeople'
 import VotingPower from 'components/Proposal/VotingPower'
 import dayjs from 'dayjs'
 import { useNearProvider } from 'hooks/useNearProvider'
-import { IProposal } from 'interfaces/proposal'
+import { IProposal, IUserVote, IVotes } from 'interfaces/proposal'
 import { useRouter } from 'next/dist/client/router'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -36,6 +36,36 @@ const ProposalItemDetail = () => {
 					id: parseInt(router.query.id as string),
 				},
 			})
+
+			const proposalVotes = await near.nearViewFunction({
+				contractName: CONTRACT.DAO,
+				methodName: 'get_proposal_votes',
+				args: {
+					id: parseInt(router.query.id as string),
+					from_index: 0,
+					limit: 10,
+				}
+			})
+
+			const proposalVoteUser = await near.nearViewFunction({
+				contractName: CONTRACT.DAO,
+				methodName: 'get_proposal_vote',
+				args: {
+					id: parseInt(router.query.id as string),
+					account_id: accountId
+				}
+			})
+
+			const proposalVotesWrap: IVotes = {}
+
+			proposalVotes.forEach((userVoteTuple: Array<any>) => {
+				proposalVotesWrap[userVoteTuple[0]] = userVoteTuple[1]
+			})
+
+			if (proposalVoteUser) proposalVotesWrap[accountId as string] = proposalVoteUser
+
+
+			proposalDetail.proposal.votes = proposalVotesWrap
 
 			setProposal(proposalDetail)
 		}

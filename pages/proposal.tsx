@@ -1,7 +1,7 @@
 import Head from 'components/Common/Head'
 import Header from 'components/Common/Header'
 import IconClock from 'components/Icon/IconClock'
-import { IProposal } from 'interfaces/proposal'
+import { IProposal, IUserVote, IVotes } from 'interfaces/proposal'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import Link from 'next/link'
@@ -11,7 +11,7 @@ import VotingPower from 'components/Proposal/VotingPower'
 
 const Proposal = () => {
 	const [proposals, setProposals] = useState<IProposal[]>([])
-	const { isInit } = useNearProvider()
+	const { isInit, accountId } = useNearProvider()
 
 	useEffect(() => {
 		const getProposals = async () => {
@@ -23,6 +23,25 @@ const Proposal = () => {
 					limit: 10,
 				},
 			})
+
+			for (const [i, proposal] of proposalDetail.entries()) {
+				const proposalVotesWrap: IVotes = {}
+	
+				if (accountId) {
+					const proposalVoteUser = await near.nearViewFunction({
+						contractName: CONTRACT.DAO,
+						methodName: 'get_proposal_vote',
+						args: {
+							id: proposal.id,
+							account_id: accountId
+						}
+					})
+
+					if (proposalVoteUser) proposalVotesWrap[accountId as string] = proposalVoteUser
+				}
+	
+				proposalDetail[i].proposal.votes = proposalVotesWrap
+			}
 
 			setProposals(proposalDetail)
 		}

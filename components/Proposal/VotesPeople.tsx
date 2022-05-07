@@ -6,7 +6,7 @@ import { formatParasAmount, parseImgUrl, prettyBalance } from 'utils/common'
 interface IVotesPeopleProps {
 	userId: string
 	option: string
-	weight: number
+	weight: string
 	percentage: string
 }
 

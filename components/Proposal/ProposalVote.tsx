@@ -5,12 +5,13 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { GAS_FEE } from 'constants/gasFee'
 import Modal from 'components/Common/Modal'
+import { IUserVote } from 'interfaces/proposal'
 
 interface IProposalVoteProps {
 	options: string[]
 	delegationBalance: number
 	id: string
-	userVotes: { vote_option: string; user_weight: number } | undefined
+	userVotes: IUserVote | undefined
 }
 
 const ProposalVote = ({ options, delegationBalance, id, userVotes }: IProposalVoteProps) => {

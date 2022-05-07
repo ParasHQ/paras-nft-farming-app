@@ -1,6 +1,5 @@
 import IconParas from 'components/Icon/IconParas'
 import ProfileModal from 'components/Modal/ProfileModal'
-import { baseURLParas } from 'constants/baseUrl'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IProfile } from 'interfaces'
 import Link from 'next/link'

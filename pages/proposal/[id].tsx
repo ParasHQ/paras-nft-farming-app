@@ -37,7 +37,7 @@ const ProposalItemDetail = () => {
 				},
 			})
 
-			const proposalVotes = await near.nearViewFunction({
+			const proposalVotes: [string, IUserVote][] = await near.nearViewFunction({
 				contractName: CONTRACT.DAO,
 				methodName: 'get_proposal_votes',
 				args: {
@@ -47,23 +47,24 @@ const ProposalItemDetail = () => {
 				}
 			})
 
-			const proposalVoteUser = await near.nearViewFunction({
-				contractName: CONTRACT.DAO,
-				methodName: 'get_proposal_vote',
-				args: {
-					id: parseInt(router.query.id as string),
-					account_id: accountId
-				}
-			})
-
 			const proposalVotesWrap: IVotes = {}
 
-			proposalVotes.forEach((userVoteTuple: Array<any>) => {
+			proposalVotes.forEach((userVoteTuple) => {
 				proposalVotesWrap[userVoteTuple[0]] = userVoteTuple[1]
 			})
 
-			if (proposalVoteUser) proposalVotesWrap[accountId as string] = proposalVoteUser
+			if (accountId) {
+				const proposalVoteUser = await near.nearViewFunction({
+					contractName: CONTRACT.DAO,
+					methodName: 'get_proposal_vote',
+					args: {
+						id: parseInt(router.query.id as string),
+						account_id: accountId
+					}
+				})
 
+				if (proposalVoteUser) proposalVotesWrap[accountId as string] = proposalVoteUser
+			}
 
 			proposalDetail.proposal.votes = proposalVotesWrap
 

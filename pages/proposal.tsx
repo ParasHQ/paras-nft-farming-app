@@ -15,7 +15,7 @@ const Proposal = () => {
 
 	useEffect(() => {
 		const getProposals = async () => {
-			let proposalDetail = await near.nearViewFunction({
+			const proposalDetail = await near.nearViewFunction({
 				contractName: CONTRACT.DAO,
 				methodName: 'get_proposals',
 				args: {
@@ -25,33 +25,21 @@ const Proposal = () => {
 			})
 
 			for (const [i, proposal] of proposalDetail.entries()) {
-				const proposalVotes = await near.nearViewFunction({
-					contractName: CONTRACT.DAO,
-					methodName: 'get_proposal_votes',
-					args: {
-						id: proposal.id,
-						from_index: 0,
-						limit: 10,
-					}
-				})
-	
-				const proposalVoteUser = await near.nearViewFunction({
-					contractName: CONTRACT.DAO,
-					methodName: 'get_proposal_vote',
-					args: {
-						id: proposal.id,
-						account_id: accountId
-					}
-				})
-	
 				const proposalVotesWrap: IVotes = {}
 	
-				proposalVotes.forEach((accountId: string, userVote: IUserVote) => {
-					proposalVotesWrap[accountId] = userVote
-				})
-	
-				if (proposalVoteUser) proposalVotesWrap[accountId as string] = proposalVoteUser
+				if (accountId) {
+					const proposalVoteUser = await near.nearViewFunction({
+						contractName: CONTRACT.DAO,
+						methodName: 'get_proposal_vote',
+						args: {
+							id: proposal.id,
+							account_id: accountId
+						}
+					})
 
+					if (proposalVoteUser) proposalVotesWrap[accountId as string] = proposalVoteUser
+				}
+	
 				proposalDetail[i].proposal.votes = proposalVotesWrap
 			}
 

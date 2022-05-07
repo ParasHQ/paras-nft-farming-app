@@ -44,7 +44,7 @@ const ProposalItemDetail = () => {
 					id: parseInt(router.query.id as string),
 					from_index: 0,
 					limit: 10,
-				}
+				},
 			})
 
 			const proposalVotesWrap: IVotes = {}
@@ -59,8 +59,8 @@ const ProposalItemDetail = () => {
 					methodName: 'get_proposal_vote',
 					args: {
 						id: parseInt(router.query.id as string),
-						account_id: accountId
-					}
+						account_id: accountId,
+					},
 				})
 
 				if (proposalVoteUser) proposalVotesWrap[accountId as string] = proposalVoteUser

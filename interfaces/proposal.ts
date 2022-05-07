@@ -1,6 +1,11 @@
-export interface IUserVote { vote_option: string; user_weight: string }
+export interface IUserVote {
+	vote_option: string
+	user_weight: string
+}
 
-export interface IVotes { [key: string]: IUserVote}
+export interface IVotes {
+	[key: string]: IUserVote
+}
 
 export interface IProposal {
 	id: number
@@ -18,7 +23,7 @@ export interface IProposal {
 		vote_counts: {
 			[key: string]: string
 		}
-		votes: IVotes,
+		votes: IVotes
 		submission_time: number
 		proposal_start_time: number
 		proposal_period: number

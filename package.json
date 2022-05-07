@@ -5,7 +5,9 @@
 		"dev": "next dev -p 5555",
 		"build": "next build",
 		"start": "next start",
-		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+		"format": "prettier --write .",
+		"prettier-check": "prettier --check ."
 	},
 	"dependencies": {
 		"axios": "^0.24.0",
@@ -37,6 +39,7 @@
 		"eslint": "<8.0.0",
 		"eslint-config-next": "12.0.2",
 		"postcss": "^8.3.11",
+		"prettier": "2.6.2",
 		"tailwindcss": "^2.2.19",
 		"typescript": "^4.5.4"
 	}

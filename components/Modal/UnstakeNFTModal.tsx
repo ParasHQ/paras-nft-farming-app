@@ -1,7 +1,7 @@
 import axios from 'axios'
 import cachios from 'cachios'
 import Button from 'components/Common/Button'
-import { LogoBounce } from 'components/Common/Loader'
+import { LogoBounce } from 'components/Loader/Loader'
 import Modal from 'components/Common/Modal'
 import NFTokenFarm from 'components/Common/NFTokenFarm'
 import PoolReward from 'components/Common/PoolReward'

@@ -6,7 +6,7 @@ import near, { CONTRACT } from 'services/near'
 import { IDataInputDropdown, IPool } from 'interfaces'
 import Head from 'components/Common/Head'
 import MainPool from 'components/MainPool'
-import Loader from 'components/Common/Loader'
+import Loader from 'components/Loader/Loader'
 import InputDropdown from 'components/Common/InputDropdown'
 
 interface IUserStaked {

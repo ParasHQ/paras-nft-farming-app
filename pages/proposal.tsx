@@ -8,13 +8,16 @@ import Link from 'next/link'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { formatParasAmount, getTimeRemaining, prettyBalance } from 'utils/common'
 import VotingPower from 'components/Proposal/VotingPower'
+import ProposalLoader from 'components/Loader/ProposalLoader'
 
 const Proposal = () => {
 	const [proposals, setProposals] = useState<IProposal[]>([])
+	const [isLoading, setIsLoading] = useState(false)
 	const { isInit, accountId } = useNearProvider()
 
 	useEffect(() => {
 		const getProposals = async () => {
+			setIsLoading(true)
 			const proposalDetail = await near.nearViewFunction({
 				contractName: CONTRACT.DAO,
 				methodName: 'get_proposals',
@@ -44,6 +47,7 @@ const Proposal = () => {
 			}
 
 			setProposals(proposalDetail)
+			setIsLoading(false)
 		}
 		if (isInit) {
 			getProposals()
@@ -58,9 +62,11 @@ const Proposal = () => {
 				<div className="mt-4 max-w-3xl px-4 mx-auto pb-12">
 					<VotingPower />
 					<p className="my-4 font-bold text-2xl text-white">Proposal</p>
-					{proposals.map((proposal) => (
-						<ProposalItem key={proposal.id} data={proposal} />
-					))}
+					{isLoading ? (
+						<ProposalLoader />
+					) : (
+						proposals.map((proposal) => <ProposalItem key={proposal.id} data={proposal} />)
+					)}
 				</div>
 			</div>
 		</>
@@ -77,10 +83,10 @@ const ProposalItem = ({ data }: { data: IProposal }) => {
 	const { hours, days } = getTimeRemaining(endTime.getTime())
 
 	const importantText = () => {
-		const startTime = new Date((data.proposal.proposal_start_time || 0) / 10 ** 6)
 		const isNotStarted = startTime.getTime() > Date.now()
+		const isEnded = endTime.getTime() < Date.now()
 
-		if (data.proposal.status === 'InProgress') {
+		if (data.proposal.status === 'InProgress' && !isEnded) {
 			if (isNotStarted) {
 				return 'Coming Soon'
 			} else {
@@ -115,10 +121,18 @@ const ProposalItem = ({ data }: { data: IProposal }) => {
 					<p className="my-6 text-white text-opacity-80">{data.proposal.description}</p>
 					<div className="md:flex flex-row-reverse justify-between items-end">
 						<div className="mb-2 md:mb-0 flex items-center gap-2">
-							<IconClock color={data.proposal.status === 'InProgress' ? '#4FA59E' : '#ffffff'} />
-							<p className={`${data.proposal.status === 'InProgress' ? 'text-[#4FA59E]' : ''}`}>
-								{data.proposal.status === 'InProgress' ? `${days}D ${hours}H Remaining` : `Ended`}
-							</p>
+							{startTime.getTime() < Date.now() && (
+								<>
+									<IconClock
+										color={data.proposal.status === 'InProgress' ? '#4FA59E' : '#ffffff'}
+									/>
+									<p className={`${data.proposal.status === 'InProgress' ? 'text-[#4FA59E]' : ''}`}>
+										{data.proposal.status === 'InProgress' && endTime.getTime() > Date.now()
+											? `${days}D ${hours}H Remaining`
+											: `Ended`}
+									</p>
+								</>
+							)}
 						</div>
 						<div className="italic font-bold text-blueButton">{importantText()}</div>
 					</div>

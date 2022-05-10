@@ -1,6 +1,6 @@
 import Head from 'components/Common/Head'
 import Header from 'components/Common/Header'
-import Loader from 'components/Common/Loader'
+import Loader from 'components/Loader/Loader'
 import ProposalVote from 'components/Proposal/ProposalVote'
 import VotesPeople from 'components/Proposal/VotesPeople'
 import VotingPower from 'components/Proposal/VotingPower'
@@ -17,7 +17,7 @@ export type TShowModal = 'delegate' | 'undelegate' | null
 
 const ProposalItemDetail = () => {
 	const [proposal, setProposal] = useState<IProposal>()
-	const [delegationBalance, setDelegationBalance] = useState<number>(0)
+	const [delegationPrior, setDelegationPrior] = useState<string>('0')
 
 	const { accountId } = useNearProvider()
 	const router = useRouter()
@@ -26,6 +26,8 @@ const ProposalItemDetail = () => {
 	const endTime = new Date(
 		startTime.getTime() + (proposal?.proposal.proposal_period || 0) / 10 ** 6
 	)
+	const isStarted = startTime.getTime() < Date.now()
+	const isEnded = endTime.getTime() < Date.now()
 
 	useEffect(() => {
 		const getProposal = async () => {
@@ -79,23 +81,24 @@ const ProposalItemDetail = () => {
 	useEffect(() => {
 		const getDelegation = async () => {
 			try {
-				const delegationBalance = await near.nearViewFunction({
+				const delegationPrior = await near.nearViewFunction({
 					contractName: CONTRACT.DAO,
-					methodName: 'delegation_balance_of',
+					methodName: 'delegation_prior_balance_of',
 					args: {
 						account_id: accountId,
+						block_timestamp: proposal?.proposal.proposal_start_time || 0,
 					},
 				})
-				setDelegationBalance(delegationBalance)
+				setDelegationPrior(delegationPrior)
 			} catch (error) {
 				console.log(error)
 			}
 		}
 
-		if (accountId) {
+		if (accountId && proposal?.proposal.proposal_start_time) {
 			getDelegation()
 		}
-	}, [accountId])
+	}, [accountId, proposal])
 
 	if (!proposal) {
 		return (
@@ -130,13 +133,8 @@ const ProposalItemDetail = () => {
 
 							<VotingPower />
 
-							{proposal.proposal.status === 'InProgress' && (
-								<ProposalVote
-									id={router.query.id as string}
-									options={proposal.proposal.kind.Vote.vote_options}
-									delegationBalance={delegationBalance}
-									userVotes={proposal.proposal.votes[accountId || '']}
-								/>
+							{proposal.proposal.status === 'InProgress' && !isEnded && (
+								<ProposalVote delegationBalance={delegationPrior} proposal={proposal} />
 							)}
 
 							{proposal.proposal.votes[accountId || ''] && (
@@ -210,56 +208,59 @@ const ProposalItemDetail = () => {
 								</div>
 							</div>
 
-							<div className="mt-4 text-white p-4 rounded-md shadow-xl bg-parasGrey">
-								<p className="text-xl font-bold">
-									{proposal.proposal.status === 'InProgress' ? 'Current Result' : 'Results'}
-								</p>
-								{Object.entries(proposal.proposal.vote_counts)
-									.sort(
-										([, value1], [, value2]) =>
-											parseInt(formatParasAmount(value2)) - parseInt(formatParasAmount(value1))
-									)
-									.map(([key, value]) => {
-										const percentage = (
-											(parseInt(formatParasAmount(value)) /
-												parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
-											100
-										).toFixed(2)
-
-										return (
-											<div className="mt-3" key={key}>
-												<div className="flex justify-between">
-													<p className="text-white text-opacity-80 capitalize">{key}</p>
-													<p className="text-white text-opacity-80 text-right font-light">
-														{prettyBalance(formatParasAmount(value), 0)} PARAS ({percentage}%)
-													</p>
-												</div>
-												<div className="mt-2 relative w-full h-[0.45rem] rounded-md bg-gray-200 overflow-hidden">
-													<div
-														className="absolute h-full bg-blueButton"
-														style={{ width: `${percentage}%` }}
-													/>
-												</div>
-											</div>
+							{isStarted && (
+								<div className="mt-4 text-white p-4 rounded-md shadow-xl bg-parasGrey">
+									<p className="text-xl font-bold">{isEnded ? 'Results' : 'Current Result'}</p>
+									{Object.entries(proposal.proposal.vote_counts)
+										.sort(
+											([, value1], [, value2]) =>
+												parseInt(formatParasAmount(value2)) - parseInt(formatParasAmount(value1))
 										)
-									})}
-							</div>
+										.map(([key, value]) => {
+											const percentage = (
+												(parseInt(formatParasAmount(value)) /
+													parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
+												100
+											).toFixed(2)
 
-							<div className="mt-4 text-white p-4 rounded-md shadow-xl bg-parasGrey">
-								<p className="text-xl font-bold mb-2">Voting Stats</p>
-								<div className="flex justify-between">
-									<p>Total Votes</p>
-									<p className="text-white text-opacity-80 font-light">
-										{prettyBalance(formatParasAmount(proposal.proposal.total_vote_counts), 0)} PARAS
-									</p>
+											return (
+												<div className="mt-3" key={key}>
+													<div className="flex justify-between">
+														<p className="text-white text-opacity-80 capitalize">{key}</p>
+														<p className="text-white text-opacity-80 text-right font-light">
+															{prettyBalance(formatParasAmount(value), 0)} PARAS ({percentage}%)
+														</p>
+													</div>
+													<div className="mt-2 relative w-full h-[0.45rem] rounded-md bg-gray-200 overflow-hidden">
+														<div
+															className="absolute h-full bg-blueButton"
+															style={{ width: `${percentage}%` }}
+														/>
+													</div>
+												</div>
+											)
+										})}
 								</div>
-								<div className="flex justify-between">
-									<p>Unique Voters</p>
-									<p className="text-white text-opacity-80 font-light">
-										{Object.keys(proposal.proposal.votes).length}
-									</p>
+							)}
+
+							{isStarted && (
+								<div className="mt-4 text-white p-4 rounded-md shadow-xl bg-parasGrey">
+									<p className="text-xl font-bold mb-2">Voting Stats</p>
+									<div className="flex justify-between">
+										<p>Total Votes</p>
+										<p className="text-white text-opacity-80 font-light">
+											{prettyBalance(formatParasAmount(proposal.proposal.total_vote_counts), 0)}{' '}
+											PARAS
+										</p>
+									</div>
+									<div className="flex justify-between">
+										<p>Unique Voters</p>
+										<p className="text-white text-opacity-80 font-light">
+											{Object.keys(proposal.proposal.votes).length}
+										</p>
+									</div>
 								</div>
-							</div>
+							)}
 						</div>
 					</div>
 				</div>

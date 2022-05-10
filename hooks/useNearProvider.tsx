@@ -1,5 +1,5 @@
 import cachios from 'cachios'
-import Loader from 'components/Common/Loader'
+import Loader from 'components/Loader/Loader'
 import DepositModal from 'components/Modal/DepositModal'
 import LoginModal from 'components/Modal/LoginModal'
 import { IProfile } from 'interfaces'

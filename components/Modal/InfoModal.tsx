@@ -24,6 +24,7 @@ const InfoModal = (props: InfoModalProps) => {
 		if (props.nftPoints) {
 			fetchData()
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [props.nftPoints])
 
 	const fetchData = async () => {

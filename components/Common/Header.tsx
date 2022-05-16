@@ -139,6 +139,7 @@ const Header = () => {
 											className="flex text-white py-2 px-4 bg-gray-800 hover:bg-opacity-50 text-sm"
 											target="_blank"
 											href={x.url}
+											rel="noreferrer"
 										>
 											{x.exchange}
 											<span className="pl-1">

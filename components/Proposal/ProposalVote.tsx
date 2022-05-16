@@ -32,7 +32,7 @@ const ProposalVote = ({ delegationBalance, proposal }: IProposalVoteProps) => {
 		if (userVotes) {
 			setChoosenVote(userVotes.vote_option)
 		}
-	}, [])
+	}, [userVotes])
 
 	useEffect(() => {
 		if (choosenVote) {

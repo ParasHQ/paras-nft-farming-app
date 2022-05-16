@@ -34,15 +34,15 @@ const ProposalSmallDeviceLoader = (props: { [key: string]: unknown }) => (
 	</ContentLoader>
 )
 
-const ProposalLoader = () => (
+const ProposalLoader = ({ length = 5 }) => (
 	<div>
 		<div className="md:hidden">
-			{[...Array(5).fill('')].map((k, index) => (
+			{[...Array(length).fill('')].map((k, index) => (
 				<ProposalSmallDeviceLoader key={index} />
 			))}
 		</div>
 		<div className="hidden md:block">
-			{[...Array(5).fill('')].map((k, index) => (
+			{[...Array(length).fill('')].map((k, index) => (
 				<ProposalBigDeviceLoader key={index} />
 			))}
 		</div>

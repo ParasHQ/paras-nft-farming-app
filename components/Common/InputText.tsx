@@ -4,6 +4,7 @@ interface InputTextProps extends InputHTMLAttributes<HTMLInputElement> {
 	isError?: boolean
 }
 
+// eslint-disable-next-line react/display-name
 const InputText = forwardRef<HTMLInputElement, InputTextProps>(
 	({ className = '', isError = false, ...props }, ref) => {
 		const inputBaseStyle = `${className} input-text flex items-center relative w-full px-3 py-2 rounded-lg`

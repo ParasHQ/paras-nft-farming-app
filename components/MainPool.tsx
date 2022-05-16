@@ -284,6 +284,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 
 		setPoolProcessed(poolData)
 		type === 'ft' && setFTPool(poolData)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [data.amount, data.title, data.media, data.farms, accountId])
 
 	const FTPoolModal = () => {

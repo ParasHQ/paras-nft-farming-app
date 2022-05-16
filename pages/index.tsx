@@ -122,6 +122,7 @@ const Home: NextPage = () => {
 								className="font-bold text-white opacity-100 border-b-2 border-transparent hover:border-gray-100"
 								href="https://paras.id/publication/now-live-earn-more-paras-by-paras-nft-staking-61e97465e26ebffd22443d4a"
 								target="_blank"
+								rel="noreferrer"
 							>
 								HERE
 							</a>

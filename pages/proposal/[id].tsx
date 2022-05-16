@@ -1,13 +1,12 @@
 import Head from 'components/Common/Head'
 import Header from 'components/Common/Header'
 import Loader from 'components/Loader/Loader'
-import VotesLoader from 'components/Loader/VotesLoader'
 import ProposalVote from 'components/Proposal/ProposalVote'
-import VotesPeople from 'components/Proposal/VotesPeople'
+import VotesList from 'components/Proposal/VotesList'
 import VotingPower from 'components/Proposal/VotingPower'
 import dayjs from 'dayjs'
 import { useNearProvider } from 'hooks/useNearProvider'
-import { IProposal, IUserVote, IVotes } from 'interfaces/proposal'
+import { IProposal, IVotes } from 'interfaces/proposal'
 import { useRouter } from 'next/dist/client/router'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -16,16 +15,9 @@ import { formatParasAmount, prettyBalance } from 'utils/common'
 
 export type TShowModal = 'delegate' | 'undelegate' | null
 
-interface IContinousFetch {
-	(page?: number): Promise<IVotes>
-}
-
 const ProposalItemDetail = () => {
 	const [proposal, setProposal] = useState<IProposal>()
-	const [votes, setVotes] = useState<IVotes>()
 	const [delegationPrior, setDelegationPrior] = useState<string>('0')
-	const [isVotesLoading, setIsVotesLoading] = useState(false)
-	const [voteLength, setVoteLength] = useState(10)
 
 	const { accountId } = useNearProvider()
 	const router = useRouter()
@@ -74,34 +66,6 @@ const ProposalItemDetail = () => {
 			proposalDetail.proposal.unique_voters = uniqueVoters
 
 			setProposal(proposalDetail)
-
-			setIsVotesLoading(true)
-			setVotes(await getVotesContinuous())
-			setIsVotesLoading(false)
-		}
-
-		const getVotesContinuous: IContinousFetch = async (page = 0) => {
-			const fetchLimit = 10
-			const proposalVotes: [string, IUserVote][] = await near.nearViewFunction({
-				contractName: CONTRACT.DAO,
-				methodName: 'get_proposal_votes',
-				args: {
-					id: parseInt(router.query.id as string),
-					from_index: page * fetchLimit,
-					limit: fetchLimit,
-				},
-			})
-
-			const proposalVotesWrap: IVotes = {}
-
-			proposalVotes.forEach((userVoteTuple) => {
-				proposalVotesWrap[userVoteTuple[0]] = userVoteTuple[1]
-			})
-
-			return {
-				...proposalVotesWrap,
-				...(proposalVotes.length === fetchLimit ? await getVotesContinuous(page + 1) : {}),
-			}
 		}
 
 		if (router.query.id) {
@@ -131,11 +95,6 @@ const ProposalItemDetail = () => {
 			getDelegation()
 		}
 	}, [accountId, proposal])
-
-	const fetchMoreVote = () => {
-		const additionalVoteLength = Math.min(Object.entries(votes || {}).length - voteLength, 10)
-		setVoteLength(voteLength + additionalVoteLength)
-	}
 
 	if (!proposal) {
 		return (
@@ -183,59 +142,7 @@ const ProposalItemDetail = () => {
 								)} PARAS`}</div>
 							)}
 
-							<div className="text-white py-4 my-6">
-								<p className="text-xl font-bold mb-2">Votes</p>
-								<div className="flex justify-between items-end text-white text-opacity-80 text-sm font-light">
-									<div className="w-2/5">
-										<p>Account</p>
-									</div>
-									<div className="w-1/5 text-right mx-2">
-										<p>Option</p>
-									</div>
-									<div className="w-1/6 text-right mx-2">
-										<p>Percentage</p>
-									</div>
-									<div className="w-1/5 text-right">
-										<p>Paras Power</p>
-									</div>
-								</div>
-								{isVotesLoading ? (
-									<VotesLoader />
-								) : (
-									votes &&
-									Object.entries(votes)
-										.sort(
-											([, value1], [, value2]) =>
-												parseInt(formatParasAmount(value2.user_weight)) -
-												parseInt(formatParasAmount(value1.user_weight))
-										)
-										.slice(0, voteLength)
-										.map(([key, value]) => {
-											const user = value
-											const percentage =
-												(parseInt(formatParasAmount(user.user_weight)) /
-													parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
-												100
-											return (
-												<VotesPeople
-													key={key}
-													option={user.vote_option}
-													userId={key}
-													percentage={percentage.toFixed(2)}
-													weight={user.user_weight}
-												/>
-											)
-										})
-								)}
-								{Object.entries(votes || {}).length > voteLength && (
-									<p
-										className="text-white text-sm text-right mt-4 opacity-80 hover:opacity-100 cursor-pointer"
-										onClick={fetchMoreVote}
-									>
-										See More
-									</p>
-								)}
-							</div>
+							<VotesList proposal={proposal} />
 						</div>
 
 						<div className="md:w-2/5">

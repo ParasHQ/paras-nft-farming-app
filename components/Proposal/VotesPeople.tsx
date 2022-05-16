@@ -1,7 +1,7 @@
 import cachios from 'cachios'
 import { IProfile } from 'interfaces'
 import { useEffect, useState } from 'react'
-import { formatParasAmount, parseImgUrl, prettyBalance } from 'utils/common'
+import { formatParasAmount, parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
 
 interface IVotesPeopleProps {
 	userId: string
@@ -48,7 +48,7 @@ const VotesPeople = ({ userId, option, weight, percentage }: IVotesPeopleProps) 
 						)}
 					</div>
 				</div>
-				<p className="font-semibold truncate">{userId}</p>
+				<p className="font-semibold truncate">{prettyTruncate(userId, 18, 'address')}</p>
 			</div>
 			<div className="w-1/5 text-right mx-2">
 				<p className="capitalize truncate">{option}</p>

@@ -27,5 +27,6 @@ export interface IProposal {
 		submission_time: number
 		proposal_start_time: number
 		proposal_period: number
+		unique_voters: string
 	}
 }

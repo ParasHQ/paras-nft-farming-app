@@ -1,7 +1,8 @@
+import axios from 'axios'
 import VotesLoader from 'components/Loader/VotesLoader'
-import { IProposal, IUserVote, IVotes } from 'interfaces/proposal'
+import { graphQLURL } from 'constants/apiURL'
+import { IProposal, IVotesGraph } from 'interfaces/proposal'
 import { useEffect, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
 import { formatParasAmount } from 'utils/common'
 import VotesPeople from './VotesPeople'
 
@@ -9,52 +10,46 @@ interface IVotesListProps {
 	proposal: IProposal
 }
 
-interface IContinousFetch {
-	(page?: number): Promise<IVotes>
-}
-
 const VotesList = ({ proposal }: IVotesListProps) => {
-	const [votes, setVotes] = useState<IVotes>()
+	const defaultPage = 0
+	const defaultSkip = 10
+
+	const [votes, setVotes] = useState<IVotesGraph[]>([])
 	const [isVotesLoading, setIsVotesLoading] = useState(false)
-	const [voteLength, setVoteLength] = useState(10)
+	const [page, setPage] = useState(defaultPage)
+	const [hasMore, setHasMore] = useState(true)
 
 	useEffect(() => {
-		const getVotesContinuous: IContinousFetch = async (page = 0) => {
-			const fetchLimit = 10
-			const proposalVotes: [string, IUserVote][] = await near.nearViewFunction({
-				contractName: CONTRACT.DAO,
-				methodName: 'get_proposal_votes',
-				args: {
-					id: proposal.id,
-					from_index: page * fetchLimit,
-					limit: fetchLimit,
-				},
-			})
-
-			const proposalVotesWrap: IVotes = {}
-
-			proposalVotes.forEach((userVoteTuple) => {
-				proposalVotesWrap[userVoteTuple[0]] = userVoteTuple[1]
-			})
-
-			return {
-				...proposalVotesWrap,
-				...(proposalVotes.length === fetchLimit ? await getVotesContinuous(page + 1) : {}),
-			}
-		}
-
-		const getVotes = async () => {
-			setIsVotesLoading(true)
-			setVotes(await getVotesContinuous())
-			setIsVotesLoading(false)
-		}
-
-		getVotes()
+		fetchVotes(proposal.id, defaultPage, true)
 	}, [proposal.id])
 
-	const fetchMoreVote = () => {
-		const additionalVoteLength = Math.min(Object.entries(votes || {}).length - voteLength, 10)
-		setVoteLength(voteLength + additionalVoteLength)
+	const fetchVotes = async (proposalId: number, _page: number, fromStart = false) => {
+		setIsVotesLoading(true)
+		const _skip = _page * defaultSkip
+		const res = await axios({
+			url: graphQLURL,
+			method: 'post',
+			data: {
+				query: `
+					query PostsForAuthor {
+						votes(first: 10, skip: ${_skip}, where: {proposal_id_in: ["${proposalId}"]}, orderBy: user_weight, orderDirection: desc) {
+							id
+							proposal_id
+							account_id
+							vote_option
+							user_weight
+							receiptId
+						}
+					}
+				`,
+			},
+		})
+		const voteRes = res.data.data.votes
+
+		setHasMore(voteRes.length === 10)
+		setVotes((votes) => (fromStart ? voteRes : [...votes, ...voteRes]))
+		setPage((page) => (fromStart ? 1 : page + 1))
+		setIsVotesLoading(false)
 	}
 
 	return (
@@ -74,41 +69,32 @@ const VotesList = ({ proposal }: IVotesListProps) => {
 					<p>Paras Power</p>
 				</div>
 			</div>
+			{votes.map((vote) => {
+				const percentage =
+					(parseFloat(formatParasAmount(vote.user_weight)) /
+						parseFloat(formatParasAmount(proposal.proposal.total_vote_counts))) *
+					100
+				return (
+					<VotesPeople
+						key={vote.account_id}
+						option={vote.vote_option}
+						userId={vote.account_id}
+						percentage={percentage.toFixed(2)}
+						weight={vote.user_weight}
+					/>
+				)
+			})}
 			{isVotesLoading ? (
 				<VotesLoader />
 			) : (
-				votes &&
-				Object.entries(votes)
-					.sort(
-						([, value1], [, value2]) =>
-							parseFloat(formatParasAmount(value2.user_weight)) -
-							parseFloat(formatParasAmount(value1.user_weight))
-					)
-					.slice(0, voteLength)
-					.map(([key, value]) => {
-						const user = value
-						const percentage =
-							(parseFloat(formatParasAmount(user.user_weight)) /
-								parseFloat(formatParasAmount(proposal.proposal.total_vote_counts))) *
-							100
-						return (
-							<VotesPeople
-								key={key}
-								option={user.vote_option}
-								userId={key}
-								percentage={percentage.toFixed(2)}
-								weight={user.user_weight}
-							/>
-						)
-					})
-			)}
-			{Object.entries(votes || {}).length > voteLength && (
-				<p
-					className="text-white text-sm text-right mt-4 opacity-80 hover:opacity-100 cursor-pointer"
-					onClick={fetchMoreVote}
-				>
-					See More
-				</p>
+				hasMore && (
+					<p
+						className="text-white text-sm text-right mt-4 opacity-80 hover:opacity-100 cursor-pointer"
+						onClick={() => fetchVotes(proposal.id, page)}
+					>
+						See More
+					</p>
+				)
 			)}
 		</div>
 	)

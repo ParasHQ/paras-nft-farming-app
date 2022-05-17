@@ -7,6 +7,14 @@ export interface IVotes {
 	[key: string]: IUserVote
 }
 
+export interface IVotesGraph {
+	id: string
+	proposal_id: string
+	account_id: string
+	vote_option: string
+	user_weight: string
+}
+
 export interface IProposal {
 	id: number
 	proposal: {

@@ -1,7 +1,7 @@
 import cachios from 'cachios'
 import { IProfile } from 'interfaces'
 import { useEffect, useState } from 'react'
-import { formatParasAmount, parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
+import { parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
 
 interface IVotesPeopleProps {
 	userId: string
@@ -57,7 +57,7 @@ const VotesPeople = ({ userId, option, weight, percentage }: IVotesPeopleProps) 
 				<p>{percentage}%</p>
 			</div>
 			<div className="w-1/5 text-right">
-				<p>{prettyBalance(formatParasAmount(weight), 0)} PARAS</p>
+				<p>{prettyBalance(weight)} PARAS</p>
 			</div>
 		</div>
 	)

@@ -77,8 +77,13 @@ export const prettyBalance = (balance: string, decimals = 18, len = 8) => {
 	return tail ? `${formattedHead}.${tail}` : formattedHead
 }
 
-export const formatParasAmount = (balance: string | number) => {
-	return JSBI.divide(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
+export const formatParasAmount = (balance: string | number, fraction = 0) => {
+	const fixedBalance = (Number(balance) / 10 ** Number(18)).toFixed(fraction)
+	const finalBalance = parseFloat(fixedBalance).toString()
+	const [, tail] = finalBalance.split('.')
+
+	const formatTail = tail ? `.${tail}` : ''
+	return JSBI.divide(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString() + formatTail
 }
 
 export const parseParasAmount = (balance: string | number) => {

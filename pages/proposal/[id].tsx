@@ -172,12 +172,12 @@ const ProposalItemDetail = () => {
 									{Object.entries(proposal.proposal.vote_counts)
 										.sort(
 											([, value1], [, value2]) =>
-												parseInt(formatParasAmount(value2)) - parseInt(formatParasAmount(value1))
+												parseFloat(prettyBalance(value2)) - parseFloat(prettyBalance(value1))
 										)
 										.map(([key, value]) => {
 											const percentage = (
-												(parseInt(formatParasAmount(value)) /
-													parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
+												(parseFloat(prettyBalance(value)) /
+													parseFloat(prettyBalance(proposal.proposal.total_vote_counts))) *
 												100
 											).toFixed(2)
 
@@ -186,7 +186,7 @@ const ProposalItemDetail = () => {
 													<div className="flex justify-between">
 														<p className="text-white text-opacity-80 capitalize">{key}</p>
 														<p className="text-white text-opacity-80 text-right font-light">
-															{prettyBalance(formatParasAmount(value), 0)} PARAS ({percentage}%)
+															{prettyBalance(value)} PARAS ({percentage}%)
 														</p>
 													</div>
 													<div className="mt-2 relative w-full h-[0.45rem] rounded-md bg-gray-200 overflow-hidden">
@@ -207,8 +207,7 @@ const ProposalItemDetail = () => {
 									<div className="flex justify-between">
 										<p>Total Votes</p>
 										<p className="text-white text-opacity-80 font-light">
-											{prettyBalance(formatParasAmount(proposal.proposal.total_vote_counts), 0)}{' '}
-											PARAS
+											{prettyBalance(proposal.proposal.total_vote_counts)} PARAS
 										</p>
 									</div>
 									<div className="flex justify-between">

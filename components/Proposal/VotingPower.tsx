@@ -5,7 +5,7 @@ import { useNearProvider } from 'hooks/useNearProvider'
 import { TShowModal } from 'pages/proposal/[id]'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
-import { formatParasAmount, prettyBalance } from 'utils/common'
+import { prettyBalance } from 'utils/common'
 
 interface IVotingPowerProps {
 	className?: string
@@ -57,7 +57,7 @@ const VotingPower = ({ className = '' }: IVotingPowerProps) => {
 					<div className="text-lg text-white text-opacity-80 mb-4">
 						Your voting power:{' '}
 						<span className="font-bold text-white text-opacity-100">
-							{prettyBalance(formatParasAmount(delegationBalance), 0)} PARAS
+							{prettyBalance(`${delegationBalance}`)} PARAS
 						</span>
 					</div>
 					<div className="flex gap-2">

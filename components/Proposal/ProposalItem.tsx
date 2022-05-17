@@ -2,7 +2,7 @@ import IconClock from 'components/Icon/IconClock'
 import { IProposal, IVotes } from 'interfaces/proposal'
 import Link from 'next/link'
 import { useNearProvider } from 'hooks/useNearProvider'
-import { formatParasAmount, getTimeRemaining, prettyBalance } from 'utils/common'
+import { getTimeRemaining, prettyBalance } from 'utils/common'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 
@@ -64,9 +64,7 @@ const ProposalItem = ({ data: proposalData }: { data: IProposal }) => {
 			return (
 				<>
 					<p>Results:</p>
-					<p>
-						{`${winnerOption} - ${prettyBalance(formatParasAmount(parasCountWinner), 0)} PARAS`}
-					</p>
+					<p>{`${winnerOption} - ${prettyBalance(parasCountWinner)} PARAS`}</p>
 				</>
 			)
 		} else if (data.proposal.status === 'Approved') {

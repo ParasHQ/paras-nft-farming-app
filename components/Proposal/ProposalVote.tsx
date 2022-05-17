@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Button from 'components/Common/Button'
-import { formatParasAmount, prettyBalance } from 'utils/common'
+import { prettyBalance } from 'utils/common'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { GAS_FEE } from 'constants/gasFee'
@@ -146,10 +146,7 @@ const ProposalVote = ({ delegationBalance, proposal }: IProposalVoteProps) => {
 						<p className="text-lg text-white text-opacity-80">
 							<span>{userVotes ? `Voted` : `Voting`} with: </span>
 							<span className="text-white text-opacity-100 font-bold">
-								{prettyBalance(
-									formatParasAmount(userVotes ? userVotes.user_weight : delegationBalance),
-									0
-								)}
+								{prettyBalance(userVotes ? userVotes.user_weight : delegationBalance)}
 								<span> PARAS</span>
 							</span>
 						</p>

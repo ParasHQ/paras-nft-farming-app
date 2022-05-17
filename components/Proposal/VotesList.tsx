@@ -81,15 +81,15 @@ const VotesList = ({ proposal }: IVotesListProps) => {
 				Object.entries(votes)
 					.sort(
 						([, value1], [, value2]) =>
-							parseInt(formatParasAmount(value2.user_weight)) -
-							parseInt(formatParasAmount(value1.user_weight))
+							parseFloat(formatParasAmount(value2.user_weight)) -
+							parseFloat(formatParasAmount(value1.user_weight))
 					)
 					.slice(0, voteLength)
 					.map(([key, value]) => {
 						const user = value
 						const percentage =
-							(parseInt(formatParasAmount(user.user_weight)) /
-								parseInt(formatParasAmount(proposal.proposal.total_vote_counts))) *
+							(parseFloat(formatParasAmount(user.user_weight)) /
+								parseFloat(formatParasAmount(proposal.proposal.total_vote_counts))) *
 							100
 						return (
 							<VotesPeople

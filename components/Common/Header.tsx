@@ -85,7 +85,7 @@ const Header = () => {
 				profile={userProfile as IProfile}
 			/>
 			<div className="relative z-30 bg-gray-900 flex items-center p-4 max-w-6xl mx-auto justify-between">
-				<div className="flex items-center">
+				<div className="flex items-center md:items-baseline">
 					<div className="md:hidden mr-4">
 						<HamburgerMenu
 							isOpen={isMenuOpen}

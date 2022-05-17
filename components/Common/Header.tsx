@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import near from 'services/near'
 import { parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
+import HamburgerMenu from 'react-hamburger-menu'
 import Button from './Button'
 
 const NAV_LINK = [
@@ -28,6 +29,7 @@ const Header = () => {
 	const { accountId, userProfile, parasBalance } = useNearProvider()
 	const [showProfileModal, setShowProfileModal] = useState(false)
 	const [showGetParas, setShowGetParas] = useState(false)
+	const [isMenuOpen, setIsMenuOpen] = useState(false)
 
 	const Profile = () => {
 		return (
@@ -82,14 +84,27 @@ const Header = () => {
 				onClose={() => setShowProfileModal(false)}
 				profile={userProfile as IProfile}
 			/>
-			<div className="flex items-center p-4 max-w-6xl mx-auto justify-between">
-				<div className="flex items-baseline">
+			<div className="relative z-30 bg-gray-900 flex items-center p-4 max-w-6xl mx-auto justify-between">
+				<div className="flex items-center">
+					<div className="md:hidden mr-4">
+						<HamburgerMenu
+							isOpen={isMenuOpen}
+							menuClicked={() => setIsMenuOpen(!isMenuOpen)}
+							width={18}
+							height={15}
+							strokeWidth={2}
+							rotate={0}
+							color="white"
+							borderRadius={0}
+							animationDuration={0.5}
+						/>
+					</div>
 					<Link href="/">
 						<a className="w-24 cursor-pointer mr-2 md:mr-4">
 							<IconParas />
 						</a>
 					</Link>
-					<div className="flex items-center gap-2 md:gap-8 mx-4 md:mx-8">
+					<div className="hidden md:flex items-center gap-2 md:gap-8 mx-4 md:mx-8">
 						<Link href="/">
 							<a className="text-white font-bold transition-colors duration-200 hover:text-blueButton">
 								Stake
@@ -174,6 +189,36 @@ const Header = () => {
 								Login with NEAR
 							</Button>
 						)}
+					</div>
+				</div>
+			</div>
+			<div className="relative z-0">
+				<div
+					className={`absolute bg-gray-900 left-0 z-0 right-0 transform transition-transform duration-500 ${
+						isMenuOpen ? 'translate-y-0' : '-translate-y-96'
+					}`}
+				>
+					<div className="text-center text-white pb-3">
+						<div className="p-3">
+							<Link href="/">
+								<a
+									onClick={() => setIsMenuOpen(false)}
+									className="font-semibold hover:text-blueButton"
+								>
+									<span>Stake</span>
+								</a>
+							</Link>
+						</div>
+						<div className="p-3">
+							<Link href="/proposal">
+								<a
+									onClick={() => setIsMenuOpen(false)}
+									className="font-semibold hover:text-blueButton"
+								>
+									<span>Vote</span>
+								</a>
+							</Link>
+						</div>
 					</div>
 				</div>
 			</div>

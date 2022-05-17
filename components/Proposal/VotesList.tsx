@@ -31,7 +31,7 @@ const VotesList = ({ proposal }: IVotesListProps) => {
 			method: 'post',
 			data: {
 				query: `
-					query PostsForAuthor {
+					query VotesList {
 						votes(first: 10, skip: ${_skip}, where: {proposal_id_in: ["${proposalId}"]}, orderBy: user_weight, orderDirection: desc) {
 							id
 							proposal_id

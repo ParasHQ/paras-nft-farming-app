@@ -35,7 +35,7 @@ const VotesPeople = ({ userId, option, weight, percentage }: IVotesPeopleProps) 
 	}, [userId])
 
 	return (
-		<div className="flex justify-between items-end my-2">
+		<div className="flex justify-between items-center my-2">
 			<div className="w-2/5 flex items-center">
 				<div>
 					<div className="w-8 h-8 bg-gray-600 rounded-full mr-2">

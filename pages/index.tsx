@@ -129,7 +129,7 @@ const Home: NextPage = () => {
 							{poolList.length > 0 && (
 								<p className="text-white text-3xl font-semibold text-center mb-4">NFT Staking</p>
 							)}
-							<div className="md:absolute top-0 right-0 md:pr-4 flex justify-center mb-4">
+							<div className="md:absolute top-0 right-0 z-50 md:pr-4 flex justify-center mb-4">
 								<InputDropdown
 									defaultValue={filterPool.label}
 									selectItem={setFilterPool}

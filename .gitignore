@@ -32,6 +32,7 @@ yarn-error.log*
 .env.mainnet
 .env.testnet
 .env
+.env.temp
 
 # vercel
 .vercel

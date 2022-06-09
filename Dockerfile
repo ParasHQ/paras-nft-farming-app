@@ -4,14 +4,14 @@ WORKDIR /opt/app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-FROM node:lts-alpine AS builder
+FROM node:14.19.1 AS builder
 
 ENV NODE_ENV=production
 WORKDIR /opt/app
 COPY . .
 COPY .env.temp .env
 COPY --from=deps /opt/app/node_modules ./node_modules
-RUN apk add gcompat && yarn build
+RUN yarn build
 
 FROM node:lts-alpine AS runner
 

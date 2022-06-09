@@ -11,7 +11,7 @@ WORKDIR /opt/app
 COPY . .
 COPY .env.temp .env
 COPY --from=deps /opt/app/node_modules ./node_modules
-RUN yarn build
+RUN apk add gcompat && yarn build
 
 FROM node:lts-alpine AS runner
 

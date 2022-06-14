@@ -4,7 +4,7 @@ WORKDIR /opt/app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-FROM node:lts-alpine AS builder
+FROM node:14.19.1 AS builder
 
 ENV NODE_ENV=production
 WORKDIR /opt/app

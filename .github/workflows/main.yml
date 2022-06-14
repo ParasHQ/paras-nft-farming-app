@@ -3,11 +3,10 @@ on:
   push:
     branches:
       - develop
-      - feat/add-workflows
 
 jobs:
   build-and-deploy-develop:
-    if: ${{ github.ref == 'refs/heads/feat/add-workflows' }}
+    if: ${{ github.ref == 'refs/heads/develop' }}
     uses: ./.github/workflows/build_and_deploy.yml
     secrets:
       IMAGE: ${{ secrets.IMAGE }}

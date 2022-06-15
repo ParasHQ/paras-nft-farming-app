@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { parseImgUrl } from 'utils/common'
 import axios from 'axios'
 import filetypeinfo from 'magic-bytes.js'
-// import { fileTypeFromBlob } from 'file-type'
 
 const Media = ({
 	className = '',
@@ -23,6 +22,7 @@ const Media = ({
 		} else {
 			setIsLoading(false)
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [url])
 
 	const getMedia = async () => {

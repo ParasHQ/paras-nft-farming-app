@@ -9,6 +9,7 @@ import { ModalCommonProps } from 'interfaces/modal'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { formatParasAmount, hasReward, parseParasAmount, prettyBalance } from 'utils/common'
 
@@ -18,10 +19,19 @@ interface StakeTokenModalProps extends ModalCommonProps {
 	}
 }
 
+interface StakeTokenForm {
+	inputStake: string
+}
+
 const StakeTokenModal = (props: StakeTokenModalProps) => {
 	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
-	const [inputStake, setInputStake] = useState<string>('')
+	const {
+		register,
+		handleSubmit,
+		setValue,
+		formState: { errors },
+	} = useForm<StakeTokenForm>()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	useEffect(() => {
@@ -41,7 +51,7 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 		setBalance(balanceParas)
 	}
 
-	const stakeToken = async () => {
+	const stakeToken = async ({ inputStake }: StakeTokenForm) => {
 		setIsSubmitting(true)
 
 		try {
@@ -120,21 +130,37 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 
 				<div>
 					<p className="opacity-80 text-right text-white text-sm mb-1">
-						Balance: {prettyBalance(balance)}
+						Balance: {prettyBalance(balance)} ℗
 					</p>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
-							value={inputStake}
-							onChange={(event) => setInputStake(event.target.value)}
+							{...register('inputStake', {
+								required: true,
+								min: 0.1,
+								max: formatParasAmount(balance),
+							})}
 							className="border-none"
 							type="number"
 							placeholder="0.0"
 						/>
 						<p className="text-white font-bold mr-3 shado">PARAS</p>
 					</div>
+					{errors.inputStake?.type === 'min' && (
+						<span className="text-red-500 text-xs">Min is 0.1 PARAS</span>
+					)}
+					{errors.inputStake?.type === 'required' && (
+						<span className="text-red-500 text-xs">This field is required</span>
+					)}
+					{errors.inputStake?.type === 'max' && (
+						<span className="text-red-500 text-xs">
+							Max is {prettyBalance(balance, 18, 2)} PARAS
+						</span>
+					)}
 					<div className="text-left">
 						<Button
-							onClick={() => setInputStake(formatParasAmount(balance))}
+							onClick={() =>
+								setValue('inputStake', formatParasAmount(balance), { shouldValidate: true })
+							}
 							className="float-none mt-2 w-16"
 							size="sm"
 							color="gray"
@@ -159,8 +185,7 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 				)}
 				<Button
 					isLoading={isSubmitting}
-					isDisabled={inputStake === '' || isSubmitting}
-					onClick={stakeToken}
+					onClick={handleSubmit(stakeToken)}
 					isFullWidth
 					size="lg"
 					className="mt-4"

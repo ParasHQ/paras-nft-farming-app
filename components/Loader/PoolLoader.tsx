@@ -1,6 +1,6 @@
 import ContentLoader from 'react-content-loader'
 
-const PoolLoader = (props: unknown) => (
+const PoolLoader = (props: { [key: string]: unknown }) => (
 	<ContentLoader
 		speed={2}
 		width="100%"

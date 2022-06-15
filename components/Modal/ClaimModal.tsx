@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import { CONTRACT } from 'services/near'
 import { useStore } from 'services/store'
-import { prettyBalance } from 'utils/common'
+import { formatParasAmount } from 'utils/common'
 
 interface ClaimModalProps {
 	show: boolean
@@ -46,6 +46,7 @@ const ClaimModal = ({
 		} else {
 			setActiveOption(null)
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [show])
 
 	useEffect(() => {
@@ -89,12 +90,8 @@ const ClaimModal = ({
 
 	const rewardCompounded = () => {
 		const compoundedReward = getCompoundedReward()
-		const parasRewardFromNFTPool = prettyBalance(claimableRewards[CONTRACT.TOKEN], 18, 3)
-		const parasRewardFromFTPool = prettyBalance(
-			ftPool?.claimableRewards[CONTRACT.TOKEN] || '0',
-			18,
-			3
-		)
+		const parasRewardFromNFTPool = formatParasAmount(claimableRewards[CONTRACT.TOKEN] || '0')
+		const parasRewardFromFTPool = formatParasAmount(ftPool?.claimableRewards[CONTRACT.TOKEN] || '0')
 
 		return (
 			<div>

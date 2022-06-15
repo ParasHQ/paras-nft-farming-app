@@ -1,12 +1,12 @@
-import axios from 'axios'
 import IconParas from 'components/Icon/IconParas'
 import ProfileModal from 'components/Modal/ProfileModal'
-import { baseURLParas } from 'constants/baseUrl'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IProfile } from 'interfaces'
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
+import near from 'services/near'
 import { parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
+import HamburgerMenu from 'react-hamburger-menu'
 import Button from './Button'
 
 const NAV_LINK = [
@@ -26,40 +26,10 @@ const NAV_LINK = [
 
 const Header = () => {
 	const bgRef = useRef<null | HTMLDivElement>(null)
-	const { accountId } = useNearProvider()
-	const [balance, setBalance] = useState('0')
-	const [userProfile, setUserProfile] = useState<IProfile>({})
+	const { accountId, userProfile, parasBalance } = useNearProvider()
 	const [showProfileModal, setShowProfileModal] = useState(false)
 	const [showGetParas, setShowGetParas] = useState(false)
-
-	useEffect(() => {
-		const getParasBalance = async () => {
-			const balanceParas = await near.nearViewFunction({
-				methodName: 'ft_balance_of',
-				contractName: CONTRACT.TOKEN,
-				args: {
-					account_id: near.wallet.getAccountId(),
-				},
-			})
-			setBalance(balanceParas)
-		}
-
-		const getUserProfile = async () => {
-			const resp = await axios.get(`${process.env.NEXT_PUBLIC_API_PARAS}/profiles`, {
-				params: {
-					accountId: accountId,
-				},
-			})
-			if (resp.data.data.results[0]) {
-				setUserProfile(resp.data.data.results[0])
-			}
-		}
-
-		if (accountId) {
-			getParasBalance()
-			getUserProfile()
-		}
-	}, [accountId])
+	const [isMenuOpen, setIsMenuOpen] = useState(false)
 
 	const Profile = () => {
 		return (
@@ -68,7 +38,7 @@ const Header = () => {
 				className="hover:opacity-80 cursor-pointer flex items-center rounded-md overflow-hidden py-1 bg-gray-800"
 			>
 				<div className="text-white px-2">
-					<p>{prettyBalance(balance, 18, 4)} Ⓟ</p>
+					<p>{prettyBalance(parasBalance, 18, 4)} Ⓟ</p>
 				</div>
 				<div className="px-1">
 					<div className="flex items-center bg-black bg-opacity-80 rounded-md px-2 py-1">
@@ -76,7 +46,7 @@ const Header = () => {
 							{prettyTruncate(accountId, 16, `address`)}
 						</p>
 						<div className="w-6 h-6 rounded-full bg-parasGrey">
-							{userProfile.imgUrl && (
+							{userProfile?.imgUrl && (
 								<img
 									className="w-6 h-6 border border-gray-600 rounded-full"
 									src={parseImgUrl(userProfile.imgUrl)}
@@ -107,21 +77,44 @@ const Header = () => {
 		}
 	}, [showGetParas])
 
-	const openParas = () => {
-		window.location.replace(baseURLParas)
-	}
-
 	return (
 		<div className="sticky top-0 z-50 bg-gray-900">
 			<ProfileModal
 				show={showProfileModal}
 				onClose={() => setShowProfileModal(false)}
-				profile={userProfile}
+				profile={userProfile as IProfile}
 			/>
-			<div className="flex items-center p-4 max-w-6xl mx-auto justify-between">
-				<div className="flex items-center">
-					<div className="w-24 cursor-pointer" onClick={openParas}>
-						<IconParas />
+			<div className="relative z-30 bg-gray-900 flex items-center p-4 max-w-6xl mx-auto justify-between">
+				<div className="flex items-center md:items-baseline">
+					<div className="md:hidden mr-4">
+						<HamburgerMenu
+							isOpen={isMenuOpen}
+							menuClicked={() => setIsMenuOpen(!isMenuOpen)}
+							width={18}
+							height={15}
+							strokeWidth={2}
+							rotate={0}
+							color="white"
+							borderRadius={0}
+							animationDuration={0.5}
+						/>
+					</div>
+					<Link href="/">
+						<a className="w-24 cursor-pointer mr-2 md:mr-4">
+							<IconParas />
+						</a>
+					</Link>
+					<div className="hidden md:flex items-center gap-2 md:gap-8 mx-4 md:mx-8">
+						<Link href="/">
+							<a className="text-white font-bold transition-colors duration-200 hover:text-blueButton">
+								Stake
+							</a>
+						</Link>
+						<Link href="/proposal">
+							<a className="text-white font-bold transition-colors duration-200 hover:text-blueButton">
+								Vote
+							</a>
+						</Link>
 					</div>
 				</div>
 
@@ -161,6 +154,7 @@ const Header = () => {
 											className="flex text-white py-2 px-4 bg-gray-800 hover:bg-opacity-50 text-sm"
 											target="_blank"
 											href={x.url}
+											rel="noreferrer"
 										>
 											{x.exchange}
 											<span className="pl-1">
@@ -195,6 +189,36 @@ const Header = () => {
 								Login with NEAR
 							</Button>
 						)}
+					</div>
+				</div>
+			</div>
+			<div className="relative z-0">
+				<div
+					className={`absolute bg-gray-900 left-0 z-0 right-0 transform transition-transform duration-500 ${
+						isMenuOpen ? 'translate-y-0' : '-translate-y-96'
+					}`}
+				>
+					<div className="text-center text-white pb-3">
+						<div className="p-3">
+							<Link href="/">
+								<a
+									onClick={() => setIsMenuOpen(false)}
+									className="font-semibold hover:text-blueButton"
+								>
+									<span>Stake</span>
+								</a>
+							</Link>
+						</div>
+						<div className="p-3">
+							<Link href="/proposal">
+								<a
+									onClick={() => setIsMenuOpen(false)}
+									className="font-semibold hover:text-blueButton"
+								>
+									<span>Vote</span>
+								</a>
+							</Link>
+						</div>
 					</div>
 				</div>
 			</div>

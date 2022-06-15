@@ -6,7 +6,7 @@ import near, { CONTRACT } from 'services/near'
 import { IDataInputDropdown, IPool } from 'interfaces'
 import Head from 'components/Common/Head'
 import MainPool from 'components/MainPool'
-import Loader from 'components/Common/Loader'
+import Loader from 'components/Loader/Loader'
 import InputDropdown from 'components/Common/InputDropdown'
 
 interface IUserStaked {
@@ -99,8 +99,11 @@ const Home: NextPage = () => {
 
 	if (!Array.isArray(poolListFT) || poolListFT.length === 0) {
 		return (
-			<div>
+			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
 				<Loader isLoading={true} />
+				<div className="relative z-50">
+					<Header />
+				</div>
 			</div>
 		)
 	}
@@ -119,6 +122,7 @@ const Home: NextPage = () => {
 								className="font-bold text-white opacity-100 border-b-2 border-transparent hover:border-gray-100"
 								href="https://paras.id/publication/now-live-earn-more-paras-by-paras-nft-staking-61e97465e26ebffd22443d4a"
 								target="_blank"
+								rel="noreferrer"
 							>
 								HERE
 							</a>

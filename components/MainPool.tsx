@@ -1,26 +1,30 @@
-import dayjs from 'dayjs'
-import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
-import Button from './Common/Button'
 import { useCallback, useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
+import dayjs from 'dayjs'
 import near, { CONTRACT, getAmount } from 'services/near'
-import StakeTokenModal from './Modal/StakeTokenModal'
-import UnstakeTokenModal from './Modal/UnstakeTokenModal'
-import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
-import { IFarm, IPool, IReward } from 'interfaces'
-import PoolLoader from './Common/PoolLoader'
-import JSBI from 'jsbi'
-import PoolReward from './Common/PoolReward'
-import PoolAPR, { contractPriceMap, getPrice } from './Common/PoolAPR'
-import StakeNFTModal from './Modal/StakeNFTModal'
-import UnstakeNFTModal from './Modal/UnstakeNFTModal'
-import { parseNearAmount } from 'near-api-js/lib/utils/format'
-import { FunctionCallOptions } from 'near-api-js/lib/account'
 import ReactTooltip from 'react-tooltip'
-import IconInfo from './Icon/IconInfo'
-import ClaimModal from './Modal/ClaimModal'
 import { useStore } from 'services/store'
 import cachios from 'cachios'
+import JSBI from 'jsbi'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
+import { FunctionCallOptions } from 'near-api-js/lib/account'
+
+import { useNearProvider } from 'hooks/useNearProvider'
+import Button from './Common/Button'
+import PoolLoader from './Loader/PoolLoader'
+import PoolReward from './Common/PoolReward'
+import PoolAPR, { contractPriceMap, getPrice } from './Common/PoolAPR'
+
+import IconInfo from './Icon/IconInfo'
+import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
+import { GAS_FEE } from 'constants/gasFee'
+import { IFarm, IPool, IReward } from 'interfaces'
+
+const StakeTokenModal = dynamic(() => import('./Modal/StakeTokenModal'))
+const UnstakeTokenModal = dynamic(() => import('./Modal/UnstakeTokenModal'))
+const StakeNFTModal = dynamic(() => import('./Modal/StakeNFTModal'))
+const UnstakeNFTModal = dynamic(() => import('./Modal/UnstakeNFTModal'))
+const ClaimModal = dynamic(() => import('./Modal/ClaimModal'))
 
 export interface IPoolProcessed {
 	title: string
@@ -218,7 +222,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					contractName: CONTRACT.FARM,
 					methodName: `get_unclaimed_reward`,
 					args: {
-						account_id: near.wallet.getAccountId(),
+						account_id: accountId,
 						farm_id: farmId,
 					},
 				})
@@ -238,7 +242,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				contractName: CONTRACT.FARM,
 				methodName: `get_reward`,
 				args: {
-					account_id: near.wallet.getAccountId(),
+					account_id: accountId,
 					token_id: CONTRACT.WRAP,
 				},
 			})
@@ -280,6 +284,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 
 		setPoolProcessed(poolData)
 		type === 'ft' && setFTPool(poolData)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [data.amount, data.title, data.media, data.farms, accountId])
 
 	const FTPoolModal = () => {
@@ -339,7 +344,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				contractName: contractName,
 				methodName: `storage_balance_of`,
 				args: {
-					account_id: near.wallet.getAccountId(),
+					account_id: accountId,
 				},
 			})
 			if (!deposited) {

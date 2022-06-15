@@ -7,7 +7,7 @@ interface ButtonProps {
 	isFullWidth?: boolean
 	isLoading?: boolean
 	size?: 'xs' | 'sm' | 'md' | 'lg'
-	color?: 'blue' | 'red' | 'green' | 'gray' | 'blue-gray'
+	color?: 'blue' | 'red' | 'green' | 'gray' | 'blue-gray' | ''
 	className?: string
 	style?: React.CSSProperties
 }
@@ -70,8 +70,8 @@ const Button = ({
 				<div className="flex items-center justify-center">
 					<svg
 						className="animate-spin"
-						width="24"
-						height="24"
+						width={size === 'lg' ? '24' : '20'}
+						height={size === 'lg' ? '24' : '20'}
 						viewBox="0 0 120 120"
 						fill="none"
 						xmlns="http://www.w3.org/2000/svg"

@@ -23,7 +23,7 @@ const PoolReward = ({ contractName, amount, className = '' }: PoolRewardProps) =
 			setData(metadata)
 		}
 		getMetadata()
-	}, [])
+	}, [contractName])
 
 	if (!data) {
 		return <p>Loading...</p>

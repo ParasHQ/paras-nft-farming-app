@@ -77,8 +77,13 @@ export const prettyBalance = (balance: string, decimals = 18, len = 8) => {
 	return tail ? `${formattedHead}.${tail}` : formattedHead
 }
 
-export const formatParasAmount = (balance: string | number) => {
-	return JSBI.divide(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
+export const formatParasAmount = (balance: string | number, fraction = 0) => {
+	const fixedBalance = (Number(balance) / 10 ** Number(18)).toFixed(fraction)
+	const finalBalance = parseFloat(fixedBalance).toString()
+	const [, tail] = finalBalance.split('.')
+
+	const formatTail = tail ? `.${tail}` : ''
+	return JSBI.divide(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString() + formatTail
 }
 
 export const parseParasAmount = (balance: string | number) => {
@@ -174,4 +179,20 @@ export const hasReward = (rewards: string[]) => {
 		return JSBI.greaterThan(JSBI.BigInt(val), JSBI.BigInt(0))
 	})
 	return rewardIdx > -1 ? true : false
+}
+
+export const getTimeRemaining = (endtime: number) => {
+	const total = new Date(endtime).getTime() - new Date().getTime()
+	const seconds = Math.floor((total / 1000) % 60)
+	const minutes = Math.floor((total / 1000 / 60) % 60)
+	const hours = Math.floor((total / (1000 * 60 * 60)) % 24)
+	const days = Math.floor(total / (1000 * 60 * 60 * 24))
+
+	return {
+		total,
+		days,
+		hours,
+		minutes,
+		seconds,
+	}
 }

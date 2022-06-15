@@ -21,6 +21,7 @@ const ContractInfo = ({ contractId, value }: NFTProps) => {
 		if (contractId) {
 			const fetchNFT = async () => {
 				try {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					const resp = await cachios.get<any>(`${apiParasUrl}/collections`, {
 						params: {
 							collection_id: contractId,

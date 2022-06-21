@@ -452,7 +452,6 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	) {
 		return null
 	}
-	console.log('firsdatat', data)
 
 	return (
 		<div className={`relative text-white ${className}`}>

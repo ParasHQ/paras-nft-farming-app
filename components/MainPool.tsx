@@ -64,10 +64,14 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	const { setFTPool } = useStore()
 
 	const getParasPrice = async () => {
-		const resp = await cachios.get<{ paras: { usd: number } }>(
-			'https://api.coingecko.com/api/v3/simple/price?ids=PARAS&vs_currencies=USD'
-		)
-		return resp.data.paras.usd
+		try {
+			const resp = await cachios.get<{ paras: { usd: number } }>(
+				'https://api.coingecko.com/api/v3/simple/price?ids=PARAS&vs_currencies=USD'
+			)
+			return resp.data.paras.usd
+		} catch (error) {
+			return -1
+		}
 	}
 
 	const getFarms = useCallback(async () => {
@@ -504,7 +508,9 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 										className="text-4xl font-semibold"
 										data-tip={`<p class="text-base">${prettyBalance(data.amount, 18, 4)} Ⓟ</p>`}
 									>
-										${toHumanReadableNumbers(poolProcessed.totalStakedInUSD)}
+										{poolProcessed.totalStakedInUSD > 0
+											? `$${toHumanReadableNumbers(poolProcessed.totalStakedInUSD)} `
+											: `${prettyBalance(data.amount, 18, 4)} Ⓟ`}
 									</p>
 								)}
 								{type === 'nft' && (

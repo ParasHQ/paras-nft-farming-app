@@ -40,9 +40,13 @@ export const contractPriceMap: IContractPriceData = {
 }
 
 export const getPrice = async (url: string, symbol: string, decimals = 0) => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const resp = await cachios.get<any>(url)
-	return resp.data[symbol].usd / 10 ** decimals
+	try {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const resp = await cachios.get<any>(url)
+		return resp.data[symbol].usd / 10 ** decimals
+	} catch (error) {
+		return -1
+	}
 }
 
 const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
@@ -57,6 +61,10 @@ const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
 					contractPriceMap[ftContract].symbol,
 					contractPriceMap[ftContract].decimals
 				)
+				if (currPrice === -1) {
+					setData(-1)
+					return
+				}
 				const rewardPerYearInUSD = parseInt(rewardsPerWeek[ftContract].amount) * 52 * currPrice
 
 				const APR = totalStakedInUSD > 0 ? (rewardPerYearInUSD * 100) / totalStakedInUSD : 0
@@ -78,6 +86,10 @@ const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
 				<p>Loading...</p>
 			</div>
 		)
+	}
+
+	if (data === -1) {
+		return null
 	}
 
 	return (

@@ -1,12 +1,59 @@
 const CONTRACT_NAME = process.env.NEXT_PUBLIC_NFT_FARM_CONTRACT || 'near-blank-project'
 
+type TRPCList = 'defaultRpc' | 'publicRpc'
+
+export function getRPC(env: string) {
+	switch (env) {
+		case 'production':
+		case 'mainnet':
+			return {
+				defaultRpc: {
+					url: 'https://rpc.mainnet.near.orgi',
+					simpleName: 'official rpc',
+				},
+				publicRpc: {
+					url: 'https://public-rpc.blockpi.io/http/near',
+					simpleName: 'blockpi rpc',
+				},
+			}
+
+		case 'development':
+		case 'testnet':
+			return {
+				defaultRpc: {
+					url: 'https://rpc.testnet.near.org',
+					simpleName: 'official rpc',
+				},
+				publicRpc: {
+					url: 'https://public-rpc.blockpi.io/http/near-testnet',
+					simpleName: 'blockpi rpc',
+				},
+			}
+
+		default:
+			return {
+				defaultRpc: {
+					url: 'https://rpc.mainnet.near.org',
+					simpleName: 'official rpc',
+				},
+				publicRpc: {
+					url: 'https://public-rpc.blockpi.io/http/near',
+					simpleName: 'blockpi rpc',
+				},
+			}
+	}
+}
+
 export default function getConfig(env: string) {
+	const choosenRPC = (window.localStorage.getItem('choosenRPC') || 'defaultRpc') as TRPCList
+	const nodeURL = getRPC(env)[choosenRPC].url
+
 	switch (env) {
 		case 'production':
 		case 'mainnet':
 			return {
 				networkId: 'mainnet',
-				nodeUrl: 'https://rpc.mainnet.near.org',
+				nodeUrl: nodeURL,
 				contractName: CONTRACT_NAME,
 				walletUrl: 'https://wallet.near.org',
 				helperUrl: 'https://helper.mainnet.near.org',
@@ -16,7 +63,7 @@ export default function getConfig(env: string) {
 		case 'testnet':
 			return {
 				networkId: 'testnet',
-				nodeUrl: 'https://rpc.testnet.near.org',
+				nodeUrl: nodeURL,
 				contractName: CONTRACT_NAME,
 				walletUrl: 'https://wallet.testnet.near.org',
 				helperUrl: 'https://helper.testnet.near.org',

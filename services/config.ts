@@ -8,7 +8,7 @@ export function getRPC(env: string) {
 		case 'mainnet':
 			return {
 				defaultRpc: {
-					url: 'https://rpc.mainnet.near.orgi',
+					url: 'https://rpc.mainnet.near.org',
 					simpleName: 'official rpc',
 				},
 				publicRpc: {

@@ -44,7 +44,6 @@ const Home: NextPage = () => {
 			})
 			const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
 			const poolNFT = Object.values(poolList).filter((x) => x.seed_type === 'NFT')
-			console.log(poolFT)
 			setPoolListFT(poolFT)
 			setPoolList(poolNFT)
 		}

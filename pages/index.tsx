@@ -44,7 +44,7 @@ const Home: NextPage = () => {
 			})
 			const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
 			const poolNFT = Object.values(poolList).filter((x) => x.seed_type === 'NFT')
-
+			console.log(poolFT)
 			setPoolListFT(poolFT)
 			setPoolList(poolNFT)
 		}
@@ -115,6 +115,7 @@ const Home: NextPage = () => {
 							)}
 							<div className="md:absolute top-0 right-0 md:pr-4 flex justify-center mb-4">
 								<InputDropdown
+									fullWidth={false}
 									defaultValue={filterPool.label}
 									selectItem={setFilterPool}
 									data={filterData}

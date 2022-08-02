@@ -608,7 +608,7 @@ axe-core@^4.0.2:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.3.5.tgz#78d6911ba317a8262bfee292aeafcc1e04b49cc5"
   integrity sha512-WKTW1+xAzhMS5dJsxWkliixlO/PqC4VhmO9T4juNYcaTg9jzWiJsou6m5pxWYGfigWbwzJWeFY6z47a+4neRXA==
 
-axios@^0.24.0:
+axios@^0.24.0, "axios@^0.24.0 || ^0.23.0 || ^0.22.0 || ^0.21.0 || ^0.20.0 || ^0.19.0 || ^0.18.0":
   version "0.24.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
   integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
@@ -808,6 +808,15 @@ bytes@3.1.0, bytes@^3.0.0:
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.1.0.tgz#f6cf7933a360e0588fa9fde85651cdc7f805d1f6"
   integrity sha512-zauLjrfCG+xvoyaqLoV8bLVXXNGC4JqlxFCutSDWA6fJrTo2ZuvLYTqZ7aHBLZSMOopbzwv8f+wZcVzfVTI2Dg==
 
+cachios@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/cachios/-/cachios-3.1.2.tgz#7de5f9f15bf6e9596ebd094664df1f2871fd7c4d"
+  integrity sha512-p8kOuvpO+2rVHDipnivSu9/1Ee8aMDKociKfsL5EPvkWhSwzXD878zKpJmepqPt9erfgEkm68Rdg9P9QAyEeRw==
+  dependencies:
+    axios "^0.24.0 || ^0.23.0 || ^0.22.0 || ^0.21.0 || ^0.20.0 || ^0.19.0 || ^0.18.0"
+    node-cache "^5.0.0 || ^4.1.1"
+    object-hash "^2.0.0"
+
 call-bind@^1.0.0, call-bind@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/call-bind/-/call-bind-1.0.2.tgz#b1d4e89e688119c3c9a903ad30abb2f6a919be3c"
@@ -918,6 +927,11 @@ classnames@^2.2.5:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.1.tgz#dfcfa3891e306ec1dad105d0e88f4417b8535e8e"
   integrity sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==
+
+clone@2.x:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/clone/-/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
+  integrity sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==
 
 color-convert@^1.9.0:
   version "1.9.3"
@@ -2551,6 +2565,13 @@ next@12.0.2:
     "@next/swc-win32-ia32-msvc" "12.0.2"
     "@next/swc-win32-x64-msvc" "12.0.2"
 
+"node-cache@^5.0.0 || ^4.1.1":
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/node-cache/-/node-cache-5.1.2.tgz#f264dc2ccad0a780e76253a694e9fd0ed19c398d"
+  integrity sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg==
+  dependencies:
+    clone "2.x"
+
 node-emoji@^1.11.0:
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/node-emoji/-/node-emoji-1.11.0.tgz#69a0150e6946e2f115e9d7ea4df7971e2628301c"
@@ -2609,7 +2630,7 @@ object-assign@^4.1.1:
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
   integrity sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
 
-object-hash@^2.2.0:
+object-hash@^2.0.0, object-hash@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-2.2.0.tgz#5ad518581eefc443bd763472b8ff2e9c2c0d54a5"
   integrity sha512-gScRMn0bS5fH+IuwyIFgnh9zBdo4DV+6GhygmWM9HyNJSgS0hScp1f5vjtm7oIIOiT9trXrShAkLFSc2IqKNgw==

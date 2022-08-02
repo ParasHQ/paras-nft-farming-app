@@ -21,6 +21,7 @@ import ReactTooltip from 'react-tooltip'
 import IconInfo from './Icon/IconInfo'
 import ClaimModal from './Modal/ClaimModal'
 import { useStore } from 'services/store'
+import cachios from 'cachios'
 import LockedStakeTokenModal from './Modal/LockedStakeTokenModal'
 import UnlockedStakeTokenModal from './Modal/UnlockedStakeTokenModal'
 

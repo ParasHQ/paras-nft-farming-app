@@ -126,7 +126,6 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	const onLockStake = async () => {
 		const IN_SECONDS = 60 * 60 * 24
 		const parseDuration: number = duration * IN_SECONDS
-		const parseDurationDummy: number = 60 * 3
 		const finalAmountValue = props.isTopup
 			? `${Number(inputValue) - Number(prettyBalance(`${props.lockedBalance}`, 18))}`
 			: inputValue
@@ -187,7 +186,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						args: {
 							seed_id: CONTRACT.TOKEN,
 							amount: parseParasAmount(finalAmountValue),
-							duration: parseDurationDummy,
+							duration: parseDuration,
 						},
 						attachedDeposit: getAmount('1'),
 						gas: getAmount(GAS_FEE[200]),

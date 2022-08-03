@@ -7,7 +7,7 @@ import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { parseParasAmount, prettyBalance } from 'utils/common'
 
@@ -23,16 +23,12 @@ interface UnlockedStakeModalProps extends ModalCommonProps {
 
 const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 	const { accountId } = useNearProvider()
-	const [max, setMax] = useState<number>(0)
 	const [inputValue, setInputValue] = useState<string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
-
-	const setDefaultMax = () => {
-		setMax(Number(prettyBalance(`${props.lockedBalance}`, 18)))
-	}
+	const maxToUnlock = props.lockedBalance / 10 ** 18
 
 	const isDisabledUnlockStakeButton = () =>
-		Number(inputValue) > max || !inputValue || Number(inputValue) === 0
+		Number(inputValue) > maxToUnlock || !inputValue || Number(inputValue) === 0
 
 	const onUnlockStake = async () => {
 		setIsSubmitting(true)
@@ -87,12 +83,6 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 		}
 	}
 
-	useEffect(() => {
-		if (accountId) {
-			setDefaultMax()
-		}
-	}, [])
-
 	return (
 		<Modal isShow={props.show} onClose={props.onClose} closeOnEscape={false} closeOnBgClick={false}>
 			<div className="max-w-md w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">
@@ -122,14 +112,14 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 						/>
 						<p className="text-white font-bold mr-3 shado">PARAS</p>
 					</div>
-					{Number(inputValue) > max && (
+					{Number(inputValue) > maxToUnlock && (
 						<div>
 							<p className="text-redButton text-sm">Not enough $PARAS</p>
 						</div>
 					)}
 					<div className="text-left">
 						<Button
-							onClick={() => setInputValue(`${max}`)}
+							onClick={() => setInputValue(`${maxToUnlock}`)}
 							className="float-none mt-2 w-16 border border-blueButton"
 							size="sm"
 							color="gray"

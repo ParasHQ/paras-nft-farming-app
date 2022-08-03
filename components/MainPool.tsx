@@ -21,9 +21,9 @@ import ReactTooltip from 'react-tooltip'
 import IconInfo from './Icon/IconInfo'
 import ClaimModal from './Modal/ClaimModal'
 import { useStore } from 'services/store'
-import cachios from 'cachios'
 import LockedStakeTokenModal from './Modal/LockedStakeTokenModal'
 import UnlockedStakeTokenModal from './Modal/UnlockedStakeTokenModal'
+import { THIRTY_DAYS_IN_SECONDS } from 'constants/time'
 
 export interface IPoolProcessed {
 	title: string
@@ -70,8 +70,8 @@ type TShowModal =
 	| 'unstakeNFT'
 	| 'unstakePARAS'
 	| 'claim'
-	| 'LockedStakePARAS'
-	| 'UnlockedStakePARAS'
+	| 'lockedStakePARAS'
+	| 'unlockedStakePARAS'
 	| null
 
 const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className }: PoolProps) => {
@@ -258,7 +258,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			}
 		}
 
-		if (type === 'ft') {
+		if (type === 'ft' && accountId) {
 			const rewardwnear = await near.nearViewFunction({
 				contractName: CONTRACT.FARM,
 				methodName: `get_reward`,
@@ -333,7 +333,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		return (
 			<>
 				<LockedStakeTokenModal
-					show={showModal === 'LockedStakePARAS'}
+					show={showModal === 'lockedStakePARAS'}
 					onClose={() => setShowModal(null)}
 					seedId={data.seed_id}
 					title={data.title}
@@ -346,7 +346,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					lockedDuration={lockedDuration as number}
 				/>
 				<UnlockedStakeTokenModal
-					show={showModal === 'UnlockedStakePARAS'}
+					show={showModal === 'unlockedStakePARAS'}
 					onClose={() => setShowModal(null)}
 					seedId={data.seed_id}
 					title={data.title}
@@ -459,13 +459,14 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 
 	const getLockedStake = async () => {
 		setIsGettingLockedStake(true)
-		const _lockedBalanceDetails: IViewLocked = await near.nearViewFunction({
-			methodName: `list_user_locked_seeds`,
-			contractName: CONTRACT.FARM,
-			args: {
-				account_id: accountId,
-			},
-		})
+		const _lockedBalanceDetails: { [contractId: string]: IViewLocked } =
+			await near.nearViewFunction({
+				methodName: `list_user_locked_seeds`,
+				contractName: CONTRACT.FARM,
+				args: {
+					account_id: accountId,
+				},
+			})
 		const lockedBalanceDetails: IViewLocked[] = Object.entries(_lockedBalanceDetails)
 			.filter((x) => {
 				return x[0] === CONTRACT.TOKEN
@@ -496,7 +497,6 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				isWithinDurationEndedAtArr.push(false)
 			}
 		})
-		const THIRTY_DAYS_IN_SECONDS = 2592000
 		if (lockedBalanceDetails.length > 0) {
 			const diffStartedEnded =
 				lockedBalanceDetails[0].ended_at - lockedBalanceDetails[0].started_at ===
@@ -845,7 +845,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 																isFullWidth
 																onClick={() => {
 																	isTopup.current = true
-																	onClickActionButton('LockedStakePARAS')
+																	onClickActionButton('lockedStakePARAS')
 																}}
 															>
 																Top Up
@@ -856,7 +856,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 																isDisabled={isWithinDurationEndedAt[0]}
 																color="blue-gray"
 																isFullWidth
-																onClick={() => onClickActionButton('UnlockedStakePARAS')}
+																onClick={() => onClickActionButton('unlockedStakePARAS')}
 															>
 																Unlock PARAS
 															</Button>
@@ -872,7 +872,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 													isFullWidth
 													onClick={() => {
 														isTopup.current = false
-														onClickActionButton('LockedStakePARAS')
+														onClickActionButton('lockedStakePARAS')
 													}}
 												>
 													Locked Staking
@@ -888,7 +888,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 									isFullWidth
 									onClick={() => {
 										isTopup.current = false
-										onClickActionButton('LockedStakePARAS')
+										onClickActionButton('lockedStakePARAS')
 									}}
 								>
 									Locked Staking

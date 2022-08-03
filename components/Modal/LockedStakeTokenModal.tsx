@@ -15,6 +15,7 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
+import { A_DAY_IN_SECONDS } from 'constants/time'
 
 interface LockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -135,8 +136,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	}
 
 	const onLockStake = async () => {
-		const IN_SECONDS = 60 * 60 * 24
-		const parseDuration: number = duration * IN_SECONDS
+		const parseDuration: number = duration * A_DAY_IN_SECONDS
 		const finalAmountValue = props.isTopup
 			? `${Number(inputValue) - Math.round(props.lockedBalance / 10 ** 18)}`
 			: inputValue
@@ -292,7 +292,6 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 					)}
 					<div className="flex items-center w-full">
 						<Slider
-							disabled={max === 0}
 							value={Number(inputValue)}
 							min={props.isTopup ? min : 0}
 							step={0.01}

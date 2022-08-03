@@ -323,6 +323,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					show={showModal === 'unstakePARAS'}
 					onClose={() => setShowModal(null)}
 					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
+					userLocked={lockedData[0]?.balance}
 				/>
 			</>
 		)
@@ -342,6 +343,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					lockedBalance={Number(lockedData[0]?.balance)}
 					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
 					isWithinDuration={isWithinDuration[0]}
+					lockedDuration={lockedDuration as number}
 				/>
 				<UnlockedStakeTokenModal
 					show={showModal === 'UnlockedStakePARAS'}
@@ -494,19 +496,20 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				isWithinDurationEndedAtArr.push(false)
 			}
 		})
-		const THIRTY_IN_SECONDS = 2592000
+		const THIRTY_DAYS_IN_SECONDS = 2592000
 		if (lockedBalanceDetails.length > 0) {
 			const diffStartedEnded =
-				lockedBalanceDetails[0].ended_at - lockedBalanceDetails[0].started_at === THIRTY_IN_SECONDS
+				lockedBalanceDetails[0].ended_at - lockedBalanceDetails[0].started_at ===
+				THIRTY_DAYS_IN_SECONDS
 			if (diffStartedEnded) {
 				setLockedDuration(30)
 			} else {
 				setLockedDuration(90)
 			}
 		}
+		setLockedData(lockedBalanceDetails)
 		setIsWithinDuration(isWithinDurationArr)
 		setIsWithinDurationEndedAt(isWithinDurationEndedAtArr)
-		setLockedData(lockedBalanceDetails)
 		setIsGettingLockedStake(false)
 	}
 
@@ -539,7 +542,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			)
 			setUserFullStaked(staked)
 		}
-	}, [type, staked])
+	}, [type, staked, isGettingLockedStake])
 
 	useEffect(() => {
 		getFarms()

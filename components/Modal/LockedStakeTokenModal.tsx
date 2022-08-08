@@ -9,7 +9,6 @@ import { parseParasAmount, prettyBalance } from 'utils/common'
 import Slider from 'rc-slider'
 import InputText from 'components/Common/InputText'
 import Button from 'components/Common/Button'
-import IconInfo from 'components/Icon/IconInfo'
 import ReactTooltip from 'react-tooltip'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
@@ -19,7 +18,6 @@ import { A_DAY_IN_SECONDS } from 'constants/time'
 
 interface LockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
-	userFullStaked: string
 	isTopup: boolean
 	lockedBalance: number
 	isWithinDuration: boolean
@@ -41,9 +39,10 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	const [stakedBalance, setStakedBalance] = useState<number>(0)
 	const [flexibleBalance, setFlexibleBalance] = useState<number>(0)
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [rerenderingSlider, setRerenderingSlider] = useState(false)
 	const [selectedBalance, setSelectedBalance] = useState<IDataInputDropdown>({
 		id: 'staked_balance',
-		label: `Staked PARAS: ${prettyBalance(props.userFullStaked, 18)} Ⓟ`,
+		label: `Staked PARAS: ${prettyBalance(props.userStaked, 18)} Ⓟ`,
 	})
 
 	const fetchSourceBalance = async (_stakedBalance: number) => {
@@ -54,8 +53,8 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 				account_id: near.wallet.getAccountId(),
 			},
 		})
-		setFlexibleBalance(Number(Math.round(Number(_flexibleBalance) / 10 ** 18).toFixed(8)))
-		setStakedBalance(Number(Math.round(Number(_stakedBalance) / 10 ** 18).toFixed(8)))
+		setFlexibleBalance(Number(Math.floor((Number(_flexibleBalance) / 10 ** 18) * 100) / 100))
+		setStakedBalance(Number(Math.floor((Number(_stakedBalance) / 10 ** 18) * 100) / 100))
 		const availableBalanceParas: IDataInputDropdown[] = [
 			{
 				id: 'staked_balance',
@@ -70,29 +69,38 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	}
 
 	const setDefaultMax = () => {
-		if (props.userFullStaked && props.lockedBalance) {
-			setMax(Math.round(Number(props.userFullStaked) / 10 ** 18))
+		if (props.userStaked && props.lockedBalance) {
+			setMax(Number((Number(props.userStaked) / 10 ** 18).toFixed(2)))
 		}
 	}
 
-	const setDefaultMinIfIsTopup = () => {
-		if (props.lockedBalance) {
-			setMin(Math.round(props.lockedBalance / 10 ** 18))
+	const setDefaultMin = () => {
+		setMin(0)
+	}
+
+	const getTotalLocked = () => {
+		if (props.isTopup) {
+			if (inputValue)
+				return Number((props.lockedBalance / 10 ** 18).toFixed(2)) + Number(inputValue)
+			else return 0
+		} else {
+			if (inputValue) return Number(inputValue)
+			else return 0
 		}
 	}
 
-	const setAddMorePARASText = () => {
+	const setAddMorePARASText = (input: number) => {
 		let nominal = 0
 		let level = ''
-		if (Number(inputValue) <= min) {
-			if (Number(inputValue) < 1000) {
-				nominal = 1000 - Number(inputValue)
+		if (input < 3000) {
+			if (input < 1000) {
+				nominal = Number((1000 - input).toFixed(2))
 				level = 'Silver'
-			} else if (Number(inputValue) >= 1000 && Number(inputValue) < 2000) {
-				nominal = 2000 - Number(inputValue)
+			} else if (input >= 1000 && input < 2000) {
+				nominal = Number((2000 - input).toFixed(2))
 				level = 'Gold'
-			} else if (Number(inputValue) >= 2000 && Number(inputValue) < 3000) {
-				nominal = 2000 - Number(inputValue)
+			} else if (input >= 2000 && input < 3000) {
+				nominal = Number((3000 - input).toFixed(2))
 				level = 'Platinum'
 			}
 			return `Add ${nominal} $PARAS or more to be ${level} Member`
@@ -118,17 +126,24 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		Number(inputValue) === 0 ||
 		Number(inputValue) < min ||
 		duration <= 0 ||
-		Math.round(Number(props.userFullStaked) / 10 ** 18) === Number(inputValue) ||
 		!agreement
 
+	const isDisabled30Days = () =>
+		props.isTopup && props.lockedDuration ? props.lockedDuration === 90 : false
+
 	const onChangeSlider = (value: number) => {
+		setCurrentMemberLevel(getTotalLocked())
 		setInputValue(`${value}`)
-		setCurrentMemberLevel(value)
 	}
 
 	const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setCurrentMemberLevel(getTotalLocked())
 		setInputValue(event.target.value.replace(/^[^1-9][^.]/g, ''))
-		setCurrentMemberLevel(Number(event.target.value))
+	}
+
+	const onChangeMaxInput = () => {
+		setCurrentMemberLevel(getTotalLocked())
+		setInputValue(`${max}`)
 	}
 
 	const onClickDuration = (_duration: number) => {
@@ -137,9 +152,8 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 
 	const onLockStake = async () => {
 		const parseDuration: number = duration * A_DAY_IN_SECONDS
-		const finalAmountValue = props.isTopup
-			? `${Number(inputValue) - Math.round(props.lockedBalance / 10 ** 18)}`
-			: inputValue
+		const t = 60 * 3
+		const finalAmountValue = inputValue
 		setIsSubmitting(true)
 		try {
 			const txs: {
@@ -197,7 +211,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						args: {
 							seed_id: CONTRACT.TOKEN,
 							amount: parseParasAmount(finalAmountValue),
-							duration: parseDuration,
+							duration: t,
 						},
 						attachedDeposit: getAmount('1'),
 						gas: getAmount(GAS_FEE[200]),
@@ -212,17 +226,16 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 
 	useEffect(() => {
 		if (accountId) {
-			fetchSourceBalance(Number(props.userFullStaked))
+			fetchSourceBalance(Number(props.userStaked))
 			setDefaultMax()
-			if (props.isWithinDuration) {
-				setDefaultMinIfIsTopup()
-				setCurrentMemberLevel(Math.round(props.lockedBalance / 10 ** 18))
-			}
+			setDefaultMin()
+			setCurrentMemberLevel(Math.floor(props.lockedBalance / 10 ** 18))
 		}
-	}, [props.lockedBalance, props.isWithinDuration])
+	}, [props.lockedBalance, props.userStaked])
 
 	useEffect(() => {
-		setInputValue(props.isTopup ? `${min}` : `${0.0}`)
+		setRerenderingSlider(true)
+		setInputValue(`${0.0}`)
 		if (props.isTopup && !props.isTopup) {
 			setMemberLevel(`Bronze`)
 		}
@@ -231,6 +244,9 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		} else {
 			setMax(flexibleBalance)
 		}
+		setTimeout(() => {
+			setRerenderingSlider(false)
+		}, 50)
 	}, [selectedBalance, props.show, props.isTopup])
 
 	return (
@@ -291,29 +307,33 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						</p>
 					)}
 					<div className="flex items-center w-full">
-						<Slider
-							value={Number(inputValue)}
-							min={props.isTopup ? min : 0}
-							step={0.01}
-							max={max}
-							onChange={(value) => onChangeSlider(value as number)}
-							railStyle={{
-								backgroundColor: `#35405E`,
-								height: `0.4rem`,
-							}}
-							trackStyle={{
-								backgroundColor: `#247DFE`,
-								height: `0.4rem`,
-							}}
-							handleStyle={{
-								backgroundColor: `#247DFE`,
-								borderColor: `#247DFE`,
-							}}
-						/>
+						{!rerenderingSlider && (
+							<Slider
+								value={Number(inputValue)}
+								min={0}
+								step={0.01}
+								max={max}
+								onChange={(value) => {
+									onChangeSlider(value as number)
+								}}
+								railStyle={{
+									backgroundColor: `#35405E`,
+									height: `0.4rem`,
+								}}
+								trackStyle={{
+									backgroundColor: `#247DFE`,
+									height: `0.4rem`,
+								}}
+								handleStyle={{
+									backgroundColor: `#247DFE`,
+									borderColor: `#247DFE`,
+								}}
+							/>
+						)}
 					</div>
 				</div>
 
-				<div className="mb-2">
+				<div className="mb-4">
 					<div className="flex w-full flex-wrap items-center">
 						<div className="w-full md:w-7/12 flex flex-col relative mb-3 md:mb-0">
 							<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
@@ -341,7 +361,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 							<div className="absolute left-1 top-2">
 								<Button
 									isDisabled={max === 0}
-									onClick={() => setInputValue(`${max}`)}
+									onClick={onChangeMaxInput}
 									className="float-none p-1 px-2 text-xs"
 									size="sm"
 									color="gray"
@@ -352,20 +372,22 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						</div>
 						<div className="w-full md:w-5/12 flex justify-center md:justify-evenly items-center">
 							<button
-								disabled={
-									props.isTopup && props.lockedDuration ? props.lockedDuration === 90 : false
-								}
+								disabled={isDisabled30Days()}
 								onClick={() => onClickDuration(30)}
-								className={`border border-blueButton rounded-lg p-1 px-2 text-white text-sm ${
+								className={`border rounded-lg p-1 px-2 text-white text-sm ${
 									duration === 30 && `bg-blueButton`
+								} ${
+									isDisabled30Days()
+										? `border-gray-400 bg-gray-400 cursor-default`
+										: `border-blueButton cursor-pointer`
 								}`}
 							>
 								30 Days
 							</button>
 							<button
 								onClick={() => onClickDuration(90)}
-								className={`border border-blueButton rounded-lg p-1 px-2 text-white text-sm ${
-									duration === 90 && `bg-blueButton`
+								className={`border border-blueButton rounded-lg p-1 px-2 text-white text-sm transition-all ${
+									duration === 90 && `bg-blueButton hover:bg-blue-600`
 								}`}
 							>
 								90 Days
@@ -373,10 +395,18 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						</div>
 					</div>
 				</div>
-				<div className="mb-4">
+				<div className="mb-1 flex justify-between items-center">
+					<div>
+						<p className="text-sm font-semibold">Total Locked Staking:</p>
+					</div>
+					<div>
+						<p>{getTotalLocked()} Ⓟ</p>
+					</div>
+				</div>
+				<div className="mb-6">
 					{props.isTopup && (
 						<div>
-							<p className="text-blueButton text-sm">{setAddMorePARASText()}</p>
+							<p className="text-blueButton text-sm">{setAddMorePARASText(getTotalLocked())}</p>
 						</div>
 					)}
 				</div>
@@ -392,8 +422,10 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						/>
 						<p className="text-sm">
 							I have read and agree to the loyalty program{' '}
-							<span className="underline hover:font-semibold cursor-pointer">
-								term & conditions
+							<span className="underline hover:font-semibold cursor-pointer transition-all">
+								<a href="https://guide.paras.id/terms-and-condition/marketplace" target={`_blank`}>
+									term & conditions
+								</a>
 							</span>
 							*
 						</p>
@@ -406,15 +438,10 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						isFullWidth
 						onClick={onLockStake}
 						isLoading={isSubmitting}
+						className="mt-4"
+						size="lg"
 					>
-						<div className="flex items-center justify-center">
-							Lock Stake
-							<div
-								data-tip={`<div><p class="text-xs">$PARAS can only be changed if the input value is greater than the previously locked stake</p></div>`}
-							>
-								<IconInfo className="w-5 h-5 pl-1" />
-							</div>
-						</div>
+						Lock Stake
 					</Button>
 				</div>
 			</div>

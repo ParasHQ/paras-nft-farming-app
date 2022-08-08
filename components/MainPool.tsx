@@ -79,7 +79,6 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [userStaked, setUserStaked] = useState<string | null>(null)
-	const [userFullStaked, setUserFullStaked] = useState<string | null>(null)
 	const [lockedData, setLockedData] = useState<IViewLocked[]>([])
 	const [lockedDuration, setLockedDuration] = useState<number>()
 	const [isGettingLockedStake, setIsGettingLockedStake] = useState(true)
@@ -338,7 +337,6 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					seedId={data.seed_id}
 					title={data.title}
 					userStaked={userStaked as string}
-					userFullStaked={userFullStaked as string}
 					isTopup={isTopup.current}
 					lockedBalance={Number(lockedData[0]?.balance)}
 					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
@@ -540,7 +538,6 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			setUserStaked(
 				lockedData.length > 0 ? `${Number(staked) - Number(lockedData[0].balance)}` : staked
 			)
-			setUserFullStaked(staked)
 		}
 	}, [type, staked, isGettingLockedStake])
 

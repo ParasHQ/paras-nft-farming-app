@@ -53,8 +53,8 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 				account_id: near.wallet.getAccountId(),
 			},
 		})
-		setFlexibleBalance(Number(Math.floor((Number(_flexibleBalance) / 10 ** 18) * 100) / 100))
-		setStakedBalance(Number(Math.floor((Number(_stakedBalance) / 10 ** 18) * 100) / 100))
+		setFlexibleBalance(Math.floor((Number(_flexibleBalance) / 10 ** 18) * 100) / 100)
+		setStakedBalance(Math.floor((Number(_stakedBalance) / 10 ** 18) * 100) / 100)
 		const availableBalanceParas: IDataInputDropdown[] = [
 			{
 				id: 'staked_balance',
@@ -70,7 +70,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 
 	const setDefaultMax = () => {
 		if (props.userStaked && props.lockedBalance) {
-			setMax(Number((Number(props.userStaked) / 10 ** 18).toFixed(2)))
+			setMax(((Number(props.userStaked) / 10 ** 18) * 100) / 100)
 		}
 	}
 
@@ -81,7 +81,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	const getTotalLocked = () => {
 		if (props.isTopup) {
 			if (inputValue)
-				return Number((props.lockedBalance / 10 ** 18).toFixed(2)) + Number(inputValue)
+				return Math.floor((props.lockedBalance / 10 ** 18) * 100) / 100 + Number(inputValue)
 			else return 0
 		} else {
 			if (inputValue) return Number(inputValue)

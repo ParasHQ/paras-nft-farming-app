@@ -399,10 +399,10 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						<p className="text-sm font-semibold">Total Locked Staking:</p>
 					</div>
 					<div>
-						<p>{getTotalLocked()} Ⓟ</p>
+						<p>{getTotalLocked().toFixed(2)} Ⓟ</p>
 					</div>
 				</div>
-				<div className="mb-6">
+				<div className="mb-4">
 					{props.isTopup && (
 						<div>
 							<p className="text-blueButton text-sm">{setAddMorePARASText(getTotalLocked())}</p>
@@ -410,7 +410,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 					)}
 				</div>
 
-				<div className="mb-6">
+				<div className="mb-4">
 					<div className="flex items-center">
 						<input
 							type="checkbox"

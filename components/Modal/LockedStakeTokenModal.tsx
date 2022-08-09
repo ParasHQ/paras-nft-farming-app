@@ -29,7 +29,6 @@ interface LockedStakeModalProps extends ModalCommonProps {
 
 const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	const { accountId } = useNearProvider()
-	const [memberLevel, setMemberLevel] = useState<string>('Bronze')
 	const [max, setMax] = useState<number>(0)
 	const [min, setMin] = useState<number>(0)
 	const [inputValue, setInputValue] = useState<string>('')
@@ -108,15 +107,15 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		return ``
 	}
 
-	const setCurrentMemberLevel = (value: number) => {
+	const currentMemberLevel = (value: number) => {
 		if (value < 1000) {
-			setMemberLevel('Bronze')
+			return 'Bronze'
 		} else if (value >= 1000 && value < 2000) {
-			setMemberLevel('Silver')
+			return 'Silver'
 		} else if (value >= 2000 && value < 3000) {
-			setMemberLevel('Gold')
+			return 'Gold'
 		} else if (value >= 3000) {
-			setMemberLevel('Platinum')
+			return 'Platinum'
 		}
 	}
 
@@ -131,18 +130,11 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	const isDisabled30Days = () =>
 		props.isTopup && props.lockedDuration ? props.lockedDuration === 90 : false
 
-	const onChangeSlider = (value: number) => {
-		setCurrentMemberLevel(getTotalLocked())
-		setInputValue(`${value}`)
-	}
-
-	const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setCurrentMemberLevel(getTotalLocked())
-		setInputValue(event.target.value.replace(/^[^1-9][^.]/g, ''))
+	const onChangeInput = (value: string | number) => {
+		setInputValue(value.toString().replace(/^[^1-9][^.]/g, ''))
 	}
 
 	const onChangeMaxInput = () => {
-		setCurrentMemberLevel(getTotalLocked())
 		setInputValue(`${max}`)
 	}
 
@@ -228,16 +220,12 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 			fetchSourceBalance(Number(props.userStaked))
 			setDefaultMax()
 			setDefaultMin()
-			setCurrentMemberLevel(Math.floor(props.lockedBalance / 10 ** 18))
 		}
-	}, [props.lockedBalance, props.userStaked])
+	}, [props.userStaked])
 
 	useEffect(() => {
 		setRerenderingSlider(true)
 		setInputValue(`${0.0}`)
-		if (props.isTopup && !props.isTopup) {
-			setMemberLevel(`Bronze`)
-		}
 		if (selectedBalance.id === 'staked_balance') {
 			setMax(stakedBalance)
 		} else {
@@ -273,11 +261,8 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 							</div>
 							<div className="w-10/12 flex items-center justify-center">
 								<p>
-									{' '}
-									<p>
-										By updating $PARAS, your period time will be reset and your reward will be
-										automatically collected{' '}
-									</p>
+									By updating $PARAS, your period time will be reset and your reward will be
+									automatically collected
 								</p>
 							</div>
 						</div>
@@ -297,11 +282,12 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 
 				<div className="mb-4">
 					<p className="text-sm">
-						Current Member: <span className="font-semibold">{memberLevel}</span>
+						<span>Current Member: </span>
+						<span className="font-semibold">{currentMemberLevel(getTotalLocked())}</span>
 					</p>
 					{props.isTopup && (
 						<p className="text-sm mb-2">
-							Current Locked Stake:{' '}
+							<span>Current Locked Stake: </span>
 							<span className="font-semibold">{prettyBalance(`${props.lockedBalance}`, 18)} Ⓟ</span>
 						</p>
 					)}
@@ -313,7 +299,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 								step={0.01}
 								max={max}
 								onChange={(value) => {
-									onChangeSlider(value as number)
+									onChangeInput(value as number)
 								}}
 								railStyle={{
 									backgroundColor: `#35405E`,
@@ -339,7 +325,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 								<InputText
 									disabled={max === 0}
 									value={inputValue}
-									onChange={(event) => onChangeInput(event)}
+									onChange={(event) => onChangeInput(event.target.value)}
 									className="border-none"
 									type="number"
 									placeholder="0.0"
@@ -350,11 +336,6 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 							{Number(inputValue) > max && (
 								<div>
 									<p className="text-redButton text-sm">Not enough $PARAS</p>
-								</div>
-							)}
-							{props.isTopup && Number(inputValue) < min && (
-								<div>
-									<p className="text-redButton text-sm">$PARAS can't be lower than before</p>
 								</div>
 							)}
 							<div className="absolute left-1 top-2">

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
 import axios from 'axios'
 import StakeTokenModal from './Modal/StakeTokenModal'
@@ -21,6 +21,9 @@ import ReactTooltip from 'react-tooltip'
 import IconInfo from './Icon/IconInfo'
 import ClaimModal from './Modal/ClaimModal'
 import { useStore } from 'services/store'
+import LockedStakeTokenModal from './Modal/LockedStakeTokenModal'
+import UnlockedStakeTokenModal from './Modal/UnlockedStakeTokenModal'
+import { THIRTY_DAYS_IN_SECONDS } from 'constants/time'
 
 export interface IPoolProcessed {
 	title: string
@@ -54,13 +57,34 @@ interface PoolProps {
 	className?: string
 }
 
-type TShowModal = 'stakeNFT' | 'stakePARAS' | 'unstakeNFT' | 'unstakePARAS' | 'claim' | null
+interface IViewLocked {
+	seed_id: string
+	balance: string
+	started_at: number
+	ended_at: number
+}
+
+type TShowModal =
+	| 'stakeNFT'
+	| 'stakePARAS'
+	| 'unstakeNFT'
+	| 'unstakePARAS'
+	| 'claim'
+	| 'lockedStakePARAS'
+	| 'unlockedStakePARAS'
+	| null
 
 const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className }: PoolProps) => {
 	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [userStaked, setUserStaked] = useState<string | null>(null)
+	const [lockedData, setLockedData] = useState<IViewLocked[]>([])
+	const [lockedDuration, setLockedDuration] = useState<number>()
+	const [isGettingLockedStake, setIsGettingLockedStake] = useState(true)
+	const [isWithinDuration, setIsWithinDuration] = useState<boolean[]>([])
+	const [isWithinDurationEndedAt, setIsWithinDurationEndedAt] = useState<boolean[]>([])
+	const isTopup = useRef<boolean>(false)
 	const { setFTPool } = useStore()
 
 	const getParasPrice = async () => {
@@ -233,7 +257,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			}
 		}
 
-		if (type === 'ft') {
+		if (type === 'ft' && accountId) {
 			const rewardwnear = await near.nearViewFunction({
 				contractName: CONTRACT.FARM,
 				methodName: `get_reward`,
@@ -298,6 +322,37 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					show={showModal === 'unstakePARAS'}
 					onClose={() => setShowModal(null)}
 					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
+					userLocked={lockedData[0]?.balance}
+				/>
+			</>
+		)
+	}
+
+	const LockingFTPoolModal = () => {
+		return (
+			<>
+				<LockedStakeTokenModal
+					show={showModal === 'lockedStakePARAS'}
+					onClose={() => setShowModal(null)}
+					seedId={data.seed_id}
+					title={data.title}
+					userStaked={userStaked as string}
+					isTopup={isTopup.current}
+					lockedBalance={Number(lockedData[0]?.balance)}
+					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
+					isWithinDuration={isWithinDuration[0]}
+					lockedDuration={lockedDuration as number}
+				/>
+				<UnlockedStakeTokenModal
+					show={showModal === 'unlockedStakePARAS'}
+					onClose={() => setShowModal(null)}
+					seedId={data.seed_id}
+					title={data.title}
+					userStaked={userStaked as string}
+					isTopup={isTopup.current}
+					lockedBalance={Number(lockedData[0]?.balance)}
+					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
+					isWithinDuration={isWithinDuration[0]}
 				/>
 			</>
 		)
@@ -400,6 +455,68 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		setShowModal(type)
 	}
 
+	const getLockedStake = async () => {
+		setIsGettingLockedStake(true)
+		const _lockedBalanceDetails: { [contractId: string]: IViewLocked } =
+			await near.nearViewFunction({
+				methodName: `list_user_locked_seeds`,
+				contractName: CONTRACT.FARM,
+				args: {
+					account_id: accountId,
+				},
+			})
+		const lockedBalanceDetails: IViewLocked[] = Object.entries(_lockedBalanceDetails)
+			.filter((x) => {
+				return x[0] === CONTRACT.TOKEN
+			})
+			.map((value) => ({
+				seed_id: value[0],
+				balance: value[1].balance,
+				started_at: value[1].started_at,
+				ended_at: value[1].ended_at,
+			}))
+		const isWithinDurationArr: boolean[] = []
+		const isWithinDurationEndedAtArr: boolean[] = []
+		lockedBalanceDetails.map((value) => {
+			if (
+				new Date().getTime() / 1000 > value.started_at &&
+				new Date().getTime() / 1000 < value.ended_at + 60 * 60 * 24
+			) {
+				isWithinDurationArr.push(true)
+			} else {
+				isWithinDurationArr.push(false)
+			}
+			if (
+				new Date().getTime() / 1000 > value.started_at &&
+				new Date().getTime() / 1000 < value.ended_at
+			) {
+				isWithinDurationEndedAtArr.push(true)
+			} else {
+				isWithinDurationEndedAtArr.push(false)
+			}
+		})
+		if (lockedBalanceDetails.length > 0) {
+			const diffStartedEnded =
+				lockedBalanceDetails[0].ended_at - lockedBalanceDetails[0].started_at ===
+				THIRTY_DAYS_IN_SECONDS
+			if (diffStartedEnded) {
+				setLockedDuration(30)
+			} else {
+				setLockedDuration(90)
+			}
+		}
+		setLockedData(lockedBalanceDetails)
+		setIsWithinDuration(isWithinDurationArr)
+		setIsWithinDurationEndedAt(isWithinDurationEndedAtArr)
+		setIsGettingLockedStake(false)
+	}
+
+	useEffect(() => {
+		if (accountId) {
+			getLockedStake()
+		}
+	}, [])
+
 	useEffect(() => {
 		if (type === 'nft' && stakedNFT) {
 			const nftPtsStaked = stakedNFT.reduce((a, b) => {
@@ -417,10 +534,12 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	}, [type, stakedNFT, poolProcessed])
 
 	useEffect(() => {
-		if (type === 'ft' && staked) {
-			setUserStaked(staked)
+		if (type === 'ft' && staked && !isGettingLockedStake) {
+			setUserStaked(
+				lockedData.length > 0 ? `${Number(staked) - Number(lockedData[0].balance)}` : staked
+			)
 		}
-	}, [type, staked])
+	}, [type, staked, isGettingLockedStake])
 
 	useEffect(() => {
 		getFarms()
@@ -467,6 +586,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			)}
 			{FTPoolModal()}
 			{NFTPoolModal()}
+			{LockingFTPoolModal()}
 			<ClaimModal
 				type={type}
 				show={showModal === 'claim'}
@@ -673,6 +793,106 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 							</div>
 						</div>
 					)}
+					<div className="mt-4 flex justify-center items-center">
+						{accountId && lockedData.length > 0 ? (
+							<>
+								{lockedData.map((value, index) => {
+									if (isWithinDuration[index]) {
+										return (
+											<>
+												<div className="w-full">
+													<div key={index} className="flex justify-between mb-1">
+														<div
+															data-tip={`<div>
+														<p class="text-base">Start: ${dayjs.unix(value.started_at).format('MMM D, YYYY h:mm:ss A')}</p>
+														</div>`}
+														>
+															<div className="opacity-75 flex items-center">
+																<p className="opacity-75">Start Date</p>
+																<IconInfo className="w-5 h-5 pl-1" />
+															</div>
+															<p>{dayjs.unix(value.started_at).format('MMM D, YYYY')}</p>
+														</div>
+														<div
+															className="text-right"
+															data-tip={`<div>
+														<p class="text-base">End: ${dayjs.unix(value.ended_at).format('MMM D, YYYY h:mm:ss A')}</p></div>`}
+														>
+															<div className="opacity-75 flex items-center">
+																<p className="opacity-75">End Date</p>
+																<IconInfo className="w-5 h-5 pl-1" />
+															</div>{' '}
+															<p>{dayjs.unix(value.ended_at).format('MMM D, YYYY')}</p>
+														</div>
+													</div>
+													<div className="flex justify-between mb-6">
+														<div className="flex items-center">
+															<p className="mr-1">Locked Staking</p>
+															<div className="p-1 text-xs text-white flex justify-center items-center rounded bg-blueGray">
+																{lockedDuration} days
+															</div>
+														</div>
+														<div>
+															<p>{prettyBalance(value.balance, 18)} Ⓟ</p>
+														</div>
+													</div>
+													<div className="flex justify-between -mx-4">
+														<div className="w-1/2 px-4">
+															<Button
+																isFullWidth
+																onClick={() => {
+																	isTopup.current = true
+																	onClickActionButton('lockedStakePARAS')
+																}}
+															>
+																Top Up
+															</Button>
+														</div>
+														<div className="w-1/2 px-4 text-right">
+															<Button
+																isDisabled={isWithinDurationEndedAt[0]}
+																color="blue-gray"
+																isFullWidth
+																onClick={() => onClickActionButton('unlockedStakePARAS')}
+															>
+																Unlock PARAS
+															</Button>
+														</div>
+													</div>{' '}
+												</div>
+											</>
+										)
+									} else {
+										return (
+											<div className="flex w-1/2 justify-center px-4">
+												<Button
+													isFullWidth
+													onClick={() => {
+														isTopup.current = false
+														onClickActionButton('lockedStakePARAS')
+													}}
+												>
+													Locked Staking
+												</Button>
+											</div>
+										)
+									}
+								})}
+							</>
+						) : (
+							<div className="flex w-1/2 justify-center px-4">
+								<Button
+									isFullWidth
+									onClick={() => {
+										isTopup.current = false
+										onClickActionButton('lockedStakePARAS')
+									}}
+								>
+									Locked Staking
+								</Button>
+							</div>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>

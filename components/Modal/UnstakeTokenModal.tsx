@@ -16,6 +16,7 @@ interface UnstakeTokenModalProps extends ModalCommonProps {
 	claimableRewards: {
 		[key: string]: string
 	}
+	userLocked: string
 }
 
 const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
@@ -117,7 +118,10 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 
 				<div>
 					<p className="opacity-80 text-right text-white text-sm mb-1">
-						Balance: {prettyBalance(balance)}
+						Balance:{' '}
+						{prettyBalance(
+							props.userLocked ? `${Number(balance) - Number(props.userLocked)}` : balance
+						)}
 					</p>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
@@ -131,7 +135,20 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 					</div>
 					<div className="text-left">
 						<Button
-							onClick={() => balance && setInputUnstake(formatParasAmount(balance))}
+							onClick={() => {
+								if (balance) {
+									if (props.userLocked) {
+										setInputUnstake(
+											`${
+												Math.round(Number(balance) / 10 ** 18) -
+												Math.round(Number(props.userLocked) / 10 ** 18)
+											}`
+										)
+									} else {
+										setInputUnstake(formatParasAmount(balance))
+									}
+								}
+							}}
 							className="float-none mt-2 w-16"
 							isDisabled={!balance}
 							size="sm"

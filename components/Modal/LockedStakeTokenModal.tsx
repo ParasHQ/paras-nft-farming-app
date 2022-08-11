@@ -15,6 +15,7 @@ import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { A_DAY_IN_SECONDS } from 'constants/time'
+import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 
 interface LockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -92,14 +93,14 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		let nominal = 0
 		let level = ''
 		if (input < 3000) {
-			if (input < 1000) {
-				nominal = Number((1000 - input).toFixed(2))
+			if (input < SILVER) {
+				nominal = Number((SILVER - input).toFixed(2))
 				level = 'Silver'
-			} else if (input >= 1000 && input < 2000) {
-				nominal = Number((2000 - input).toFixed(2))
+			} else if (input >= SILVER && input < GOLD) {
+				nominal = Number((GOLD - input).toFixed(2))
 				level = 'Gold'
-			} else if (input >= 2000 && input < 3000) {
-				nominal = Number((3000 - input).toFixed(2))
+			} else if (input >= GOLD && input < PLATINUM) {
+				nominal = Number((PLATINUM - input).toFixed(2))
 				level = 'Platinum'
 			}
 			return `Add ${nominal} $PARAS or more to be ${level} Member`
@@ -108,13 +109,13 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	}
 
 	const currentMemberLevel = (value: number) => {
-		if (value < 1000) {
+		if (value < SILVER) {
 			return 'Bronze'
-		} else if (value >= 1000 && value < 2000) {
+		} else if (value >= SILVER && value < GOLD) {
 			return 'Silver'
-		} else if (value >= 2000 && value < 3000) {
+		} else if (value >= GOLD && value < PLATINUM) {
 			return 'Gold'
-		} else if (value >= 3000) {
+		} else if (value >= PLATINUM) {
 			return 'Platinum'
 		}
 	}

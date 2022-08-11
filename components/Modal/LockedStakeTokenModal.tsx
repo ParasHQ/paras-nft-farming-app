@@ -369,7 +369,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 										: `border-blueButton cursor-pointer`
 								}`}
 							>
-								{process.env.NEXT_PUBLIC_APP_ENV !== 'mainnet' ? '30 Days' : '3 Minutes'}
+								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '30 Days' : '3 Minutes'}
 							</button>
 							<button
 								onClick={() =>

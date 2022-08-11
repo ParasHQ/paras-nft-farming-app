@@ -145,6 +145,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 
 	const onLockStake = async () => {
 		const parseDuration: number = duration * A_DAY_IN_SECONDS
+		const parseDurationTestnet: number = duration * 60
 		const finalAmountValue = inputValue
 		setIsSubmitting(true)
 		try {
@@ -203,7 +204,10 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						args: {
 							seed_id: CONTRACT.TOKEN,
 							amount: parseParasAmount(finalAmountValue),
-							duration: parseDuration,
+							duration:
+								process.env.NEXT_PUBLIC_APP_ENV !== 'testnet'
+									? parseDuration
+									: parseDurationTestnet,
 						},
 						attachedDeposit: getAmount('1'),
 						gas: getAmount(GAS_FEE[200]),
@@ -354,24 +358,28 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						<div className="w-full md:w-5/12 flex justify-center md:justify-evenly items-center">
 							<button
 								disabled={isDisabled30Days()}
-								onClick={() => onClickDuration(30)}
+								onClick={() =>
+									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV !== 'testnet' ? 30 : 3)
+								}
 								className={`border rounded-lg p-1 px-2 text-white text-sm ${
-									duration === 30 && `bg-blueButton`
+									(duration === 30 || duration === 3) && `bg-blueButton`
 								} ${
 									isDisabled30Days()
 										? `border-gray-400 bg-gray-400 cursor-default`
 										: `border-blueButton cursor-pointer`
 								}`}
 							>
-								30 Days
+								{process.env.NEXT_PUBLIC_APP_ENV !== 'testnet' ? '30 Days' : '3 Minutes'}
 							</button>
 							<button
-								onClick={() => onClickDuration(90)}
+								onClick={() =>
+									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV !== 'testnet' ? 90 : 9)
+								}
 								className={`border border-blueButton rounded-lg p-1 px-2 text-white text-sm transition-all ${
-									duration === 90 && `bg-blueButton hover:bg-blue-600`
+									(duration === 90 || duration === 9) && `bg-blueButton hover:bg-blue-600`
 								}`}
 							>
-								90 Days
+								{process.env.NEXT_PUBLIC_APP_ENV !== 'testnet' ? '90 Days' : '9 Minutes'}
 							</button>
 						</div>
 					</div>

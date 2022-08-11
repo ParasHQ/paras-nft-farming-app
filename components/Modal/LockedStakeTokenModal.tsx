@@ -205,7 +205,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 							seed_id: CONTRACT.TOKEN,
 							amount: parseParasAmount(finalAmountValue),
 							duration:
-								process.env.NEXT_PUBLIC_APP_ENV !== 'testnet'
+								process.env.NEXT_PUBLIC_APP_ENV === 'mainnet'
 									? parseDuration
 									: parseDurationTestnet,
 						},
@@ -359,7 +359,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 							<button
 								disabled={isDisabled30Days()}
 								onClick={() =>
-									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV !== 'testnet' ? 30 : 3)
+									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 30 : 3)
 								}
 								className={`border rounded-lg p-1 px-2 text-white text-sm ${
 									(duration === 30 || duration === 3) && `bg-blueButton`
@@ -369,17 +369,17 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 										: `border-blueButton cursor-pointer`
 								}`}
 							>
-								{process.env.NEXT_PUBLIC_APP_ENV !== 'testnet' ? '30 Days' : '3 Minutes'}
+								{process.env.NEXT_PUBLIC_APP_ENV !== 'mainnet' ? '30 Days' : '3 Minutes'}
 							</button>
 							<button
 								onClick={() =>
-									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV !== 'testnet' ? 90 : 9)
+									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 90 : 9)
 								}
 								className={`border border-blueButton rounded-lg p-1 px-2 text-white text-sm transition-all ${
 									(duration === 90 || duration === 9) && `bg-blueButton hover:bg-blue-600`
 								}`}
 							>
-								{process.env.NEXT_PUBLIC_APP_ENV !== 'testnet' ? '90 Days' : '9 Minutes'}
+								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '90 Days' : '9 Minutes'}
 							</button>
 						</div>
 					</div>

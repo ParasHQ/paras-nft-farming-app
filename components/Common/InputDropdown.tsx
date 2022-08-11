@@ -5,12 +5,14 @@ interface InputDropdownProps {
 	data: IDataInputDropdown[]
 	defaultValue: string
 	selectItem(value: IDataInputDropdown): void
+	fullWidth: boolean
 }
 
 const InputDropdown = ({
 	data,
 	defaultValue = '',
 	selectItem = () => null,
+	fullWidth = false,
 }: InputDropdownProps) => {
 	const [modal, setModal] = useState(false)
 	const [select, setSelect] = useState(defaultValue)
@@ -27,7 +29,9 @@ const InputDropdown = ({
 	return (
 		<div className="relative">
 			<div
-				className="flex bg-opacity-5 bg-white justify-between items-center relative w-full md:w-36 px-3 py-2 rounded-lg cursor-pointer"
+				className={`flex bg-opacity-5 bg-white justify-between items-center relative w-full ${
+					fullWidth ? `md:w-full` : `md:w-36`
+				} px-3 py-2 rounded-lg cursor-pointer`}
 				onClick={() => setModal(true)}
 			>
 				<p className="truncate text-white">{select}</p>
@@ -47,7 +51,11 @@ const InputDropdown = ({
 				</svg>
 			</div>
 			{modal && (
-				<div className="right-0 w-48 md:w-36 py-2 mt-2 bg-[#1E2431] shadow-lg rounded-lg absolute z-20 overflow-hidden">
+				<div
+					className={`right-0 ${
+						fullWidth ? `w-full md:w-full` : `w-48 md:w-36`
+					} py-2 mt-2 bg-[#1E2431] shadow-lg rounded-lg absolute z-20 overflow-hidden`}
+				>
 					<div className="overflow-y-scroll max-h-60">
 						<ul className="text-white w-full">
 							{data.map((item, index) => {

@@ -3,7 +3,6 @@ import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
-import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 import { A_DAY_IN_SECONDS } from 'constants/time'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
@@ -11,7 +10,8 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import React, { useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import { parseParasAmount, prettyBalance } from 'utils/common'
+import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/common'
+import clsx from 'clsx'
 
 interface UnlockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -36,18 +36,6 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 		!inputValue ||
 		Number(inputValue) === 0 ||
 		(getTotalLocked() > 0 && duration === 0)
-
-	const currentMemberLevel = (value: number) => {
-		if (value < SILVER) {
-			return 'Bronze'
-		} else if (value >= SILVER && value < GOLD) {
-			return 'Silver'
-		} else if (value >= GOLD && value < PLATINUM) {
-			return 'Gold'
-		} else if (value >= PLATINUM) {
-			return 'Platinum'
-		}
-	}
 
 	const getTotalLocked = () => {
 		if (inputValue) return Math.floor(maxToUnlock * 100) / 100 - Number(inputValue)
@@ -156,9 +144,10 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 					</div>
 					<div>
 						<p
-							className={`text-redButton text-sm ${
-								Number(inputValue) > maxToUnlock ? 'visible' : 'invisible'
-							}`}
+							className={clsx({
+								['visible']: Number(inputValue) > maxToUnlock,
+								['invisible']: Number(inputValue) <= maxToUnlock,
+							})}
 						>
 							Not enough $PARAS
 						</p>
@@ -186,13 +175,13 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 								onClick={() =>
 									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 30 : 3)
 								}
-								className={`border rounded-lg p-1 px-2 text-white text-xs ${
-									(duration === 30 || duration === 3) && `bg-blueButton hover:bg-blue-600`
-								} ${
-									Number(inputValue) === maxToUnlock
-										? `border-gray-400 bg-gray-400 cursor-default`
-										: `border-blueButton cursor-pointer`
-								}`}
+								className={clsx(
+									`border rounded-lg p-1 px-2 text-white text-xs transition-all`,
+									(duration === 30 || duration === 3) && `bg-blueButton hover:bg-blue-600`,
+									Number(inputValue) === maxToUnlock &&
+										`border-gray-400 bg-gray-400 cursor-default`,
+									Number(inputValue) !== maxToUnlock && `border-blueButton cursor-pointer`
+								)}
 							>
 								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '30 Days' : '3 Minutes'}
 							</button>
@@ -201,13 +190,13 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 								onClick={() =>
 									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 90 : 9)
 								}
-								className={`border rounded-lg p-1 px-2 text-white text-xs transition-all ${
-									(duration === 90 || duration === 9) && `bg-blueButton hover:bg-blue-600`
-								} ${
-									Number(inputValue) === maxToUnlock
-										? `border-gray-400 bg-gray-400 cursor-default`
-										: `border-blueButton cursor-pointer`
-								}`}
+								className={clsx(
+									`border rounded-lg p-1 px-2 text-white text-xs translate-all`,
+									(duration === 90 || duration === 9) && `bg-blueButton hover:bg-blue-600`,
+									Number(inputValue) === maxToUnlock &&
+										`border-gray-400 bg-gray-400 cursor-default`,
+									Number(inputValue) !== maxToUnlock && `border-blueButton cursor-pointer`
+								)}
 							>
 								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '90 Days' : '9 Minutes'}
 							</button>

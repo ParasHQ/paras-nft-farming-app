@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
+import { currentMemberLevel, prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
@@ -24,7 +24,6 @@ import { useStore } from 'services/store'
 import LockedStakeTokenModal from './Modal/LockedStakeTokenModal'
 import UnlockedStakeTokenModal from './Modal/UnlockedStakeTokenModal'
 import { A_DAY_IN_SECONDS, THIRTY_DAYS_IN_SECONDS, THREE_MINUTES_IN_SECONDS } from 'constants/time'
-import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 
 export interface IPoolProcessed {
 	title: string
@@ -327,18 +326,6 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				/>
 			</>
 		)
-	}
-
-	const currentMemberLevel = (value: number) => {
-		if (value < SILVER) {
-			return 'Bronze'
-		} else if (value >= SILVER && value < GOLD) {
-			return 'Silver'
-		} else if (value >= GOLD && value < PLATINUM) {
-			return 'Gold'
-		} else if (value >= PLATINUM) {
-			return 'Platinum'
-		}
 	}
 
 	const LockingFTPoolModal = () => {

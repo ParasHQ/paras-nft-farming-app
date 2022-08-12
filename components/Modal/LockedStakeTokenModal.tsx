@@ -5,7 +5,7 @@ import { IDataInputDropdown } from 'interfaces'
 import { ModalCommonProps } from 'interfaces/modal'
 import React, { useEffect, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import { parseParasAmount, prettyBalance } from 'utils/common'
+import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/common'
 import Slider from 'rc-slider'
 import InputText from 'components/Common/InputText'
 import Button from 'components/Common/Button'
@@ -16,6 +16,7 @@ import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { A_DAY_IN_SECONDS } from 'constants/time'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
+import clsx from 'clsx'
 
 interface LockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -106,18 +107,6 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 			return `Add ${nominal} $PARAS or more to be ${level} Member`
 		}
 		return ``
-	}
-
-	const currentMemberLevel = (value: number) => {
-		if (value < SILVER) {
-			return 'Bronze'
-		} else if (value >= SILVER && value < GOLD) {
-			return 'Silver'
-		} else if (value >= GOLD && value < PLATINUM) {
-			return 'Gold'
-		} else if (value >= PLATINUM) {
-			return 'Platinum'
-		}
 	}
 
 	const isDisabledLockStakeButton = () =>
@@ -361,13 +350,12 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 								onClick={() =>
 									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 30 : 3)
 								}
-								className={`border rounded-lg mx-1 p-1 px-2 text-white text-xs ${
-									(duration === 30 || duration === 3) && `bg-blueButton`
-								} ${
-									isDisabled30Days()
-										? `border-gray-400 bg-gray-400 cursor-default`
-										: `border-blueButton cursor-pointer`
-								}`}
+								className={clsx(
+									`border rounded-lg mx-1 p-1 px-2 text-white text-xs`,
+									(duration === 30 || duration === 3) && `bg-blueButton hover:bg-blue-600`,
+									isDisabled30Days() && `border-gray-400 bg-gray-400 cursor-default`,
+									!isDisabled30Days() && `border-blueButton cursor-pointer`
+								)}
 							>
 								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '30 Days' : '3 Minutes'}
 							</button>
@@ -375,9 +363,10 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 								onClick={() =>
 									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 90 : 9)
 								}
-								className={`border border-blueButton rounded-lg mx-1 p-1 px-2 text-white text-xs transition-all ${
+								className={clsx(
+									`border border-blueButton rounded-lg mx-1 p-1 px-2 text-white text-xs transition-all`,
 									(duration === 90 || duration === 9) && `bg-blueButton hover:bg-blue-600`
-								}`}
+								)}
 							>
 								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '90 Days' : '9 Minutes'}
 							</button>

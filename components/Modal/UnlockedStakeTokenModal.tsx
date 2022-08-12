@@ -3,6 +3,8 @@ import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
+import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
+import { A_DAY_IN_SECONDS } from 'constants/time'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
@@ -16,6 +18,7 @@ interface UnlockedStakeModalProps extends ModalCommonProps {
 	isTopup: boolean
 	lockedBalance: number
 	isWithinDuration: boolean
+	lockedDuration: number
 	claimableRewards: {
 		[key: string]: string
 	}
@@ -25,12 +28,39 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 	const { accountId } = useNearProvider()
 	const [inputValue, setInputValue] = useState<string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [duration, setDuration] = useState<number>(0)
 	const maxToUnlock = props.lockedBalance / 10 ** 18
 
 	const isDisabledUnlockStakeButton = () =>
-		Number(inputValue) > maxToUnlock || !inputValue || Number(inputValue) === 0
+		Number(inputValue) > maxToUnlock ||
+		!inputValue ||
+		Number(inputValue) === 0 ||
+		(getTotalLocked() > 0 && duration === 0)
+
+	const currentMemberLevel = (value: number) => {
+		if (value < SILVER) {
+			return 'Bronze'
+		} else if (value >= SILVER && value < GOLD) {
+			return 'Silver'
+		} else if (value >= GOLD && value < PLATINUM) {
+			return 'Gold'
+		} else if (value >= PLATINUM) {
+			return 'Platinum'
+		}
+	}
+
+	const getTotalLocked = () => {
+		if (inputValue) return Math.floor(maxToUnlock * 100) / 100 - Number(inputValue)
+		else return Math.floor(maxToUnlock * 100) / 100
+	}
+
+	const onClickDuration = (_duration: number) => {
+		setDuration(_duration)
+	}
 
 	const onUnlockStake = async () => {
+		const parseDuration: number = duration * A_DAY_IN_SECONDS
+		const parseDurationTestnet: number = duration * 60
 		setIsSubmitting(true)
 		try {
 			const txs: {
@@ -71,6 +101,12 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 						args: {
 							seed_id: CONTRACT.TOKEN,
 							amount: parseParasAmount(inputValue),
+							...(duration > 0 && {
+								duration:
+									process.env.NEXT_PUBLIC_APP_ENV === 'mainnet'
+										? parseDuration
+										: parseDurationTestnet,
+							}),
 						},
 						attachedDeposit: getAmount('1'),
 						gas: getAmount(GAS_FEE[200]),
@@ -99,33 +135,83 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 					<div className="w-1/5" />
 				</div>
 				<div>
+					<p className="opacity-80 text-white font-semibold text-sm mb-1">
+						Current Member: {currentMemberLevel(getTotalLocked())}
+					</p>
 					<p className="opacity-80 text-right text-white text-sm mb-1">
 						Locked Staking: {prettyBalance(`${props.lockedBalance}`, 18)} Ⓟ
 					</p>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
 							value={inputValue}
-							onChange={(event) => setInputValue(event.target.value.replace(/^[^1-9][^.]/g, ''))}
+							onChange={(event) => {
+								setInputValue(event.target.value.replace(/^[^1-9][^.]/g, ''))
+								Number(event.target.value) === maxToUnlock && setDuration(0)
+							}}
 							className="border-none"
 							type="number"
 							placeholder="0.0"
 						/>
 						<p className="text-white font-bold mr-3 shado">PARAS</p>
 					</div>
-					{Number(inputValue) > maxToUnlock && (
-						<div>
-							<p className="text-redButton text-sm">Not enough $PARAS</p>
-						</div>
-					)}
-					<div className="text-left">
+					<div>
+						<p
+							className={`text-redButton text-sm ${
+								Number(inputValue) > maxToUnlock ? 'visible' : 'invisible'
+							}`}
+						>
+							Not enough $PARAS
+						</p>
+					</div>
+					<div className="text-left mb-4">
 						<Button
-							onClick={() => setInputValue(`${maxToUnlock}`)}
-							className="float-none mt-2 w-16 border border-blueButton"
+							onClick={() => {
+								setInputValue(`${maxToUnlock}`)
+								setDuration(0)
+							}}
+							className="float-none w-16 border border-blueButton"
 							size="sm"
 							color="gray"
 						>
 							max
 						</Button>
+					</div>
+					<div>
+						<p className={`text-sm mb-2 ${Number(inputValue) === maxToUnlock && `line-through`}`}>
+							Choose a period to lock the remaining $PARAS
+						</p>
+						<div className="w-full flex items-center space-x-2">
+							<button
+								disabled={Number(inputValue) === maxToUnlock}
+								onClick={() =>
+									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 30 : 3)
+								}
+								className={`border rounded-lg p-1 px-2 text-white text-xs ${
+									(duration === 30 || duration === 3) && `bg-blueButton hover:bg-blue-600`
+								} ${
+									Number(inputValue) === maxToUnlock
+										? `border-gray-400 bg-gray-400 cursor-default`
+										: `border-blueButton cursor-pointer`
+								}`}
+							>
+								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '30 Days' : '3 Minutes'}
+							</button>
+							<button
+								disabled={Number(inputValue) === maxToUnlock}
+								onClick={() =>
+									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 90 : 9)
+								}
+								className={`border rounded-lg p-1 px-2 text-white text-xs transition-all ${
+									(duration === 90 || duration === 9) && `bg-blueButton hover:bg-blue-600`
+								} ${
+									Number(inputValue) === maxToUnlock
+										? `border-gray-400 bg-gray-400 cursor-default`
+										: `border-blueButton cursor-pointer`
+								}`}
+							>
+								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '90 Days' : '9 Minutes'}
+							</button>
+						</div>
 					</div>
 				</div>
 				<div className="flex w-full items-center">

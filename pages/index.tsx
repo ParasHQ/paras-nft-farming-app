@@ -105,6 +105,14 @@ const Home: NextPage = () => {
 							>
 								HERE
 							</a>
+							{` `}and PARAS Locked Staking{` `}
+							<a
+								className="font-bold text-white opacity-100 border-b-2 border-transparent hover:border-gray-100"
+								href="https://paras.id/loyalty"
+								target="_blank"
+							>
+								HERE
+							</a>
 						</p>
 					</div>
 					<div className="mt-12 relative">

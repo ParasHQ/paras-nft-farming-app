@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { prettyBalance, toHumanReadableNumbers } from 'utils/common'
+import { currentMemberLevel, prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
@@ -23,7 +23,7 @@ import ClaimModal from './Modal/ClaimModal'
 import { useStore } from 'services/store'
 import LockedStakeTokenModal from './Modal/LockedStakeTokenModal'
 import UnlockedStakeTokenModal from './Modal/UnlockedStakeTokenModal'
-import { THIRTY_DAYS_IN_SECONDS } from 'constants/time'
+import { A_DAY_IN_SECONDS, THIRTY_DAYS_IN_SECONDS, THREE_MINUTES_IN_SECONDS } from 'constants/time'
 
 export interface IPoolProcessed {
 	title: string
@@ -353,6 +353,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					lockedBalance={Number(lockedData[0]?.balance)}
 					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
 					isWithinDuration={isWithinDuration[0]}
+					lockedDuration={lockedDuration as number}
 				/>
 			</>
 		)
@@ -480,7 +481,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		lockedBalanceDetails.map((value) => {
 			if (
 				new Date().getTime() / 1000 > value.started_at &&
-				new Date().getTime() / 1000 < value.ended_at + 60 * 60 * 24
+				new Date().getTime() / 1000 < value.ended_at + A_DAY_IN_SECONDS
 			) {
 				isWithinDurationArr.push(true)
 			} else {
@@ -496,13 +497,24 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			}
 		})
 		if (lockedBalanceDetails.length > 0) {
-			const diffStartedEnded =
-				lockedBalanceDetails[0].ended_at - lockedBalanceDetails[0].started_at ===
-				THIRTY_DAYS_IN_SECONDS
-			if (diffStartedEnded) {
-				setLockedDuration(30)
+			if (process.env.NEXT_PUBLIC_APP_ENV === 'mainnet') {
+				const diffStartedEnded =
+					lockedBalanceDetails[0].ended_at - lockedBalanceDetails[0].started_at ===
+					THIRTY_DAYS_IN_SECONDS
+				if (diffStartedEnded) {
+					setLockedDuration(30)
+				} else {
+					setLockedDuration(90)
+				}
 			} else {
-				setLockedDuration(90)
+				const diffStartedEnded =
+					lockedBalanceDetails[0].ended_at - lockedBalanceDetails[0].started_at ===
+					THREE_MINUTES_IN_SECONDS
+				if (diffStartedEnded) {
+					setLockedDuration(3)
+				} else {
+					setLockedDuration(9)
+				}
 			}
 		}
 		setLockedData(lockedBalanceDetails)
@@ -801,6 +813,16 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 										return (
 											<>
 												<div className="w-full">
+													<div className="flex justify-between mb-1">
+														<div className="flex items-center">
+															<p className="font-semibold">Current Member</p>
+														</div>
+														<div className="flex items-center">
+															<p className="font-semibold">
+																{currentMemberLevel(Number(value.balance) / 10 ** 18)}
+															</p>
+														</div>
+													</div>
 													<div key={index} className="flex justify-between mb-1">
 														<div
 															data-tip={`<div>
@@ -818,7 +840,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 															data-tip={`<div>
 														<p class="text-base">End: ${dayjs.unix(value.ended_at).format('MMM D, YYYY h:mm:ss A')}</p></div>`}
 														>
-															<div className="opacity-75 flex items-center">
+															<div className="opacity-75 flex items-center justify-end">
 																<p className="opacity-75">End Date</p>
 																<IconInfo className="w-5 h-5 pl-1" />
 															</div>{' '}
@@ -829,7 +851,8 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 														<div className="flex items-center">
 															<p className="mr-1">Locked Staking</p>
 															<div className="p-1 text-xs text-white flex justify-center items-center rounded bg-blueGray">
-																{lockedDuration} days
+																{lockedDuration}{' '}
+																{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 'Days' : 'Minutes'}
 															</div>
 														</div>
 														<div>
@@ -855,7 +878,16 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 																isFullWidth
 																onClick={() => onClickActionButton('unlockedStakePARAS')}
 															>
-																Unlock PARAS
+																<div className="flex items-center justify-center">
+																	Unlock PARAS
+																	{isWithinDurationEndedAt[0] && (
+																		<div
+																			data-tip={`<div><p class="text-xs">You have to wait until the end date</p></div>`}
+																		>
+																			<IconInfo className="w-5 h-5 pl-1" />
+																		</div>
+																	)}
+																</div>{' '}
 															</Button>
 														</div>
 													</div>{' '}

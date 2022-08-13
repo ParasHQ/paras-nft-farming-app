@@ -5,7 +5,7 @@ import { IDataInputDropdown } from 'interfaces'
 import { ModalCommonProps } from 'interfaces/modal'
 import React, { useEffect, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import { parseParasAmount, prettyBalance } from 'utils/common'
+import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/common'
 import Slider from 'rc-slider'
 import InputText from 'components/Common/InputText'
 import Button from 'components/Common/Button'
@@ -16,6 +16,7 @@ import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { A_DAY_IN_SECONDS } from 'constants/time'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
+import clsx from 'clsx'
 
 interface LockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -108,18 +109,6 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		return ``
 	}
 
-	const currentMemberLevel = (value: number) => {
-		if (value < SILVER) {
-			return 'Bronze'
-		} else if (value >= SILVER && value < GOLD) {
-			return 'Silver'
-		} else if (value >= GOLD && value < PLATINUM) {
-			return 'Gold'
-		} else if (value >= PLATINUM) {
-			return 'Platinum'
-		}
-	}
-
 	const isDisabledLockStakeButton = () =>
 		Number(inputValue) > max ||
 		!inputValue ||
@@ -128,8 +117,13 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		duration <= 0 ||
 		!agreement
 
-	const isDisabled30Days = () =>
-		props.isTopup && props.lockedDuration ? props.lockedDuration === 90 : false
+	const isDisabled30Days = () => {
+		if (process.env.NEXT_PUBLIC_APP_ENV === 'mainnet') {
+			return props.isTopup && props.lockedDuration && props.lockedDuration === 90
+		} else {
+			return props.isTopup && props.lockedDuration && props.lockedDuration === 9
+		}
+	}
 
 	const onChangeInput = (value: string | number) => {
 		setInputValue(value.toString().replace(/^[^1-9][^.]/g, ''))
@@ -338,11 +332,6 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 								/>
 								<p className="text-white font-bold mr-3 shado">PARAS</p>
 							</div>
-							{Number(inputValue) > max && (
-								<div>
-									<p className="text-redButton text-sm">Not enough $PARAS</p>
-								</div>
-							)}
 							<div className="absolute left-1 top-2">
 								<Button
 									isDisabled={max === 0}
@@ -357,17 +346,16 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						</div>
 						<div className="w-full md:w-5/12 flex justify-center md:justify-evenly items-center">
 							<button
-								disabled={isDisabled30Days()}
+								disabled={isDisabled30Days() as boolean}
 								onClick={() =>
 									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 30 : 3)
 								}
-								className={`border rounded-lg p-1 px-2 text-white text-sm ${
-									(duration === 30 || duration === 3) && `bg-blueButton`
-								} ${
-									isDisabled30Days()
-										? `border-gray-400 bg-gray-400 cursor-default`
-										: `border-blueButton cursor-pointer`
-								}`}
+								className={clsx(
+									`border rounded-lg mx-1 p-1 px-2 text-white text-xs`,
+									(duration === 30 || duration === 3) && `bg-blueButton hover:bg-blue-600`,
+									isDisabled30Days() && `border-gray-400 bg-gray-400 cursor-default`,
+									!isDisabled30Days() && `border-blueButton cursor-pointer`
+								)}
 							>
 								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '30 Days' : '3 Minutes'}
 							</button>
@@ -375,13 +363,23 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 								onClick={() =>
 									onClickDuration(process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 90 : 9)
 								}
-								className={`border border-blueButton rounded-lg p-1 px-2 text-white text-sm transition-all ${
+								className={clsx(
+									`border border-blueButton rounded-lg mx-1 p-1 px-2 text-white text-xs transition-all`,
 									(duration === 90 || duration === 9) && `bg-blueButton hover:bg-blue-600`
-								}`}
+								)}
 							>
 								{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? '90 Days' : '9 Minutes'}
 							</button>
 						</div>
+					</div>
+					<div>
+						<p
+							className={`text-redButton text-sm ${
+								Number(inputValue) > max ? `visible` : `invisible`
+							}`}
+						>
+							Not enough $PARAS
+						</p>
 					</div>
 				</div>
 				<div className="mb-1 flex justify-between items-center">
@@ -393,11 +391,9 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 					</div>
 				</div>
 				<div className="mb-4">
-					{props.isTopup && (
-						<div>
-							<p className="text-blueButton text-sm">{setAddMorePARASText(getTotalLocked())}</p>
-						</div>
-					)}
+					<div>
+						<p className="text-blueButton text-sm">{setAddMorePARASText(getTotalLocked())}</p>
+					</div>
 				</div>
 
 				<div className="mb-4">

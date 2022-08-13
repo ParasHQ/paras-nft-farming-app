@@ -48,7 +48,13 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 				})
 
 				if (resSC[props.seedId]) {
-					const resBE: INFToken[] = await axios.all(resSC[props.seedId].map(fetchToken))
+					const resBE: INFToken[] = await axios.all(
+						resSC[props.seedId].map(async (tokenId, idx) => {
+							return await new Promise((resolve) =>
+								setTimeout(() => resolve(fetchToken(tokenId)), idx * 50)
+							)
+						})
+					)
 					setStakedNFT(resBE)
 				}
 			}
@@ -147,6 +153,8 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 			console.log(err)
 		}
 	}
+
+	console.log('stakedNFT', stakedNFT)
 
 	return (
 		<Modal isShow={props.show} onClose={props.onClose}>

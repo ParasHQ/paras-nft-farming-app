@@ -446,10 +446,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		return null
 	}
 
-	if (
-		filterType === 'staked' &&
-		Object.values(poolProcessed.claimableRewards).findIndex((x) => Number(x) > 0) === -1
-	) {
+	if (filterType === 'staked' && !userStaked) {
 		return null
 	}
 

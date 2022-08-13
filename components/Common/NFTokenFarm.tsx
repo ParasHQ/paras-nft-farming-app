@@ -12,6 +12,10 @@ interface NFTokenFarmProps {
 }
 
 const NFTokenFarm = ({ token, stakeNFT, type, point }: NFTokenFarmProps) => {
+	if (!token.metadata) {
+		return null
+	}
+
 	const tokenUrl = `${baseURLParas}/token/${token.contract_id}::${token.token_series_id}/${token.token_id}`
 	const collectionUrl = `${baseURLParas}/collection/${token.metadata.collection_id}`
 

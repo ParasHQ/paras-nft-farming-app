@@ -154,8 +154,6 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 		}
 	}
 
-	console.log('stakedNFT', stakedNFT)
-
 	return (
 		<Modal isShow={props.show} onClose={props.onClose}>
 			<div className="max-w-sm md:max-w-2xl w-full bg-parasGrey p-4 rounded-lg m-auto shadow-xl">

@@ -23,6 +23,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [inputUnstake, setInputUnstake] = useState<number | string>('')
+	const [rawInputStake, setRawInputStake] = useState<number | string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const getStakedBalance = useCallback(async () => {
@@ -85,7 +86,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 						contractId: CONTRACT.FARM,
 						args: {
 							seed_id: props.seedId,
-							amount: parseParasAmount(inputUnstake),
+							amount: props.userLocked ? `${rawInputStake}` : parseParasAmount(inputUnstake),
 						},
 						attachedDeposit: getAmount('1'),
 						gas: getAmount(GAS_FEE[200]),
@@ -144,6 +145,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 												Math.round(Number(props.userLocked) / 10 ** 18)
 											}`
 										)
+										setRawInputStake(Number(balance) - Number(props.userLocked))
 									} else {
 										setInputUnstake(formatParasAmount(balance))
 									}

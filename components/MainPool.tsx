@@ -79,6 +79,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [userStaked, setUserStaked] = useState<string | null>(null)
+	const [totalUserStaked, setTotalUserStaked] = useState<string | null>(null)
 	const [lockedData, setLockedData] = useState<IViewLocked[]>([])
 	const [lockedDuration, setLockedDuration] = useState<number>()
 	const [isGettingLockedStake, setIsGettingLockedStake] = useState(true)
@@ -550,6 +551,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			setUserStaked(
 				lockedData.length > 0 ? `${Number(staked) - Number(lockedData[0].balance)}` : staked
 			)
+			setTotalUserStaked(staked)
 		}
 	}, [type, staked, isGettingLockedStake])
 
@@ -773,38 +775,6 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 							)}
 						</div>
 					</div>
-					{accountId && (
-						<div className="mt-4">
-							<div className="flex justify-between items-center p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
-								<div className="w-2/3">
-									<p className="opacity-75">Claimable Rewards</p>
-									{Object.keys(poolProcessed.claimableRewards).map((k) => {
-										return (
-											<PoolReward
-												key={k}
-												contractName={k}
-												amount={poolProcessed.claimableRewards[k]}
-											/>
-										)
-									})}
-								</div>
-								<div className="w-1/3">
-									<Button
-										isDisabled={
-											Object.values(poolProcessed.claimableRewards).findIndex(
-												(x) => Number(x) > 0
-											) === -1
-										}
-										isFullWidth
-										color="green"
-										onClick={() => setShowModal('claim')}
-									>
-										Claim
-									</Button>
-								</div>
-							</div>
-						</div>
-					)}
 					<div className="mt-4 flex justify-center items-center">
 						{accountId && lockedData.length > 0 ? (
 							<>
@@ -925,6 +895,51 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 							</div>
 						)}
 					</div>
+					{accountId && (
+						<div className="mt-4">
+							<div className="flex flex-col p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
+								<div className="flex justify-between items-center">
+									<div className="flex items-center">
+										<p className="font-semibold">Total Staking</p>
+									</div>
+									<div className="flex items-center">
+										<p className="font-semibold">
+											{prettyBalance(totalUserStaked as string, 18)}
+											{` `}Ⓟ
+										</p>
+									</div>
+								</div>
+								<div className="flex justify-between items-center w-full">
+									<div className="w-2/3">
+										<p className="opacity-75">Claimable Rewards</p>
+										{Object.keys(poolProcessed.claimableRewards).map((k) => {
+											return (
+												<PoolReward
+													key={k}
+													contractName={k}
+													amount={poolProcessed.claimableRewards[k]}
+												/>
+											)
+										})}
+									</div>
+									<div className="w-1/3">
+										<Button
+											isDisabled={
+												Object.values(poolProcessed.claimableRewards).findIndex(
+													(x) => Number(x) > 0
+												) === -1
+											}
+											isFullWidth
+											color="green"
+											onClick={() => setShowModal('claim')}
+										>
+											Claim
+										</Button>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

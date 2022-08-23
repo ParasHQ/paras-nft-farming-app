@@ -6,6 +6,7 @@ import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
+import JSBI from 'jsbi'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
@@ -23,7 +24,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [inputUnstake, setInputUnstake] = useState<number | string>('')
-	const [rawInputStake, setRawInputStake] = useState<number | string>('')
+	const [rawInputStake, setRawInputStake] = useState<JSBI | string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const getStakedBalance = useCallback(async () => {
@@ -86,7 +87,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 						contractId: CONTRACT.FARM,
 						args: {
 							seed_id: props.seedId,
-							amount: props.userLocked ? `${rawInputStake}` : parseParasAmount(inputUnstake),
+							amount: rawInputStake.toString(),
 						},
 						attachedDeposit: getAmount('1'),
 						gas: getAmount(GAS_FEE[200]),
@@ -145,10 +146,12 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 												Math.round(Number(props.userLocked) / 10 ** 18)
 											}`
 										)
-										setRawInputStake(Number(balance) - Number(props.userLocked))
 									} else {
 										setInputUnstake(formatParasAmount(balance))
 									}
+									setRawInputStake(
+										JSBI.subtract(JSBI.BigInt(balance), JSBI.BigInt(props.userLocked))
+									)
 								}
 							}}
 							className="float-none mt-2 w-16"

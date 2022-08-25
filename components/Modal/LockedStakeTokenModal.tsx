@@ -259,10 +259,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 								<img src="/warning.png" className="object-contain w-7 h-7" alt="" />
 							</div>
 							<div className="w-10/12 flex items-center justify-center">
-								<p>
-									By updating $PARAS, your period time will be reset and your reward will be
-									automatically collected
-								</p>
+								<p>By updating $PARAS, your period time will be reset</p>
 							</div>
 						</div>
 					</div>

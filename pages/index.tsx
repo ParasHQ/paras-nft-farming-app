@@ -60,7 +60,6 @@ const Home: NextPage = () => {
 
 			const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
 			const poolNFT = Object.values(poolList).filter((x) => x.seed_type === 'NFT')
-
 			setPoolListFT(poolFT)
 			setPoolList(poolNFT)
 		}
@@ -122,6 +121,14 @@ const Home: NextPage = () => {
 							>
 								HERE
 							</a>
+							{` `}and PARAS Locked Staking{` `}
+							<a
+								className="font-bold text-white opacity-100 border-b-2 border-transparent hover:border-gray-100"
+								href="https://paras.id/loyalty"
+								target="_blank"
+							>
+								HERE
+							</a>
 						</p>
 					</div>
 					<div className="mt-12 relative">
@@ -131,6 +138,7 @@ const Home: NextPage = () => {
 							)}
 							<div className="md:absolute top-0 right-0 z-50 md:pr-4 flex justify-center mb-4">
 								<InputDropdown
+									fullWidth={false}
 									defaultValue={filterPool.label}
 									selectItem={setFilterPool}
 									data={filterData}

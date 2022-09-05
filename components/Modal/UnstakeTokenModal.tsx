@@ -6,6 +6,7 @@ import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
+import JSBI from 'jsbi'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
@@ -16,12 +17,14 @@ interface UnstakeTokenModalProps extends ModalCommonProps {
 	claimableRewards: {
 		[key: string]: string
 	}
+	userLocked: string
 }
 
 const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [inputUnstake, setInputUnstake] = useState<number | string>('')
+	const [rawInputStake, setRawInputStake] = useState<JSBI | string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const getStakedBalance = useCallback(async () => {
@@ -84,7 +87,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 						contractId: CONTRACT.FARM,
 						args: {
 							seed_id: props.seedId,
-							amount: parseParasAmount(inputUnstake),
+							amount: rawInputStake.toString(),
 						},
 						attachedDeposit: getAmount('1'),
 						gas: getAmount(GAS_FEE[200]),
@@ -117,7 +120,10 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 
 				<div>
 					<p className="opacity-80 text-right text-white text-sm mb-1">
-						Balance: {prettyBalance(balance)}
+						Balance:{' '}
+						{prettyBalance(
+							props.userLocked ? `${Number(balance) - Number(props.userLocked)}` : balance
+						)}
 					</p>
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
@@ -131,7 +137,23 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 					</div>
 					<div className="text-left">
 						<Button
-							onClick={() => balance && setInputUnstake(formatParasAmount(balance))}
+							onClick={() => {
+								if (balance) {
+									if (props.userLocked) {
+										setInputUnstake(
+											`${
+												Math.round(Number(balance) / 10 ** 18) -
+												Math.round(Number(props.userLocked) / 10 ** 18)
+											}`
+										)
+									} else {
+										setInputUnstake(formatParasAmount(balance))
+									}
+									setRawInputStake(
+										JSBI.subtract(JSBI.BigInt(balance), JSBI.BigInt(props.userLocked))
+									)
+								}
+							}}
 							className="float-none mt-2 w-16"
 							isDisabled={!balance}
 							size="sm"

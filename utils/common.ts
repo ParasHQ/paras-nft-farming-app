@@ -1,6 +1,7 @@
 import JSBI from 'jsbi'
 import CID from 'cids'
 import crypto from 'crypto'
+import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 
 interface IParseImgOpts {
 	useOriginal?: boolean
@@ -174,4 +175,16 @@ export const hasReward = (rewards: string[]) => {
 		return JSBI.greaterThan(JSBI.BigInt(val), JSBI.BigInt(0))
 	})
 	return rewardIdx > -1 ? true : false
+}
+
+export const currentMemberLevel = (value: number) => {
+	if (value < SILVER) {
+		return 'Bronze'
+	} else if (value >= SILVER && value < GOLD) {
+		return 'Silver'
+	} else if (value >= GOLD && value < PLATINUM) {
+		return 'Gold'
+	} else if (value >= PLATINUM) {
+		return 'Platinum'
+	}
 }

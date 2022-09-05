@@ -404,8 +404,11 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 						/>
 						<p className="text-sm">
 							I have read and agree to the loyalty program{' '}
-							<span className="underline hover:font-semibold cursor-pointer transition-all">
-								<a href="https://guide.paras.id/terms-and-condition/marketplace" target={`_blank`}>
+							<span className="font-semibold hover:underline cursor-pointer transition-all">
+								<a
+									href="https://guide.paras.id/terms-and-conditions/loyalty-program"
+									target={`_blank`}
+								>
 									term & conditions
 								</a>
 							</span>

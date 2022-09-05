@@ -3,7 +3,6 @@ import { currentMemberLevel, prettyBalance, toHumanReadableNumbers } from 'utils
 import Button from './Common/Button'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import axios from 'axios'
 import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
 import { GAS_FEE } from 'constants/gasFee'
@@ -24,6 +23,7 @@ import { useStore } from 'services/store'
 import LockedStakeTokenModal from './Modal/LockedStakeTokenModal'
 import UnlockedStakeTokenModal from './Modal/UnlockedStakeTokenModal'
 import { A_DAY_IN_SECONDS, THIRTY_DAYS_IN_SECONDS, THREE_MINUTES_IN_SECONDS } from 'constants/time'
+import cachios from 'cachios'
 
 export interface IPoolProcessed {
 	title: string
@@ -89,10 +89,14 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	const { setFTPool } = useStore()
 
 	const getParasPrice = async () => {
-		const resp = await axios.get(
-			'https://api.coingecko.com/api/v3/simple/price?ids=PARAS&vs_currencies=USD'
-		)
-		return resp.data.paras.usd
+		try {
+			const resp = await cachios.get<{ paras: { usd: number } }>(
+				'https://api.coingecko.com/api/v3/simple/price?ids=PARAS&vs_currencies=USD'
+			)
+			return resp.data.paras.usd
+		} catch (error) {
+			return -1
+		}
 	}
 
 	const getFarms = useCallback(async () => {
@@ -638,7 +642,9 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 										className="text-4xl font-semibold"
 										data-tip={`<p class="text-base">${prettyBalance(data.amount, 18, 4)} Ⓟ</p>`}
 									>
-										${toHumanReadableNumbers(poolProcessed.totalStakedInUSD)}
+										{poolProcessed.totalStakedInUSD > 0
+											? `$${toHumanReadableNumbers(poolProcessed.totalStakedInUSD)} `
+											: `${prettyBalance(data.amount, 18, 4)} Ⓟ`}
 									</p>
 								)}
 								{type === 'nft' && (

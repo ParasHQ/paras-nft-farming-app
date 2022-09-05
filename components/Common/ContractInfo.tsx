@@ -1,4 +1,4 @@
-import axios from 'axios'
+import cachios from 'cachios'
 import Media from 'components/Common/Media'
 import { apiParasUrl } from 'constants/apiURL'
 import { baseURLParas } from 'constants/baseUrl'
@@ -21,7 +21,7 @@ const ContractInfo = ({ contractId, value }: NFTProps) => {
 		if (contractId) {
 			const fetchNFT = async () => {
 				try {
-					const resp = await axios.get(`${apiParasUrl}/collections`, {
+					const resp = await cachios.get<any>(`${apiParasUrl}/collections`, {
 						params: {
 							collection_id: contractId,
 						},

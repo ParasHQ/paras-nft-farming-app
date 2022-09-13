@@ -11,7 +11,7 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import { formatParasAmount, hasReward, prettyBalance } from 'utils/common'
+import { formatParasAmount, hasReward, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface UnstakeTokenModalProps extends ModalCommonProps {
 	claimableRewards: {
@@ -128,7 +128,10 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 					<div className="flex justify-between items-center border-2 border-borderGray rounded-lg">
 						<InputText
 							value={inputUnstake}
-							onChange={(event) => setInputUnstake(event.target.value)}
+							onChange={(event) => {
+								setInputUnstake(event.target.value)
+								setRawInputStake(parseParasAmount(event.target.value))
+							}}
 							className="border-none"
 							type="number"
 							placeholder="0.0"

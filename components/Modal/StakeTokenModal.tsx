@@ -6,6 +6,7 @@ import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
+import { trackStakingStakeParas } from 'lib/ga'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
@@ -42,6 +43,7 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 	}
 
 	const stakeToken = async () => {
+		trackStakingStakeParas(inputStake)
 		setIsSubmitting(true)
 
 		try {

@@ -3,7 +3,6 @@ import DepositModal from 'components/Modal/DepositModal'
 import LoginModal from 'components/Modal/LoginModal'
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
-import { useStore } from 'services/store'
 
 interface INearContext {
 	isInit: boolean
@@ -31,14 +30,12 @@ export const NearProvider = (props: { children: React.ReactNode }) => {
 	const [hasDeposit, setHasDeposit] = useState(false)
 	const [accountId, setAccountId] = useState(null)
 	const [commonModal, setCommonModal] = useState<TCommonModal>(null)
-	const store = useStore()
 
 	useEffect(() => {
 		near.init(() => {
 			checkStorageDeposit()
 			setIsInit(true)
 			setAccountId(near.wallet.getAccountId())
-			store.setAccountId(near.wallet.getAccountId())
 		})
 	}, [])
 

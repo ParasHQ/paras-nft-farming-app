@@ -130,7 +130,7 @@ const Header = () => {
 					<div className="relative">
 						<Button
 							onClick={() => {
-								trackStakingGetParas(accountId)
+								trackStakingGetParas()
 								setShowGetParas(!showGetParas)
 							}}
 							className="flex items-center px-4"

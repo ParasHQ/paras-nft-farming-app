@@ -46,7 +46,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	}, [props.show, getStakedBalance])
 
 	const unstakeToken = async () => {
-		trackStakingUnstakeParas(`${inputUnstake}`, accountId)
+		trackStakingUnstakeParas(`${inputUnstake}`)
 		try {
 			const txs: {
 				receiverId: string

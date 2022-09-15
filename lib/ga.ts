@@ -1,4 +1,7 @@
+import { useNearProvider } from 'hooks/useNearProvider'
 import { event } from './gtag'
+
+const { accountId } = useNearProvider()
 
 export const trackLoggedInPage = (accountId: string) => {
 	event({
@@ -17,7 +20,7 @@ export const trackStakingLogin = () => {
 	})
 }
 
-export const trackStakingGetParas = (accountId?: string | null) => {
+export const trackStakingGetParas = () => {
 	event({
 		action: 'staking_click_getparas',
 		category: 'getparas_main_page',
@@ -30,7 +33,7 @@ export const trackStakingGetParas = (accountId?: string | null) => {
 	})
 }
 
-export const trackStakingStakeParas = (value: string, accountId: string | null) => {
+export const trackStakingStakeParas = (value: string) => {
 	event({
 		action: 'staking_click_stakeparas',
 		category: 'stake_main_page',
@@ -42,7 +45,7 @@ export const trackStakingStakeParas = (value: string, accountId: string | null) 
 	})
 }
 
-export const trackStakingStakeParasImpression = (accountId: string | null) => {
+export const trackStakingStakeParasImpression = () => {
 	event({
 		action: 'staking_click_stakeparas_impression',
 		category: 'stake_main_page',
@@ -53,7 +56,7 @@ export const trackStakingStakeParasImpression = (accountId: string | null) => {
 	})
 }
 
-export const trackStakingUnstakeParas = (value: string, accountId: string | null) => {
+export const trackStakingUnstakeParas = (value: string) => {
 	event({
 		action: 'staking_click_unstakeparas',
 		category: 'stake_main_page',
@@ -65,7 +68,7 @@ export const trackStakingUnstakeParas = (value: string, accountId: string | null
 	})
 }
 
-export const trackStakingUnstakeParasImpression = (accountId: string | null) => {
+export const trackStakingUnstakeParasImpression = () => {
 	event({
 		action: 'staking_click_unstakeparas_impression',
 		category: 'stake_main_page',
@@ -76,7 +79,7 @@ export const trackStakingUnstakeParasImpression = (accountId: string | null) => 
 	})
 }
 
-export const trackStakingLockedParas = (value: string, accountId: string | null) => {
+export const trackStakingLockedParas = (value: string) => {
 	event({
 		action: 'staking_click_lockedstaking',
 		category: 'locked_main_page',
@@ -88,7 +91,7 @@ export const trackStakingLockedParas = (value: string, accountId: string | null)
 	})
 }
 
-export const trackStakingLockedParasImpression = (accountId: string | null) => {
+export const trackStakingLockedParasImpression = () => {
 	event({
 		action: 'staking_click_lockedparas_impression',
 		category: 'locked_main_page',
@@ -99,7 +102,7 @@ export const trackStakingLockedParasImpression = (accountId: string | null) => {
 	})
 }
 
-export const trackStakingUnlockedParas = (value: string, accountId: string | null) => {
+export const trackStakingUnlockedParas = (value: string) => {
 	event({
 		action: 'staking_click_unlockparas',
 		category: 'locked_main_page',
@@ -111,7 +114,7 @@ export const trackStakingUnlockedParas = (value: string, accountId: string | nul
 	})
 }
 
-export const trackStakingUnlockedParasImpression = (accountId: string | null) => {
+export const trackStakingUnlockedParasImpression = () => {
 	event({
 		action: 'staking_click_unlockedparas_impression',
 		category: 'locked_main_page',
@@ -122,7 +125,7 @@ export const trackStakingUnlockedParasImpression = (accountId: string | null) =>
 	})
 }
 
-export const trackStakingTopupParas = (value: string, accountId: string | null) => {
+export const trackStakingTopupParas = (value: string) => {
 	event({
 		action: 'staking_click_topup',
 		category: 'locked_main_page',
@@ -134,7 +137,7 @@ export const trackStakingTopupParas = (value: string, accountId: string | null) 
 	})
 }
 
-export const trackStakingTopupParasImpression = (accountId: string | null) => {
+export const trackStakingTopupParasImpression = () => {
 	event({
 		action: 'staking_click_topup_impression',
 		category: 'locked_main_page',
@@ -145,10 +148,7 @@ export const trackStakingTopupParasImpression = (accountId: string | null) => {
 	})
 }
 
-export const trackStakingRewardsParas = (
-	accountId: string | null,
-	type: 'claim-and-withdraw' | 'claim-and-deposit'
-) => {
+export const trackStakingRewardsParas = (type: 'claim-and-withdraw' | 'claim-and-deposit') => {
 	event({
 		action: 'staking_click_rewards',
 		category: 'stake_main_page',
@@ -160,7 +160,7 @@ export const trackStakingRewardsParas = (
 	})
 }
 
-export const trackStakingRewardsParasImpression = (accountId: string | null) => {
+export const trackStakingRewardsParasImpression = () => {
 	event({
 		action: 'staking_click_rewards',
 		category: 'stake_main_page',

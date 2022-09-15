@@ -43,7 +43,7 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 	}
 
 	const stakeToken = async () => {
-		trackStakingStakeParas(inputStake, accountId)
+		trackStakingStakeParas(inputStake)
 		setIsSubmitting(true)
 
 		try {

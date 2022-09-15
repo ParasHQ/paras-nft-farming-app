@@ -50,7 +50,7 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 	const onUnlockStake = async () => {
 		const parseDuration: number = duration * A_DAY_IN_SECONDS
 		const parseDurationTestnet: number = duration * 60
-		trackStakingUnlockedParas(inputValue, accountId)
+		trackStakingUnlockedParas(inputValue)
 		setIsSubmitting(true)
 		try {
 			const txs: {

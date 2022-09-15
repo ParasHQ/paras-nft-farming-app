@@ -174,10 +174,10 @@ const ClaimModal = ({
 		if (activeOption === null) {
 			setShowError(true)
 		} else if (activeOption === 'claim-and-stake') {
-			trackStakingRewardsParas(accountId, 'claim-and-deposit')
+			trackStakingRewardsParas('claim-and-deposit')
 			claimAndDeposit()
 		} else if (activeOption === 'claim-and-withdraw') {
-			trackStakingRewardsParas(accountId, 'claim-and-withdraw')
+			trackStakingRewardsParas('claim-and-withdraw')
 			claimAndWithdraw()
 		}
 	}

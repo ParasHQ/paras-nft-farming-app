@@ -24,6 +24,14 @@ import LockedStakeTokenModal from './Modal/LockedStakeTokenModal'
 import UnlockedStakeTokenModal from './Modal/UnlockedStakeTokenModal'
 import { A_DAY_IN_SECONDS, THIRTY_DAYS_IN_SECONDS, THREE_MINUTES_IN_SECONDS } from 'constants/time'
 import cachios from 'cachios'
+import {
+	trackStakingLockedParasImpression,
+	trackStakingRewardsParasImpression,
+	trackStakingStakeParasImpression,
+	trackStakingTopupParasImpression,
+	trackStakingUnlockedParasImpression,
+	trackStakingUnstakeParasImpression,
+} from 'lib/ga'
 
 export interface IPoolProcessed {
 	title: string
@@ -744,7 +752,13 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 							{type === 'ft' && (
 								<div className="flex justify-between -mx-4">
 									<div className="w-1/2 px-4">
-										<Button isFullWidth onClick={() => onClickActionButton('stakePARAS')}>
+										<Button
+											isFullWidth
+											onClick={() => {
+												trackStakingStakeParasImpression(accountId)
+												onClickActionButton('stakePARAS')
+											}}
+										>
 											Stake PARAS
 										</Button>
 									</div>
@@ -752,7 +766,10 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 										<Button
 											color="blue-gray"
 											isFullWidth
-											onClick={() => onClickActionButton('unstakePARAS')}
+											onClick={() => {
+												trackStakingUnstakeParasImpression(accountId)
+												onClickActionButton('unstakePARAS')
+											}}
 										>
 											Unstake PARAS
 										</Button>
@@ -840,6 +857,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 															<Button
 																isFullWidth
 																onClick={() => {
+																	trackStakingTopupParasImpression(accountId)
 																	isTopup.current = true
 																	onClickActionButton('lockedStakePARAS')
 																}}
@@ -852,7 +870,10 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 																isDisabled={isWithinDurationEndedAt[0]}
 																color="blue-gray"
 																isFullWidth
-																onClick={() => onClickActionButton('unlockedStakePARAS')}
+																onClick={() => {
+																	trackStakingUnlockedParasImpression(accountId)
+																	onClickActionButton('unlockedStakePARAS')
+																}}
 															>
 																<div className="flex items-center justify-center">
 																	Unlock PARAS
@@ -876,6 +897,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 												<Button
 													isFullWidth
 													onClick={() => {
+														trackStakingLockedParasImpression(accountId)
 														isTopup.current = false
 														onClickActionButton('lockedStakePARAS')
 													}}
@@ -937,7 +959,10 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 											}
 											isFullWidth
 											color="green"
-											onClick={() => setShowModal('claim')}
+											onClick={() => {
+												trackStakingRewardsParasImpression(accountId)
+												setShowModal('claim')
+											}}
 										>
 											Claim
 										</Button>

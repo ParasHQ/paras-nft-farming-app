@@ -17,6 +17,7 @@ import { useNearProvider } from 'hooks/useNearProvider'
 import { A_DAY_IN_SECONDS } from 'constants/time'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 import clsx from 'clsx'
+import { trackStakingLockedParas, trackStakingTopupParas } from 'lib/ga'
 
 interface LockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -141,6 +142,11 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		const parseDuration: number = duration * A_DAY_IN_SECONDS
 		const parseDurationTestnet: number = duration * 60
 		const finalAmountValue = inputValue
+		if (props.isTopup) {
+			trackStakingTopupParas(finalAmountValue, accountId)
+		} else {
+			trackStakingLockedParas(finalAmountValue, accountId)
+		}
 		setIsSubmitting(true)
 		try {
 			const txs: {

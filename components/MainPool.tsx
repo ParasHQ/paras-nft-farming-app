@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { currentMemberLevel, prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
 import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
@@ -804,7 +804,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 								{lockedData.map((value, index) => {
 									if (isWithinDuration[index]) {
 										return (
-											<>
+											<Fragment key={index}>
 												<div className="w-full">
 													<div className="flex justify-between mb-1">
 														<div className="flex items-center">
@@ -889,7 +889,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 														</div>
 													</div>{' '}
 												</div>
-											</>
+											</Fragment>
 										)
 									} else {
 										return (

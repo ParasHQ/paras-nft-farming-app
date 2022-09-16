@@ -143,9 +143,9 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		const parseDurationTestnet: number = duration * 60
 		const finalAmountValue = inputValue
 		if (props.isTopup) {
-			trackStakingTopupParas(finalAmountValue)
+			trackStakingTopupParas(finalAmountValue, accountId)
 		} else {
-			trackStakingLockedParas(finalAmountValue)
+			trackStakingLockedParas(finalAmountValue, accountId)
 		}
 		setIsSubmitting(true)
 		try {

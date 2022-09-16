@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { currentMemberLevel, prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
 import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
@@ -755,7 +755,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 										<Button
 											isFullWidth
 											onClick={() => {
-												trackStakingStakeParasImpression()
+												trackStakingStakeParasImpression(accountId)
 												onClickActionButton('stakePARAS')
 											}}
 										>
@@ -767,7 +767,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 											color="blue-gray"
 											isFullWidth
 											onClick={() => {
-												trackStakingUnstakeParasImpression()
+												trackStakingUnstakeParasImpression(accountId)
 												onClickActionButton('unstakePARAS')
 											}}
 										>
@@ -798,131 +798,135 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 							)}
 						</div>
 					</div>
-					<div className="mt-4 flex justify-center items-center">
-						{accountId && lockedData.length > 0 ? (
-							<>
-								{lockedData.map((value, index) => {
-									if (isWithinDuration[index]) {
-										return (
-											<>
-												<div className="w-full">
-													<div className="flex justify-between mb-1">
-														<div className="flex items-center">
-															<p className="font-semibold">Current Member</p>
+					{type === 'ft' && (
+						<div className="mt-4 flex justify-center items-center">
+							{accountId && lockedData.length > 0 ? (
+								<>
+									{lockedData.map((value, index) => {
+										if (isWithinDuration[index]) {
+											return (
+												<Fragment key={index}>
+													<div className="w-full">
+														<div className="flex justify-between mb-1">
+															<div className="flex items-center">
+																<p className="font-semibold">Current Member</p>
+															</div>
+															<div className="flex items-center">
+																<p className="font-semibold">
+																	{currentMemberLevel(Number(value.balance) / 10 ** 18)}
+																</p>
+															</div>
 														</div>
-														<div className="flex items-center">
-															<p className="font-semibold">
-																{currentMemberLevel(Number(value.balance) / 10 ** 18)}
-															</p>
-														</div>
-													</div>
-													<div key={index} className="flex justify-between mb-1">
-														<div
-															data-tip={`<div>
+														<div key={index} className="flex justify-between mb-1">
+															<div
+																data-tip={`<div>
 														<p class="text-base">Start: ${dayjs.unix(value.started_at).format('MMM D, YYYY h:mm:ss A')}</p>
 														</div>`}
-														>
-															<div className="opacity-75 flex items-center">
-																<p className="opacity-75">Start Date</p>
-																<IconInfo className="w-5 h-5 pl-1" />
+															>
+																<div className="opacity-75 flex items-center">
+																	<p className="opacity-75">Start Date</p>
+																	<IconInfo className="w-5 h-5 pl-1" />
+																</div>
+																<p>{dayjs.unix(value.started_at).format('MMM D, YYYY')}</p>
 															</div>
-															<p>{dayjs.unix(value.started_at).format('MMM D, YYYY')}</p>
-														</div>
-														<div
-															className="text-right"
-															data-tip={`<div>
+															<div
+																className="text-right"
+																data-tip={`<div>
 														<p class="text-base">End: ${dayjs.unix(value.ended_at).format('MMM D, YYYY h:mm:ss A')}</p></div>`}
-														>
-															<div className="opacity-75 flex items-center justify-end">
-																<p className="opacity-75">End Date</p>
-																<IconInfo className="w-5 h-5 pl-1" />
-															</div>{' '}
-															<p>{dayjs.unix(value.ended_at).format('MMM D, YYYY')}</p>
-														</div>
-													</div>
-													<div className="flex justify-between mb-6">
-														<div className="flex items-center">
-															<p className="mr-1">Locked Staking</p>
-															<div className="p-1 text-xs text-white flex justify-center items-center rounded bg-blueGray">
-																{lockedDuration}{' '}
-																{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet' ? 'Days' : 'Minutes'}
+															>
+																<div className="opacity-75 flex items-center justify-end">
+																	<p className="opacity-75">End Date</p>
+																	<IconInfo className="w-5 h-5 pl-1" />
+																</div>{' '}
+																<p>{dayjs.unix(value.ended_at).format('MMM D, YYYY')}</p>
 															</div>
 														</div>
-														<div>
-															<p>{prettyBalance(value.balance, 18)} Ⓟ</p>
+														<div className="flex justify-between mb-6">
+															<div className="flex items-center">
+																<p className="mr-1">Locked Staking</p>
+																<div className="p-1 text-xs text-white flex justify-center items-center rounded bg-blueGray">
+																	{lockedDuration}{' '}
+																	{process.env.NEXT_PUBLIC_APP_ENV === 'mainnet'
+																		? 'Days'
+																		: 'Minutes'}
+																</div>
+															</div>
+															<div>
+																<p>{prettyBalance(value.balance, 18)} Ⓟ</p>
+															</div>
 														</div>
+														<div className="flex justify-between -mx-4">
+															<div className="w-1/2 px-4">
+																<Button
+																	isFullWidth
+																	onClick={() => {
+																		trackStakingTopupParasImpression(accountId)
+																		isTopup.current = true
+																		onClickActionButton('lockedStakePARAS')
+																	}}
+																>
+																	Top Up
+																</Button>
+															</div>
+															<div className="w-1/2 px-4 text-right">
+																<Button
+																	isDisabled={isWithinDurationEndedAt[0]}
+																	color="blue-gray"
+																	isFullWidth
+																	onClick={() => {
+																		trackStakingUnlockedParasImpression(accountId)
+																		onClickActionButton('unlockedStakePARAS')
+																	}}
+																>
+																	<div className="flex items-center justify-center">
+																		Unlock PARAS
+																		{isWithinDurationEndedAt[0] && (
+																			<div
+																				data-tip={`<div><p class="text-xs">You have to wait until the end date</p></div>`}
+																			>
+																				<IconInfo className="w-5 h-5 pl-1" />
+																			</div>
+																		)}
+																	</div>{' '}
+																</Button>
+															</div>
+														</div>{' '}
 													</div>
-													<div className="flex justify-between -mx-4">
-														<div className="w-1/2 px-4">
-															<Button
-																isFullWidth
-																onClick={() => {
-																	trackStakingTopupParasImpression()
-																	isTopup.current = true
-																	onClickActionButton('lockedStakePARAS')
-																}}
-															>
-																Top Up
-															</Button>
-														</div>
-														<div className="w-1/2 px-4 text-right">
-															<Button
-																isDisabled={isWithinDurationEndedAt[0]}
-																color="blue-gray"
-																isFullWidth
-																onClick={() => {
-																	trackStakingUnlockedParasImpression()
-																	onClickActionButton('unlockedStakePARAS')
-																}}
-															>
-																<div className="flex items-center justify-center">
-																	Unlock PARAS
-																	{isWithinDurationEndedAt[0] && (
-																		<div
-																			data-tip={`<div><p class="text-xs">You have to wait until the end date</p></div>`}
-																		>
-																			<IconInfo className="w-5 h-5 pl-1" />
-																		</div>
-																	)}
-																</div>{' '}
-															</Button>
-														</div>
-													</div>{' '}
+												</Fragment>
+											)
+										} else {
+											return (
+												<div className="flex w-1/2 justify-center px-4">
+													<Button
+														isFullWidth
+														onClick={() => {
+															trackStakingLockedParasImpression(accountId)
+															isTopup.current = false
+															onClickActionButton('lockedStakePARAS')
+														}}
+													>
+														Locked Staking
+													</Button>
 												</div>
-											</>
-										)
-									} else {
-										return (
-											<div className="flex w-1/2 justify-center px-4">
-												<Button
-													isFullWidth
-													onClick={() => {
-														trackStakingLockedParasImpression()
-														isTopup.current = false
-														onClickActionButton('lockedStakePARAS')
-													}}
-												>
-													Locked Staking
-												</Button>
-											</div>
-										)
-									}
-								})}
-							</>
-						) : (
-							<div className="flex w-1/2 justify-center px-4">
-								<Button
-									isFullWidth
-									onClick={() => {
-										isTopup.current = false
-										onClickActionButton('lockedStakePARAS')
-									}}
-								>
-									Locked Staking
-								</Button>
-							</div>
-						)}
-					</div>
+											)
+										}
+									})}
+								</>
+							) : (
+								<div className="flex w-1/2 justify-center px-4">
+									<Button
+										isFullWidth
+										onClick={() => {
+											isTopup.current = false
+											onClickActionButton('lockedStakePARAS')
+										}}
+									>
+										Locked Staking
+									</Button>
+								</div>
+							)}
+						</div>
+					)}
 					{accountId && (
 						<div className="mt-4">
 							<div className="flex flex-col p-2 bg-black bg-opacity-60 rounded-md overflow-hidden">
@@ -960,7 +964,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 											isFullWidth
 											color="green"
 											onClick={() => {
-												trackStakingRewardsParasImpression()
+												trackStakingRewardsParasImpression(accountId)
 												setShowModal('claim')
 											}}
 										>

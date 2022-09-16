@@ -16,7 +16,7 @@ const AnalyticsWrapper = ({ children }: { children: JSX.Element }) => {
 			gtag.pageview(url, accountId)
 		}
 
-		if (process.env.APP_ENV === 'production') {
+		if (process.env.NEXT_PUBLIC_APP_ENV === 'production') {
 			router.events.on('routeChangeComplete', handleRouteChange)
 		}
 

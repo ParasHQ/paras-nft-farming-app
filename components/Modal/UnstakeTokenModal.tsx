@@ -12,7 +12,7 @@ import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import { formatParasAmount, hasReward, prettyBalance } from 'utils/common'
+import { formatParasAmount, hasReward, parseParasAmount, prettyBalance } from 'utils/common'
 
 interface UnstakeTokenModalProps extends ModalCommonProps {
 	claimableRewards: {

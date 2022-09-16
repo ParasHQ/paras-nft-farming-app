@@ -755,7 +755,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 										<Button
 											isFullWidth
 											onClick={() => {
-												trackStakingStakeParasImpression()
+												trackStakingStakeParasImpression(accountId)
 												onClickActionButton('stakePARAS')
 											}}
 										>
@@ -767,7 +767,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 											color="blue-gray"
 											isFullWidth
 											onClick={() => {
-												trackStakingUnstakeParasImpression()
+												trackStakingUnstakeParasImpression(accountId)
 												onClickActionButton('unstakePARAS')
 											}}
 										>
@@ -857,7 +857,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 															<Button
 																isFullWidth
 																onClick={() => {
-																	trackStakingTopupParasImpression()
+																	trackStakingTopupParasImpression(accountId)
 																	isTopup.current = true
 																	onClickActionButton('lockedStakePARAS')
 																}}
@@ -871,7 +871,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 																color="blue-gray"
 																isFullWidth
 																onClick={() => {
-																	trackStakingUnlockedParasImpression()
+																	trackStakingUnlockedParasImpression(accountId)
 																	onClickActionButton('unlockedStakePARAS')
 																}}
 															>
@@ -897,7 +897,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 												<Button
 													isFullWidth
 													onClick={() => {
-														trackStakingLockedParasImpression()
+														trackStakingLockedParasImpression(accountId)
 														isTopup.current = false
 														onClickActionButton('lockedStakePARAS')
 													}}
@@ -960,7 +960,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 											isFullWidth
 											color="green"
 											onClick={() => {
-												trackStakingRewardsParasImpression()
+												trackStakingRewardsParasImpression(accountId)
 												setShowModal('claim')
 											}}
 										>

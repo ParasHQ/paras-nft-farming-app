@@ -12,6 +12,7 @@ import React, { useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
 import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/common'
 import clsx from 'clsx'
+import { trackStakingUnlockedParas } from 'lib/ga'
 
 interface UnlockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -49,6 +50,7 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 	const onUnlockStake = async () => {
 		const parseDuration: number = duration * A_DAY_IN_SECONDS
 		const parseDurationTestnet: number = duration * 60
+		trackStakingUnlockedParas(inputValue, accountId)
 		setIsSubmitting(true)
 		try {
 			const txs: {

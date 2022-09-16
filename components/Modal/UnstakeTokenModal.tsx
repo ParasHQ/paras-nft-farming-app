@@ -7,11 +7,12 @@ import { GAS_FEE } from 'constants/gasFee'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
 import JSBI from 'jsbi'
+import { trackStakingUnstakeParas } from 'lib/ga'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useCallback, useEffect, useState } from 'react'
 import near, { CONTRACT, getAmount } from 'services/near'
-import { formatParasAmount, hasReward, parseParasAmount, prettyBalance } from 'utils/common'
+import { formatParasAmount, hasReward, prettyBalance } from 'utils/common'
 
 interface UnstakeTokenModalProps extends ModalCommonProps {
 	claimableRewards: {
@@ -45,6 +46,7 @@ const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
 	}, [props.show, getStakedBalance])
 
 	const unstakeToken = async () => {
+		trackStakingUnstakeParas(`${inputUnstake}`, accountId)
 		try {
 			const txs: {
 				receiverId: string

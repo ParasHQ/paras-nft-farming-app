@@ -4,6 +4,7 @@ import ProfileModal from 'components/Modal/ProfileModal'
 import { baseURLParas } from 'constants/baseUrl'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IProfile } from 'interfaces'
+import { trackStakingGetParas, trackStakingLogin } from 'lib/ga'
 import { useEffect, useRef, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
@@ -129,6 +130,7 @@ const Header = () => {
 					<div className="relative">
 						<Button
 							onClick={() => {
+								trackStakingGetParas(accountId)
 								setShowGetParas(!showGetParas)
 							}}
 							className="flex items-center px-4"
@@ -191,7 +193,13 @@ const Header = () => {
 								<Profile />
 							</div>
 						) : (
-							<Button className="px-4" onClick={() => near.signIn()}>
+							<Button
+								className="px-4"
+								onClick={() => {
+									trackStakingLogin()
+									near.signIn()
+								}}
+							>
 								Login with NEAR
 							</Button>
 						)}

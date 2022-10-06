@@ -89,7 +89,6 @@ export const parseParasAmount = (balance: string | number) => {
 		const wholePart = splitted[0]
 		const fracPart = splitted[1] || ''
 		return wholePart + fracPart.padEnd(PARAS_NOMINATION_EXP, '0')
-		// return JSBI.multiply(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
 	} catch (err) {
 		return JSBI.BigInt(Number(balance) * 10 ** 18).toString()
 	}

@@ -1,0 +1,1 @@
+export const PARAS_NOMINATION_EXP = 18

@@ -13,6 +13,7 @@ import near, { CONTRACT, getAmount } from 'services/near'
 import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/common'
 import clsx from 'clsx'
 import { trackStakingUnlockedParas } from 'lib/ga'
+import JSBI from 'jsbi'
 
 interface UnlockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -28,6 +29,7 @@ interface UnlockedStakeModalProps extends ModalCommonProps {
 const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 	const { accountId } = useNearProvider()
 	const [inputValue, setInputValue] = useState<string>('')
+	const [rawInputStake, setRawInputStake] = useState<JSBI | string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [duration, setDuration] = useState<number>(0)
 	const maxToUnlock = props.lockedBalance / 10 ** 18
@@ -90,7 +92,7 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 						contractId: CONTRACT.FARM,
 						args: {
 							seed_id: CONTRACT.TOKEN,
-							amount: parseParasAmount(inputValue),
+							amount: rawInputStake.toString(),
 							...(duration > 0 && {
 								duration:
 									process.env.NEXT_PUBLIC_APP_ENV === 'mainnet'
@@ -136,6 +138,7 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 							value={inputValue}
 							onChange={(event) => {
 								setInputValue(event.target.value.replace(/^[^1-9][^.]/g, ''))
+								setRawInputStake(parseParasAmount(event.target.value))
 								Number(event.target.value) === maxToUnlock && setDuration(0)
 							}}
 							className="border-none"
@@ -158,6 +161,7 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 						<Button
 							onClick={() => {
 								setInputValue(`${maxToUnlock}`)
+								setRawInputStake(JSBI.BigInt(props.lockedBalance))
 								setDuration(0)
 							}}
 							className="float-none w-16 border border-blueButton"

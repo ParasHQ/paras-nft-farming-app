@@ -2,6 +2,7 @@ import JSBI from 'jsbi'
 import CID from 'cids'
 import crypto from 'crypto'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
+import { PARAS_NOMINATION_EXP } from 'constants/common'
 
 interface IParseImgOpts {
 	useOriginal?: boolean
@@ -83,11 +84,17 @@ export const formatParasAmount = (balance: string | number) => {
 }
 
 export const parseParasAmount = (balance: string | number) => {
-	try {
-		return JSBI.multiply(JSBI.BigInt(balance), JSBI.BigInt(10 ** 18)).toString()
-	} catch (err) {
-		return JSBI.BigInt(Number(balance) * 10 ** 18).toString()
+	const splitted = (balance as string).split('.')
+	const wholePart = splitted[0]
+	let numof0
+	const fracPart = splitted[1]?.replace(/^0+/g, '') || ''
+	if (/^0+/.test(splitted[1])) {
+		numof0 = splitted[1].match(/^0+/g)?.[0].length
 	}
+	return (
+		(wholePart === '0' ? '' : wholePart) +
+		fracPart?.padEnd(numof0 ? PARAS_NOMINATION_EXP - numof0 : PARAS_NOMINATION_EXP, '0')
+	)
 }
 
 export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts = {}) => {

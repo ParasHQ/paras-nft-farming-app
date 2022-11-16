@@ -16,12 +16,12 @@ const NAV_LINK = [
 		url: `https://app.ref.finance/#token.paras.near|wrap.near`,
 	},
 	{
-		exchange: `MEXC`,
-		url: `https://www.mexc.com/exchange/PARAS_USDT`,
+		exchange: `Tonic`,
+		url: `https://app.tonic.foundation/`,
 	},
 	{
-		exchange: `Hotbit`,
-		url: `https://www.hotbit.io/exchange?symbol=PARAS_USDT`,
+		exchange: `Spin`,
+		url: `https://trade.spin.fi/`,
 	},
 ]
 

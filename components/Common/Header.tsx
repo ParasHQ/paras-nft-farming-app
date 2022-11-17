@@ -234,6 +234,7 @@ const Header = () => {
 
 			<Widget
 				show={showSwapModal}
+				setShowSwapModal={setShowSwapModal}
 				onClose={() => {
 					setShowSwapModal(!showSwapModal)
 				}}

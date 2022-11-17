@@ -8,6 +8,7 @@
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
 	},
 	"dependencies": {
+    "@ref-finance/ref-sdk": "^1.1.5",
 		"axios": "^0.24.0",
 		"bn.js": "^5.2.0",
 		"borsh": "^0.7.0",
@@ -41,5 +42,8 @@
 		"postcss": "^8.3.11",
 		"tailwindcss": "^2.2.19",
 		"typescript": "^4.5.4"
+  },
+  "browser": {
+    "crypto": false
 	}
 }

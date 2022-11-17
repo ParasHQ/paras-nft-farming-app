@@ -1,6 +1,7 @@
 import axios from 'axios'
 import IconParas from 'components/Icon/IconParas'
 import ProfileModal from 'components/Modal/ProfileModal'
+import Widget from 'components/Modal/WidgetModal'
 import { baseURLParas } from 'constants/baseUrl'
 import { useNearProvider } from 'hooks/useNearProvider'
 import { IProfile } from 'interfaces'
@@ -32,6 +33,7 @@ const Header = () => {
 	const [userProfile, setUserProfile] = useState<IProfile>({})
 	const [showProfileModal, setShowProfileModal] = useState(false)
 	const [showGetParas, setShowGetParas] = useState(false)
+	const [showSwapModal, setShowSwapModal] = useState(false)
 
 	useEffect(() => {
 		const getParasBalance = async () => {
@@ -187,6 +189,14 @@ const Header = () => {
 							</div>
 						)}
 					</div>
+					<Button
+						onClick={() => {
+							setShowSwapModal(!showSwapModal)
+						}}
+						className="flex text-white py-2 px-4 bg-transparent border border-green-500 hover:bg-opacity-50 text-sm ml-2"
+					>
+						<span>Swap</span>
+					</Button>
 					<div className="ml-4 hidden md:inline-block">
 						{accountId ? (
 							<div>
@@ -221,6 +231,13 @@ const Header = () => {
 					</div>
 				</div>
 			)}
+
+			<Widget
+				show={showSwapModal}
+				onClose={() => {
+					setShowSwapModal(!showSwapModal)
+				}}
+			/>
 		</div>
 	)
 }

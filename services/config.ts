@@ -11,6 +11,11 @@ export default function getConfig(env: string) {
 				walletUrl: 'https://wallet.near.org',
 				helperUrl: 'https://helper.mainnet.near.org',
 				explorerUrl: 'https://explorer.mainnet.near.org',
+				WRAP_NEAR_CONTRACT_ID: 'wrap.near',
+				REF_FI_CONTRACT_ID: 'v2.ref-finance.near',
+				REF_TOKEN_ID: 'token.v2.ref-finance.near',
+				indexerUrl: 'https://indexer.ref.finance',
+				REF_DCL_SWAP_CONTRACT_ID: '',
 			}
 		case 'development':
 		case 'testnet':
@@ -21,6 +26,11 @@ export default function getConfig(env: string) {
 				walletUrl: 'https://wallet.testnet.near.org',
 				helperUrl: 'https://helper.testnet.near.org',
 				explorerUrl: 'https://explorer.testnet.near.org',
+				indexerUrl: 'https://testnet-indexer.ref-finance.com',
+				WRAP_NEAR_CONTRACT_ID: 'wrap.testnet',
+				REF_FI_CONTRACT_ID: 'ref-finance-101.testnet',
+				REF_TOKEN_ID: 'ref.fakes.testnet',
+				REF_DCL_SWAP_CONTRACT_ID: 'dcl.ref-dev.testnet',
 			}
 		case 'betanet':
 			return {

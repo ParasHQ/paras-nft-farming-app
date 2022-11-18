@@ -88,9 +88,8 @@ export const Widget = (props: SwapWidgetProps) => {
 					state: swapState,
 					setState: setSwapState,
 					tx,
-					detail: '(success details show here)',
 				}}
-				enableSmartRouting={false}
+				enableSmartRouting={true}
 				onConnect={onConnect}
 				defaultTokenIn={process.env.NEXT_PUBLIC_WRAP_NEAR_CONTRACT}
 				defaultTokenOut={process.env.NEXT_PUBLIC_PARAS_TOKEN_CONTRACT}

@@ -200,13 +200,20 @@ export const currentMemberLevel = (value: number) => {
 }
 
 export const parseTransactionRef = (transactionsRef: Transaction[]) => {
-	transactionsRef.map((transaction) => {
-		transaction.functionCalls.map((t: any) => {
-			t.contractId = transaction.receiverId
-			t.attachedDeposit = getAmount(parseNearAmount(t.amount))
-			delete t.amount
-		})
+	const parsedTransactionRef = transactionsRef.map((transaction) => {
+		return {
+			receiverId: transaction.receiverId,
+			functionCalls: transaction.functionCalls.map((t) => {
+				return {
+					contractId: transaction.receiverId,
+					attachedDeposit: getAmount(parseNearAmount(t.amount)),
+					gas: t.gas,
+					args: t.args,
+					methodName: t.methodName,
+				}
+			}),
+		}
 	})
 
-	return transactionsRef
+	return parsedTransactionRef
 }

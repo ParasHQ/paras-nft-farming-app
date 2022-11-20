@@ -13,11 +13,11 @@ import ReactTooltip from 'react-tooltip'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
 import { A_DAY_IN_SECONDS } from 'constants/time'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 import clsx from 'clsx'
 import { trackStakingLockedParas, trackStakingTopupParas } from 'lib/ga'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 
 interface LockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -31,7 +31,7 @@ interface LockedStakeModalProps extends ModalCommonProps {
 }
 
 const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 	const [max, setMax] = useState<number>(0)
 	const [min, setMin] = useState<number>(0)
 	const [inputValue, setInputValue] = useState<string>('')

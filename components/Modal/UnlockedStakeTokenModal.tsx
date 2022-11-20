@@ -4,7 +4,6 @@ import Modal from 'components/Common/Modal'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { A_DAY_IN_SECONDS } from 'constants/time'
-import { useNearProvider } from 'hooks/useNearProvider'
 import { ModalCommonProps } from 'interfaces/modal'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
@@ -14,6 +13,7 @@ import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/commo
 import clsx from 'clsx'
 import { trackStakingUnlockedParas } from 'lib/ga'
 import JSBI from 'jsbi'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 
 interface UnlockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -27,7 +27,7 @@ interface UnlockedStakeModalProps extends ModalCommonProps {
 }
 
 const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 	const [inputValue, setInputValue] = useState<string>('')
 	const [rawInputStake, setRawInputStake] = useState<JSBI | string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)

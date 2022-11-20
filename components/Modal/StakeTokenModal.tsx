@@ -4,7 +4,7 @@ import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { ModalCommonProps } from 'interfaces/modal'
 import { trackStakingStakeParas } from 'lib/ga'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
@@ -20,7 +20,7 @@ interface StakeTokenModalProps extends ModalCommonProps {
 }
 
 const StakeTokenModal = (props: StakeTokenModalProps) => {
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 	const [balance, setBalance] = useState('0')
 	const [inputStake, setInputStake] = useState<string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)

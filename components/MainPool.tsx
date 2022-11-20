@@ -6,7 +6,6 @@ import near, { CONTRACT, getAmount } from 'services/near'
 import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
 import { IFarm, IPool, IReward } from 'interfaces'
 import PoolLoader from './Common/PoolLoader'
 import JSBI from 'jsbi'
@@ -32,6 +31,7 @@ import {
 	trackStakingUnlockedParasImpression,
 	trackStakingUnstakeParasImpression,
 } from 'lib/ga'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 
 export interface IPoolProcessed {
 	title: string
@@ -83,7 +83,7 @@ type TShowModal =
 	| null
 
 const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className }: PoolProps) => {
-	const { accountId, hasDeposit, setCommonModal } = useNearProvider()
+	const { accountId, hasDeposit, modal, setCommonModal } = useWalletSelector()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [userStaked, setUserStaked] = useState<string | null>(null)
@@ -457,7 +457,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 
 	const onClickActionButton = (type: TShowModal) => {
 		if (!accountId) {
-			setCommonModal('login')
+			modal.show()
 			return
 		}
 

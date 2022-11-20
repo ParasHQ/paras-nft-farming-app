@@ -4,7 +4,7 @@ import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { ModalCommonProps } from 'interfaces/modal'
 import JSBI from 'jsbi'
 import { trackStakingUnstakeParas } from 'lib/ga'
@@ -22,7 +22,7 @@ interface UnstakeTokenModalProps extends ModalCommonProps {
 }
 
 const UnstakeTokenModal = (props: UnstakeTokenModalProps) => {
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 	const [balance, setBalance] = useState('0')
 	const [inputUnstake, setInputUnstake] = useState<number | string>('')
 	const [rawInputStake, setRawInputStake] = useState<JSBI | string>('')

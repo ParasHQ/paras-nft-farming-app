@@ -1,6 +1,6 @@
 import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import near, { CONTRACT } from 'services/near'
 
@@ -10,7 +10,7 @@ interface DepositModalProps {
 }
 
 const DepositModal = ({ show, onClose }: DepositModalProps) => {
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 
 	const onClickDeposit = () => {
 		if (accountId) {

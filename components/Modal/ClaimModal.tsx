@@ -2,7 +2,7 @@ import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
 import IconInfo from 'components/Icon/IconInfo'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import JSBI from 'jsbi'
 import { trackStakingRewardsParas } from 'lib/ga'
 import { useEffect, useState } from 'react'
@@ -39,7 +39,7 @@ const ClaimModal = ({
 	)
 	const [showError, setShowError] = useState<boolean>(false)
 	const { ftPool } = useStore()
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 	const hasNoParasRewardFromPool =
 		claimableRewards[CONTRACT.TOKEN] && claimableRewards[CONTRACT.TOKEN] === '0'
 

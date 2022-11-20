@@ -1,5 +1,4 @@
 import Header from 'components/Common/Header'
-import { useNearProvider } from 'hooks/useNearProvider'
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
@@ -8,6 +7,7 @@ import Head from 'components/Common/Head'
 import MainPool from 'components/MainPool'
 import Loader from 'components/Common/Loader'
 import InputDropdown from 'components/Common/InputDropdown'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 
 interface IUserStaked {
 	[key: string]: string
@@ -29,7 +29,7 @@ interface IContinousFetch {
 }
 
 const Home: NextPage = () => {
-	const { isInit, accountId } = useNearProvider()
+	const { isInit, accountId } = useWalletSelector()
 	const [poolListFT, setPoolListFT] = useState<IPool[]>([])
 	const [poolList, setPoolList] = useState<IPool[]>([])
 	const [userStaked, setUserStaked] = useState<IUserStaked>({})

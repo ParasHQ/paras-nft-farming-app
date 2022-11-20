@@ -8,7 +8,7 @@ import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { apiParasUrl } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
@@ -33,7 +33,7 @@ interface stakedResponse {
 const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 	const [stakedNFT, setStakedNFT] = useState<INFToken[]>([])
 	const [isLoading, setIsLoading] = useState<boolean>(false)
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 
 	useEffect(() => {
 		const getStakedNFT = async () => {

@@ -8,7 +8,7 @@ import IconBack from 'components/Icon/IconBack'
 import IconInfo from 'components/Icon/IconInfo'
 import { apiFarmingURL } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
 import { FunctionCallOptions } from 'near-api-js/lib/account'
@@ -36,7 +36,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [showInfoPool, setShowInfoPool] = useState<boolean>(false)
 
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 
 	useEffect(() => {
 		const fetchOwnedNFT = async () => {

@@ -8,6 +8,13 @@
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
 	},
 	"dependencies": {
+		"@near-wallet-selector/core": "^7.2.0",
+		"@near-wallet-selector/meteor-wallet": "^7.2.0",
+		"@near-wallet-selector/modal-ui": "^7.2.0",
+		"@near-wallet-selector/my-near-wallet": "^7.2.0",
+		"@near-wallet-selector/near-wallet": "^7.2.0",
+		"@near-wallet-selector/sender": "^7.2.0",
+		"add": "^2.0.6",
 		"axios": "^0.24.0",
 		"bn.js": "^5.2.0",
 		"borsh": "^0.7.0",
@@ -26,6 +33,7 @@
 		"react-dom": "17.0.2",
 		"react-infinite-scroll-component": "^6.1.0",
 		"react-tooltip": "^4.2.21",
+		"yarn": "^1.22.19",
 		"zustand": "^3.7.1"
 	},
 	"devDependencies": {

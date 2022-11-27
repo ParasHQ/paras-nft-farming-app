@@ -37,79 +37,84 @@ const Home: NextPage = () => {
 	const [filterPool, setFilterPool] = useState<IDataInputDropdown>(filterData[1])
 
 	useEffect(() => {
-		const continousFetch: IContinousFetch = async (page = 0) => {
-			const fetchLimit = 7
-			const rawPoolList: IPool[] = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
-				methodName: `list_seeds_info`,
-				args: {
-					from_index: page * fetchLimit,
-					limit: fetchLimit,
-				},
-			})
-			const _poolList = Object.values(rawPoolList)
+		console.log('isInit', isInit)
+		console.log('accountId', accountId)
+	}, [])
 
-			return [
-				..._poolList,
-				...(_poolList.length === fetchLimit ? await continousFetch(page + 1) : []),
-			]
-		}
+	// useEffect(() => {
+	// 	const continousFetch: IContinousFetch = async (page = 0) => {
+	// 		const fetchLimit = 7
+	// 		const rawPoolList: IPool[] = await near.nearViewFunction({
+	// 			contractName: CONTRACT.FARM,
+	// 			methodName: `list_seeds_info`,
+	// 			args: {
+	// 				from_index: page * fetchLimit,
+	// 				limit: fetchLimit,
+	// 			},
+	// 		})
+	// 		const _poolList = Object.values(rawPoolList)
 
-		const getPoolList = async () => {
-			const poolList = await continousFetch()
+	// 		return [
+	// 			..._poolList,
+	// 			...(_poolList.length === fetchLimit ? await continousFetch(page + 1) : []),
+	// 		]
+	// 	}
 
-			const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
-			const poolNFT = Object.values(poolList).filter((x) => x.seed_type === 'NFT')
-			setPoolListFT(poolFT)
-			setPoolList(poolNFT)
-		}
+	// 	const getPoolList = async () => {
+	// 		const poolList = await continousFetch()
 
-		if (isInit) {
-			getPoolList()
-		}
-	}, [isInit])
+	// 		const poolFT = Object.values(poolList).filter((x) => x.seed_id === CONTRACT.TOKEN)
+	// 		const poolNFT = Object.values(poolList).filter((x) => x.seed_type === 'NFT')
+	// 		setPoolListFT(poolFT)
+	// 		setPoolList(poolNFT)
+	// 	}
 
-	useEffect(() => {
-		const getUserStaked = async () => {
-			const userStakedToken = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
-				methodName: `list_user_seeds`,
-				args: {
-					account_id: accountId,
-				},
-			})
+	// 	if (isInit) {
+	// 		getPoolList()
+	// 	}
+	// }, [isInit])
 
-			const userStakedNFTData = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
-				methodName: `list_user_nft_seeds`,
-				args: {
-					account_id: accountId,
-				},
-			})
+	// useEffect(() => {
+	// 	const getUserStaked = async () => {
+	// 		const userStakedToken = await near.nearViewFunction({
+	// 			contractName: CONTRACT.FARM,
+	// 			methodName: `list_user_seeds`,
+	// 			args: {
+	// 				account_id: accountId,
+	// 			},
+	// 		})
 
-			setUserStaked(userStakedToken)
-			setUserStakedNFT(userStakedNFTData)
-		}
+	// 		const userStakedNFTData = await near.nearViewFunction({
+	// 			contractName: CONTRACT.FARM,
+	// 			methodName: `list_user_nft_seeds`,
+	// 			args: {
+	// 				account_id: accountId,
+	// 			},
+	// 		})
 
-		if (accountId) {
-			getUserStaked()
-		}
-	}, [accountId])
+	// 		setUserStaked(userStakedToken)
+	// 		setUserStakedNFT(userStakedNFTData)
+	// 	}
 
-	if (!Array.isArray(poolListFT) || poolListFT.length === 0) {
-		return (
-			<div>
-				<Loader isLoading={true} />
-			</div>
-		)
-	}
+	// 	if (accountId) {
+	// 		getUserStaked()
+	// 	}
+	// }, [accountId])
+
+	// if (!Array.isArray(poolListFT) || poolListFT.length === 0) {
+	// 	return (
+	// 		<div>
+	// 			<Loader isLoading={true} />
+	// 		</div>
+	// 	)
+	// }
 
 	return (
 		<>
 			<Head />
 			<div className="bg-gray-900 min-h-screen pb-16 lg:pb-0">
 				<Header />
-				<div className="mt-4 max-w-6xl mx-auto">
+				{/* <div className="mt-4 max-w-6xl mx-auto">
 					<div className="md:max-w-md mx-auto p-4">
 						<MainPool type="ft" data={poolListFT[0]} staked={userStaked[poolListFT[0].seed_id]} />
 						<p className="text-white text-center text-sm mt-3">
@@ -160,7 +165,7 @@ const Home: NextPage = () => {
 							})}
 						</div>
 					</div>
-				</div>
+				</div> */}
 			</div>
 		</>
 	)

@@ -14,18 +14,15 @@ const ProfileModal = ({ show, profile, onClose }: ProfileModalProps) => {
 	const { selector, modal } = useWalletSelector()
 
 	const handleSwitchWallet = () => {
+		modal?.show()
 		onClose()
-		modal.show()
 	}
 
 	const handleSignOut = async () => {
+		if (!selector) return
 		const wallet = await selector.wallet()
-		onClose()
-
-		wallet.signOut().catch((err) => {
-			console.log('Failed to sign out')
-			console.error(err)
-		})
+		await wallet.signOut()
+		window.location.replace(window.location.origin + window.location.pathname)
 	}
 
 	return (

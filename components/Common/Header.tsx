@@ -8,6 +8,7 @@ import { trackStakingGetParas, trackStakingLogin } from 'lib/ga'
 import { useEffect, useRef, useState } from 'react'
 import near, { CONTRACT } from 'services/near'
 import { parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
+// import { CONTRACT } from 'utils/contract'
 import Button from './Button'
 
 const NAV_LINK = [
@@ -31,15 +32,15 @@ const Header = () => {
 	const [userProfile, setUserProfile] = useState<IProfile>({})
 	const [showProfileModal, setShowProfileModal] = useState(false)
 	const [showGetParas, setShowGetParas] = useState(false)
-	const { modal, accountId } = useWalletSelector()
+	const { modal, accountId, viewFunction } = useWalletSelector()
 
 	useEffect(() => {
 		const getParasBalance = async () => {
-			const balanceParas = await near.nearViewFunction({
+			const balanceParas = await viewFunction<string>({
+				receiverId: CONTRACT.TOKEN,
 				methodName: 'ft_balance_of',
-				contractName: CONTRACT.TOKEN,
 				args: {
-					account_id: near.wallet.getAccountId(),
+					account_id: accountId,
 				},
 			})
 			setBalance(balanceParas)
@@ -57,8 +58,8 @@ const Header = () => {
 		}
 
 		if (accountId) {
-			getParasBalance()
 			getUserProfile()
+			getParasBalance()
 		}
 	}, [accountId])
 
@@ -130,7 +131,7 @@ const Header = () => {
 					<div className="relative">
 						<Button
 							onClick={() => {
-								trackStakingGetParas(accountId)
+								trackStakingGetParas(accountId as string)
 								setShowGetParas(!showGetParas)
 							}}
 							className="flex items-center px-4"

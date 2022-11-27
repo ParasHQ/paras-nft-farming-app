@@ -14,7 +14,7 @@ const AnalyticsWrapper = ({ children }: { children: JSX.Element }) => {
 
 	useEffect(() => {
 		const handleRouteChange = (url: URL) => {
-			gtag.pageview(url, accountId)
+			gtag.pageview(url, accountId as string)
 		}
 
 		if (process.env.NEXT_PUBLIC_APP_ENV === 'production') {

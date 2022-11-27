@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { map, distinctUntilChanged } from 'rxjs'
 import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core'
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core'
@@ -10,13 +10,11 @@ import { setupSender } from '@near-wallet-selector/sender'
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet'
 import Loader from 'components/Common/Loader'
 import DepositModal from 'components/Modal/DepositModal'
-import near from 'services/near'
+import { CONTRACT } from 'utils/contract'
 import { TSignAndSendTransaction, TSignAndSendTransactions, TViewFunction } from 'interfaces/wallet'
 import { providers } from 'near-api-js'
 import getConfig from 'services/config'
-import { CONTRACT } from 'utils/contract'
 import { BN } from 'bn.js'
-import { CodeResult } from 'near-api-js/lib/providers/provider'
 
 declare global {
 	interface Window {
@@ -31,7 +29,7 @@ interface WalletSelectorContextValue {
 	selector: WalletSelector | undefined
 	modal: WalletSelectorModal | undefined
 	accounts: Array<AccountState>
-	accountId: string | undefined
+	accountId: string | null
 	viewFunction: TViewFunction
 	signAndSendTransaction: TSignAndSendTransaction
 	signAndSendTransactions: TSignAndSendTransactions
@@ -41,35 +39,31 @@ interface WalletSelectorContextValue {
 
 type TCommonModal = 'deposit' | null
 
-const defaultValue: WalletSelectorContextValue = {
-	isInit: false,
-	hasDeposit: false,
-	accountId: null,
-	commonModal: null,
-	setCommonModal: () => null,
-} as any
+// const defaultValue: WalletSelectorContextValue = {
+// 	isInit: false,
+// 	hasDeposit: false,
+// 	accountId: null,
+// 	commonModal: null,
+// 	setCommonModal: () => null,
+// } as any
+
+const WalletSelectorContext = React.createContext<WalletSelectorContextValue | null>(null)
+
+const nearConfig = getConfig(process.env.NEXT_PUBLIC_APP_ENV || 'development')
 
 export const getAmount = (amount: string | null | undefined) =>
 	amount ? new BN(amount) : new BN('0')
 
-const WalletSelectorContext = createContext<WalletSelectorContextValue | null>(null)
-
-interface WalletSelectorContextProviderProps {
-	children: React.ReactNode
-}
-
-const nearConfig = getConfig(process.env.NEXT_PUBLIC_APP_ENV || 'development')
-
-export const WalletSelectorContextProvider = ({ children }: WalletSelectorContextProviderProps) => {
-	const [isInit, setIsInit] = useState<boolean>(false)
-	const [hasDeposit, setHasDeposit] = useState<boolean>(false)
+export const WalletSelectorContextProvider: React.FC = ({ children }) => {
+	const [isInit, setIsInit] = useState(false)
+	const [hasDeposit, setHasDeposit] = useState(false)
 	const [commonModal, setCommonModal] = useState<TCommonModal>(null)
-	const [selector, setSelector] = useState<WalletSelector>()
-	const [modal, setModal] = useState<WalletSelectorModal>()
+	const [selector, setSelector] = useState<WalletSelector | null>(null)
+	const [modal, setModal] = useState<WalletSelectorModal | null>(null)
+	const [accountId, setAccountId] = useState<string | null>(null)
 	const [accounts, setAccounts] = useState<Array<AccountState>>([])
-	const [accountId, setAccountId] = useState<string>()
 
-	const init = async () => {
+	const init = useCallback(async () => {
 		const _selector = await setupWalletSelector({
 			network: nearConfig.networkId as unknown as NetworkId,
 			debug: true,
@@ -87,12 +81,23 @@ export const WalletSelectorContextProvider = ({ children }: WalletSelectorContex
 		setSelector(_selector)
 		setModal(_modal)
 
+		checkStorageDeposit()
 		setIsInit(true)
+	}, [])
 
-		// near.init(async () => {
-		// 	checkStorageDeposit()
-		// 	setIsInit(true)
-		// })
+	const checkStorageDeposit = async () => {
+		const userId = accountId
+
+		if (userId) {
+			const deposited = await viewFunction({
+				receiverId: CONTRACT.FARM,
+				methodName: 'storage_balance_of',
+				args: {
+					account_id: userId,
+				},
+			})
+			deposited && setHasDeposit(true)
+		}
 	}
 
 	useEffect(() => {
@@ -100,7 +105,7 @@ export const WalletSelectorContextProvider = ({ children }: WalletSelectorContex
 			console.error(err)
 			alert('Failed to initialise wallet selector')
 		})
-	}, [])
+	}, [init])
 
 	useEffect(() => {
 		if (!selector) {
@@ -114,20 +119,15 @@ export const WalletSelectorContextProvider = ({ children }: WalletSelectorContex
 			)
 			.subscribe((nextAccounts) => {
 				const accountId = nextAccounts.find((account) => account.active)?.accountId
-				setAccountId(accountId)
+				setAccountId(accountId as string)
 				setAccounts(nextAccounts)
 			})
 
 		return () => subscription.unsubscribe()
 	}, [selector])
 
-	// if (!selector || !modal) {
-	// 	return null
-	// }
-
 	const viewFunction: TViewFunction = ({ receiverId, methodName, args = '' }) => {
-		console.log('nearConfig.nodeUrl', nearConfig.nodeUrl)
-		return new providers.JsonRpcProvider({ url: nearConfig.nodeUrl } as unknown as string)
+		return new providers.JsonRpcProvider({ url: nearConfig.nodeUrl })
 			.query({
 				request_type: 'call_function',
 				account_id: receiverId,
@@ -143,37 +143,24 @@ export const WalletSelectorContextProvider = ({ children }: WalletSelectorContex
 	}
 
 	const signAndSendTransaction: TSignAndSendTransaction = async (params) => {
-		if (!selector) return
-
+		if (!selector) {
+			return
+		}
 		const wallet = await selector.wallet()
 		return wallet.signAndSendTransaction(params)
 	}
 
 	const signAndSendTransactions: TSignAndSendTransactions = async (params) => {
-		if (!selector) return
-
+		if (!selector) {
+			return
+		}
 		const wallet = await selector.wallet()
 		return wallet.signAndSendTransactions(params)
 	}
 
-	// const checkStorageDeposit = async () => {
-	// 	// const userId = near.wallet.getAccountId()
-	// 	const userId = accountId
-	// 	console.log('userIdNew', accountId)
-
-	// 	if (userId) {
-	// 		const deposited = await viewFunction({
-	// 			receiverId: CONTRACT.FARM,
-	// 			methodName: 'storage_balance_of',
-	// 			args: {
-	// 				account_id: userId,
-	// 			},
-	// 		})
-	// 		deposited && setHasDeposit(true)
-	// 	}
-	// }
-
-	console.log('userIdNew=>', accountId)
+	if (!selector || !modal) {
+		return null
+	}
 
 	return (
 		<WalletSelectorContext.Provider

@@ -6,9 +6,8 @@ import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { IProfile } from 'interfaces'
 import { trackStakingGetParas, trackStakingLogin } from 'lib/ga'
 import { useEffect, useRef, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
 import { parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
-// import { CONTRACT } from 'utils/contract'
+import { CONTRACT } from 'utils/contract'
 import Button from './Button'
 
 const NAV_LINK = [
@@ -131,7 +130,7 @@ const Header = () => {
 					<div className="relative">
 						<Button
 							onClick={() => {
-								trackStakingGetParas(accountId as string)
+								trackStakingGetParas(accountId)
 								setShowGetParas(!showGetParas)
 							}}
 							className="flex items-center px-4"

@@ -36,11 +36,6 @@ const Home: NextPage = () => {
 	const [userStakedNFT, setUserStakedNFT] = useState<IUserStakedNFT>({})
 	const [filterPool, setFilterPool] = useState<IDataInputDropdown>(filterData[1])
 
-	useEffect(() => {
-		console.log('isInit', isInit)
-		console.log('accountId', accountId)
-	}, [])
-
 	// useEffect(() => {
 	// 	const continousFetch: IContinousFetch = async (page = 0) => {
 	// 		const fetchLimit = 7

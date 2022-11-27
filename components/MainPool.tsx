@@ -2,7 +2,6 @@ import dayjs from 'dayjs'
 import { currentMemberLevel, prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
-import near, { CONTRACT, getAmount } from 'services/near'
 import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
 import { GAS_FEE } from 'constants/gasFee'
@@ -14,7 +13,6 @@ import PoolAPR, { contractPriceMap, getPrice } from './Common/PoolAPR'
 import StakeNFTModal from './Modal/StakeNFTModal'
 import UnstakeNFTModal from './Modal/UnstakeNFTModal'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
-import { FunctionCallOptions } from 'near-api-js/lib/account'
 import ReactTooltip from 'react-tooltip'
 import IconInfo from './Icon/IconInfo'
 import ClaimModal from './Modal/ClaimModal'
@@ -31,7 +29,9 @@ import {
 	trackStakingUnlockedParasImpression,
 	trackStakingUnstakeParasImpression,
 } from 'lib/ga'
-import { useWalletSelector } from 'contexts/WalletSelectorContext'
+import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
+import { CONTRACT } from 'utils/contract'
+import { Transaction } from '@near-wallet-selector/core'
 
 export interface IPoolProcessed {
 	title: string
@@ -83,7 +83,8 @@ type TShowModal =
 	| null
 
 const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className }: PoolProps) => {
-	const { accountId, hasDeposit, modal, setCommonModal } = useWalletSelector()
+	const { accountId, viewFunction, signAndSendTransactions, hasDeposit, modal, setCommonModal } =
+		useWalletSelector()
 	const [poolProcessed, setPoolProcessed] = useState<IPoolProcessed | null>(null)
 	const [showModal, setShowModal] = useState<TShowModal>(null)
 	const [userStaked, setUserStaked] = useState<string | null>(null)
@@ -133,8 +134,8 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			[key: string]: string
 		} = {}
 
-		const seedDetails = await near.nearViewFunction({
-			contractName: CONTRACT.FARM,
+		const seedDetails = await viewFunction({
+			receiverId: CONTRACT.FARM,
 			methodName: `get_seed_info`,
 			args: {
 				seed_id: data.seed_id,
@@ -142,8 +143,8 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		})
 
 		for (const farmId of data.farms) {
-			const farmDetails: IFarm = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
+			const farmDetails: IFarm = await viewFunction({
+				receiverId: CONTRACT.FARM,
 				methodName: `get_farm`,
 				args: {
 					farm_id: farmId,
@@ -251,41 +252,41 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			}
 
 			if (accountId) {
-				const unclaimedReward = await near.nearViewFunction({
-					contractName: CONTRACT.FARM,
+				const unclaimedReward = await viewFunction({
+					receiverId: CONTRACT.FARM,
 					methodName: `get_unclaimed_reward`,
 					args: {
-						account_id: near.wallet.getAccountId(),
+						account_id: accountId,
 						farm_id: farmId,
 					},
 				})
 				if (totalUnclaimedRewards[farmDetails.reward_token]) {
 					totalUnclaimedRewards[farmDetails.reward_token] = JSBI.add(
-						JSBI.BigInt(unclaimedReward),
+						JSBI.BigInt(unclaimedReward as number),
 						JSBI.BigInt(totalUnclaimedRewards[farmDetails.reward_token])
 					).toString()
 				} else {
-					totalUnclaimedRewards[farmDetails.reward_token] = unclaimedReward
+					totalUnclaimedRewards[farmDetails.reward_token] = unclaimedReward as string
 				}
 			}
 		}
 
 		if (type === 'ft' && accountId) {
-			const rewardwnear = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
+			const rewardwnear = await viewFunction({
+				receiverId: CONTRACT.FARM,
 				methodName: `get_reward`,
 				args: {
-					account_id: near.wallet.getAccountId(),
+					account_id: accountId,
 					token_id: CONTRACT.WRAP,
 				},
 			})
 			if (totalUnclaimedRewards[CONTRACT.WRAP]) {
 				totalUnclaimedRewards[CONTRACT.WRAP] = JSBI.add(
-					JSBI.BigInt(rewardwnear),
+					JSBI.BigInt(rewardwnear as number),
 					JSBI.BigInt(totalUnclaimedRewards[CONTRACT.WRAP])
 				).toString()
 			} else {
-				totalUnclaimedRewards[CONTRACT.WRAP] = rewardwnear
+				totalUnclaimedRewards[CONTRACT.WRAP] = rewardwnear as string
 			}
 		}
 
@@ -309,7 +310,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			startDate: poolStartDate,
 			endDate: poolEndDate,
 			claimableRewards: totalUnclaimedRewards,
-			nftPoints: seedDetails.nft_balance,
+			nftPoints: (seedDetails as any).nft_balance,
 			comingSoon: poolStartDate < new Date().getTime() ? false : true,
 			expired: poolEndDate > new Date().getTime() ? false : true,
 			totalPoolReward: allTotalRewardsPoolInUSD,
@@ -398,66 +399,68 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 	const claimRewards = async (restaked = false) => {
 		if (!accountId) return
 
-		const txs: {
-			receiverId: string
-			functionCalls: FunctionCallOptions[]
-		}[] = []
-
+		const txs: Transaction[] = []
 		for (const contractName of Object.keys(poolProcessed?.rewards || {})) {
-			const deposited = await near.nearViewFunction({
-				contractName: contractName,
+			const deposited = await viewFunction({
+				receiverId: contractName,
 				methodName: `storage_balance_of`,
 				args: {
-					account_id: near.wallet.getAccountId(),
+					account_id: accountId,
 				},
 			})
 			if (!deposited) {
 				txs.push({
 					receiverId: contractName,
-					functionCalls: [
+					actions: [
 						{
-							methodName: 'storage_deposit',
-							contractId: contractName,
-							args: {
-								registration_only: true,
-								account_id: accountId,
+							type: 'FunctionCall',
+							params: {
+								methodName: 'storage_deposit',
+								args: {
+									registration_only: true,
+									account_id: accountId,
+								},
+								deposit: getAmount(parseNearAmount('0.0125')) as unknown as string,
+								gas: getAmount(GAS_FEE[30]) as unknown as string,
 							},
-							attachedDeposit: getAmount(parseNearAmount('0.0125')),
-							gas: getAmount(GAS_FEE[30]),
 						},
 					],
+					signerId: contractName,
 				})
 			}
 		}
 
 		txs.push({
 			receiverId: CONTRACT.FARM,
-			functionCalls: [
+			actions: [
 				{
-					methodName: restaked
-						? 'claim_reward_by_seed_and_deposit'
-						: 'claim_reward_by_seed_and_withdraw',
-					contractId: CONTRACT.FARM,
-					args: {
-						seed_id: data.seed_id,
-						token_id: CONTRACT.TOKEN,
-						...(restaked && {
-							seed_id_deposit: CONTRACT.TOKEN,
-							is_deposit_seed_reward: true,
-						}),
+					type: 'FunctionCall',
+					params: {
+						methodName: restaked
+							? 'claim_reward_by_seed_and_deposit'
+							: 'claim_reward_by_seed_and_withdraw',
+						args: {
+							seed_id: data.seed_id,
+							token_id: CONTRACT.TOKEN,
+							...(restaked && {
+								seed_id_deposit: CONTRACT.TOKEN,
+								is_deposit_seed_reward: true,
+							}),
+						},
+						deposit: getAmount('1') as unknown as string,
+						gas: getAmount(GAS_FEE[150]) as unknown as string,
 					},
-					attachedDeposit: getAmount('1'),
-					gas: getAmount(GAS_FEE[150]),
 				},
 			],
+			signerId: CONTRACT.FARM,
 		})
 
-		return await near.executeMultipleTransactions(txs)
+		return await signAndSendTransactions({ transactions: txs })
 	}
 
 	const onClickActionButton = (type: TShowModal) => {
 		if (!accountId) {
-			modal.show()
+			modal?.show()
 			return
 		}
 
@@ -471,14 +474,13 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 
 	const getLockedStake = async () => {
 		setIsGettingLockedStake(true)
-		const _lockedBalanceDetails: { [contractId: string]: IViewLocked } =
-			await near.nearViewFunction({
-				methodName: `list_user_locked_seeds`,
-				contractName: CONTRACT.FARM,
-				args: {
-					account_id: accountId,
-				},
-			})
+		const _lockedBalanceDetails: { [contractId: string]: IViewLocked } = await viewFunction({
+			receiverId: CONTRACT.FARM,
+			methodName: `list_user_locked_seeds`,
+			args: {
+				account_id: accountId,
+			},
+		})
 		const lockedBalanceDetails: IViewLocked[] = Object.entries(_lockedBalanceDetails)
 			.filter((x) => {
 				return x[0] === CONTRACT.TOKEN

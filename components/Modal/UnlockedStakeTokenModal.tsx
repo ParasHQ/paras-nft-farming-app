@@ -5,15 +5,15 @@ import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
 import { A_DAY_IN_SECONDS } from 'constants/time'
 import { ModalCommonProps } from 'interfaces/modal'
-import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import React, { useState } from 'react'
-import near, { CONTRACT, getAmount } from 'services/near'
 import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/common'
 import clsx from 'clsx'
 import { trackStakingUnlockedParas } from 'lib/ga'
 import JSBI from 'jsbi'
-import { useWalletSelector } from 'contexts/WalletSelectorContext'
+import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
+import { CONTRACT } from 'utils/contract'
+import { Transaction } from '@near-wallet-selector/core'
 
 interface UnlockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -27,7 +27,7 @@ interface UnlockedStakeModalProps extends ModalCommonProps {
 }
 
 const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
-	const { accountId } = useWalletSelector()
+	const { accountId, viewFunction, signAndSendTransactions } = useWalletSelector()
 	const [inputValue, setInputValue] = useState<string>('')
 	const [rawInputStake, setRawInputStake] = useState<JSBI | string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
@@ -55,57 +55,60 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 		trackStakingUnlockedParas(inputValue, accountId)
 		setIsSubmitting(true)
 		try {
-			const txs: {
-				receiverId: string
-				functionCalls: FunctionCallOptions[]
-			}[] = []
-			const deposited = await near.nearViewFunction({
-				contractName: CONTRACT.TOKEN,
+			const txs: Transaction[] = []
+			const deposited = await viewFunction({
+				receiverId: CONTRACT.TOKEN,
 				methodName: `storage_balance_of`,
 				args: {
 					account_id: accountId,
 				},
 			})
 
-			if (deposited === null || (deposited && deposited.total === '0')) {
+			if (deposited === null || (deposited && (deposited as any).total === '0')) {
 				txs.push({
 					receiverId: CONTRACT.TOKEN,
-					functionCalls: [
+					actions: [
 						{
-							methodName: 'storage_deposit',
-							contractId: CONTRACT.TOKEN,
-							args: {
-								registration_only: true,
-								account_id: accountId,
+							type: 'FunctionCall',
+							params: {
+								methodName: 'storage_deposit',
+								args: {
+									registration_only: true,
+									account_id: accountId,
+								},
+								deposit: getAmount(parseNearAmount('0.00125')) as unknown as string,
+								gas: getAmount(GAS_FEE[30]) as unknown as string,
 							},
-							attachedDeposit: getAmount(parseNearAmount('0.00125')),
-							gas: getAmount(GAS_FEE[30]),
 						},
 					],
+					signerId: CONTRACT.TOKEN,
 				})
 			}
 			txs.push({
 				receiverId: CONTRACT.FARM,
-				functionCalls: [
+				actions: [
 					{
-						methodName: 'unlock_ft_balance',
-						contractId: CONTRACT.FARM,
-						args: {
-							seed_id: CONTRACT.TOKEN,
-							amount: rawInputStake.toString(),
-							...(duration > 0 && {
-								duration:
-									process.env.NEXT_PUBLIC_APP_ENV === 'mainnet'
-										? parseDuration
-										: parseDurationTestnet,
-							}),
+						type: 'FunctionCall',
+						params: {
+							methodName: 'unlock_ft_balance',
+							args: {
+								seed_id: CONTRACT.TOKEN,
+								amount: rawInputStake.toString(),
+								...(duration > 0 && {
+									duration:
+										process.env.NEXT_PUBLIC_APP_ENV === 'mainnet'
+											? parseDuration
+											: parseDurationTestnet,
+								}),
+							},
+							deposit: getAmount('1') as unknown as string,
+							gas: getAmount(GAS_FEE[200]) as unknown as string,
 						},
-						attachedDeposit: getAmount('1'),
-						gas: getAmount(GAS_FEE[200]),
 					},
 				],
+				signerId: CONTRACT.FARM,
 			})
-			return await near.executeMultipleTransactions(txs)
+			return await signAndSendTransactions({ transactions: txs })
 		} catch (err) {
 			setIsSubmitting(false)
 		}

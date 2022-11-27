@@ -39,14 +39,6 @@ interface WalletSelectorContextValue {
 
 type TCommonModal = 'deposit' | null
 
-// const defaultValue: WalletSelectorContextValue = {
-// 	isInit: false,
-// 	hasDeposit: false,
-// 	accountId: null,
-// 	commonModal: null,
-// 	setCommonModal: () => null,
-// } as any
-
 const WalletSelectorContext = React.createContext<WalletSelectorContextValue | null>(null)
 
 const nearConfig = getConfig(process.env.NEXT_PUBLIC_APP_ENV || 'development')
@@ -81,24 +73,8 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 		setSelector(_selector)
 		setModal(_modal)
 
-		checkStorageDeposit()
 		setIsInit(true)
 	}, [])
-
-	const checkStorageDeposit = async () => {
-		const userId = accountId
-
-		if (userId) {
-			const deposited = await viewFunction({
-				receiverId: CONTRACT.FARM,
-				methodName: 'storage_balance_of',
-				args: {
-					account_id: userId,
-				},
-			})
-			deposited && setHasDeposit(true)
-		}
-	}
 
 	useEffect(() => {
 		init().catch((err) => {
@@ -121,10 +97,27 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 				const accountId = nextAccounts.find((account) => account.active)?.accountId
 				setAccountId(accountId as string)
 				setAccounts(nextAccounts)
+
+				if (accountId) {
+					checkStorageDeposit(accountId as string)
+				}
 			})
 
 		return () => subscription.unsubscribe()
 	}, [selector])
+
+	const checkStorageDeposit = async (userId: string) => {
+		if (userId) {
+			const deposited = await viewFunction({
+				receiverId: CONTRACT.FARM,
+				methodName: 'storage_balance_of',
+				args: {
+					account_id: userId,
+				},
+			})
+			deposited && setHasDeposit(true)
+		}
+	}
 
 	const viewFunction: TViewFunction = ({ receiverId, methodName, args = '' }) => {
 		return new providers.JsonRpcProvider({ url: nearConfig.nodeUrl })

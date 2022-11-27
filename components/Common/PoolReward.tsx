@@ -1,6 +1,6 @@
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { IFTMetadata } from 'interfaces'
 import { useEffect, useState } from 'react'
-import near from 'services/near'
 import { prettyBalance } from 'utils/common'
 
 interface PoolRewardProps {
@@ -10,17 +10,18 @@ interface PoolRewardProps {
 }
 
 const PoolReward = ({ contractName, amount, className = '' }: PoolRewardProps) => {
+	const { viewFunction } = useWalletSelector()
 	const [data, setData] = useState<IFTMetadata | null>(null)
 
 	useEffect(() => {
 		const getMetadata = async () => {
-			const metadata = await near.nearViewFunction({
-				contractName: contractName,
+			const metadata = await viewFunction({
+				receiverId: contractName,
 				methodName: `ft_metadata`,
 				args: {},
 			})
 
-			setData(metadata)
+			setData(metadata as IFTMetadata)
 		}
 		getMetadata()
 	}, [])

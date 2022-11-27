@@ -1,17 +1,17 @@
+import { Transaction } from '@near-wallet-selector/core'
 import Button from 'components/Common/Button'
 import InputText from 'components/Common/InputText'
 import Modal from 'components/Common/Modal'
 import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { GAS_FEE } from 'constants/gasFee'
-import { useWalletSelector } from 'contexts/WalletSelectorContext'
+import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
 import { ModalCommonProps } from 'interfaces/modal'
 import { trackStakingStakeParas } from 'lib/ga'
-import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
-import near, { CONTRACT, getAmount } from 'services/near'
 import { formatParasAmount, hasReward, parseParasAmount, prettyBalance } from 'utils/common'
+import { CONTRACT } from 'utils/contract'
 
 interface StakeTokenModalProps extends ModalCommonProps {
 	claimableRewards: {
@@ -20,7 +20,7 @@ interface StakeTokenModalProps extends ModalCommonProps {
 }
 
 const StakeTokenModal = (props: StakeTokenModalProps) => {
-	const { accountId } = useWalletSelector()
+	const { accountId, viewFunction, signAndSendTransactions } = useWalletSelector()
 	const [balance, setBalance] = useState('0')
 	const [inputStake, setInputStake] = useState<string>('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
@@ -32,14 +32,14 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 	}, [props.show])
 
 	const getParasBalance = async () => {
-		const balanceParas = await near.nearViewFunction({
+		const balanceParas = await viewFunction({
+			receiverId: CONTRACT.TOKEN,
 			methodName: 'ft_balance_of',
-			contractName: CONTRACT.TOKEN,
 			args: {
-				account_id: near.wallet.getAccountId(),
+				account_id: accountId,
 			},
 		})
-		setBalance(balanceParas)
+		setBalance(balanceParas as string)
 	}
 
 	const stakeToken = async () => {
@@ -47,57 +47,60 @@ const StakeTokenModal = (props: StakeTokenModalProps) => {
 		setIsSubmitting(true)
 
 		try {
-			const txs: {
-				receiverId: string
-				functionCalls: FunctionCallOptions[]
-			}[] = []
+			const txs: Transaction[] = []
 
 			for (const contractName of Object.keys(props.claimableRewards || {})) {
-				const deposited = await near.nearViewFunction({
-					contractName: contractName,
+				const deposited = await viewFunction({
+					receiverId: contractName,
 					methodName: `storage_balance_of`,
 					args: {
-						account_id: near.wallet.getAccountId(),
+						account_id: accountId,
 					},
 				})
 
-				if (deposited === null || (deposited && deposited.total === '0')) {
+				if (deposited === null || (deposited && (deposited as any).total === '0')) {
 					txs.push({
 						receiverId: contractName,
-						functionCalls: [
+						actions: [
 							{
-								methodName: 'storage_deposit',
-								contractId: contractName,
-								args: {
-									registration_only: true,
-									account_id: accountId,
+								type: 'FunctionCall',
+								params: {
+									methodName: 'storage_deposit',
+									args: {
+										registration_only: true,
+										account_id: accountId,
+									},
+									deposit: getAmount(parseNearAmount('0.00125')) as unknown as string,
+									gas: getAmount(GAS_FEE[30]) as unknown as string,
 								},
-								attachedDeposit: getAmount(parseNearAmount('0.00125')),
-								gas: getAmount(GAS_FEE[30]),
 							},
 						],
+						signerId: contractName,
 					})
 				}
 			}
 
 			txs.push({
 				receiverId: CONTRACT.TOKEN,
-				functionCalls: [
+				actions: [
 					{
-						methodName: 'ft_transfer_call',
-						contractId: CONTRACT.TOKEN,
-						args: {
-							receiver_id: CONTRACT.FARM,
-							amount: parseParasAmount(inputStake),
-							msg: '',
+						type: 'FunctionCall',
+						params: {
+							methodName: 'ft_transfer_call',
+							args: {
+								receiver_id: CONTRACT.FARM,
+								amount: parseParasAmount(inputStake),
+								msg: '',
+							},
+							deposit: getAmount('1') as unknown as string,
+							gas: getAmount(GAS_FEE[200]) as unknown as string,
 						},
-						attachedDeposit: getAmount('1'),
-						gas: getAmount(GAS_FEE[200]),
 					},
 				],
+				signerId: CONTRACT.TOKEN,
 			})
 
-			return await near.executeMultipleTransactions(txs)
+			return await signAndSendTransactions({ transactions: txs })
 		} catch (err) {
 			console.log(err)
 			setIsSubmitting(false)

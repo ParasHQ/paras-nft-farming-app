@@ -7,9 +7,9 @@ import JSBI from 'jsbi'
 import { trackStakingRewardsParas } from 'lib/ga'
 import { useEffect, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
-import { CONTRACT } from 'services/near'
 import { useStore } from 'services/store'
 import { prettyBalance } from 'utils/common'
+import { CONTRACT } from 'utils/contract'
 
 interface ClaimModalProps {
 	show: boolean

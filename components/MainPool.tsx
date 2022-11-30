@@ -29,7 +29,7 @@ import {
 	trackStakingUnlockedParasImpression,
 	trackStakingUnstakeParasImpression,
 } from 'lib/ga'
-import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { CONTRACT } from 'utils/contract'
 import { Transaction } from '@near-wallet-selector/core'
 
@@ -420,12 +420,12 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 									registration_only: true,
 									account_id: accountId,
 								},
-								deposit: getAmount(parseNearAmount('0.0125')) as unknown as string,
-								gas: getAmount(GAS_FEE[30]) as unknown as string,
+								deposit: parseNearAmount('0.0125') || '',
+								gas: GAS_FEE[30],
 							},
 						},
 					],
-					signerId: contractName,
+					signerId: accountId,
 				})
 			}
 		}
@@ -447,12 +447,12 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 								is_deposit_seed_reward: true,
 							}),
 						},
-						deposit: getAmount('1') as unknown as string,
-						gas: getAmount(GAS_FEE[150]) as unknown as string,
+						deposit: '1',
+						gas: GAS_FEE[150],
 					},
 				},
 			],
-			signerId: CONTRACT.FARM,
+			signerId: accountId,
 		})
 
 		return await signAndSendTransactions({ transactions: txs })

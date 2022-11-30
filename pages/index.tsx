@@ -71,7 +71,7 @@ const Home: NextPage = () => {
 
 	useEffect(() => {
 		const getUserStaked = async () => {
-			const userStakedToken = await viewFunction({
+			const userStakedToken = await viewFunction<IUserStaked>({
 				receiverId: CONTRACT.FARM,
 				methodName: `list_user_seeds`,
 				args: {
@@ -79,7 +79,7 @@ const Home: NextPage = () => {
 				},
 			})
 
-			const userStakedNFTData = await viewFunction({
+			const userStakedNFTData = await viewFunction<IUserStakedNFT>({
 				receiverId: CONTRACT.FARM,
 				methodName: `list_user_nft_seeds`,
 				args: {
@@ -87,8 +87,8 @@ const Home: NextPage = () => {
 				},
 			})
 
-			setUserStaked(userStakedToken as IUserStaked)
-			setUserStakedNFT(userStakedNFTData as IUserStakedNFT)
+			setUserStaked(userStakedToken)
+			setUserStakedNFT(userStakedNFTData)
 		}
 
 		if (accountId) {

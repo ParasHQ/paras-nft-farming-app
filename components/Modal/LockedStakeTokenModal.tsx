@@ -15,7 +15,7 @@ import { A_DAY_IN_SECONDS } from 'constants/time'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 import clsx from 'clsx'
 import { trackStakingLockedParas, trackStakingTopupParas } from 'lib/ga'
-import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { CONTRACT } from 'utils/contract'
 import { Transaction } from '@near-wallet-selector/core'
 
@@ -48,7 +48,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	})
 
 	const fetchSourceBalance = async (_stakedBalance: number) => {
-		const _flexibleBalance = await viewFunction({
+		const _flexibleBalance = await viewFunction<string>({
 			receiverId: CONTRACT.TOKEN,
 			methodName: 'ft_balance_of',
 			args: {
@@ -64,7 +64,7 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 			},
 			{
 				id: 'flexible_balance',
-				label: `Balance: ${prettyBalance(_flexibleBalance as string, 18)} Ⓟ`,
+				label: `Balance: ${prettyBalance(_flexibleBalance, 18)} Ⓟ`,
 			},
 		]
 		setAvailableBalanceData(availableBalanceParas)
@@ -169,12 +169,12 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 									registration_only: true,
 									account_id: accountId,
 								},
-								deposit: getAmount(parseNearAmount('0.00125')) as unknown as string,
-								gas: getAmount(GAS_FEE[30]) as unknown as string,
+								deposit: parseNearAmount('0.00125') || '',
+								gas: GAS_FEE[30],
 							},
 						},
 					],
-					signerId: CONTRACT.TOKEN,
+					signerId: accountId as string,
 				})
 			}
 			if (selectedBalance.id === 'flexible_balance') {
@@ -190,12 +190,12 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 									amount: parseParasAmount(finalAmountValue),
 									msg: '',
 								},
-								deposit: getAmount('1') as unknown as string,
-								gas: getAmount(GAS_FEE[200]) as unknown as string,
+								deposit: '1',
+								gas: GAS_FEE[200],
 							},
 						},
 					],
-					signerId: CONTRACT.TOKEN,
+					signerId: accountId as string,
 				})
 			}
 			txs.push({
@@ -213,12 +213,12 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 										? parseDuration
 										: parseDurationTestnet,
 							},
-							deposit: getAmount('1') as unknown as string,
-							gas: getAmount(GAS_FEE[200]) as unknown as string,
+							deposit: '1',
+							gas: GAS_FEE[200],
 						},
 					},
 				],
-				signerId: CONTRACT.FARM,
+				signerId: accountId as string,
 			})
 			return await signAndSendTransactions({ transactions: txs })
 		} catch (err) {

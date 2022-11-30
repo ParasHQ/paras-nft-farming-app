@@ -9,7 +9,7 @@ import PoolReward from 'components/Common/PoolReward'
 import IconBack from 'components/Icon/IconBack'
 import { apiParasUrl } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
-import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
@@ -71,10 +71,6 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 
 	const unstakeNFT = async (tokenId: string, contractId: string, unstakeAll = false) => {
 		try {
-			// const txs: {
-			// 	receiverId: string
-			// 	functionCalls: FunctionCallOptions[]
-			// }[] = []
 			const txs: Transaction[] = []
 
 			for (const contractName of Object.keys(props.claimableRewards || {})) {
@@ -98,12 +94,12 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 										registration_only: true,
 										account_id: accountId,
 									},
-									deposit: getAmount(parseNearAmount('0.00125')) as unknown as string,
-									gas: getAmount(GAS_FEE[30]) as unknown as string,
+									deposit: parseNearAmount('0.00125') || '',
+									gas: GAS_FEE[30],
 								},
 							},
 						],
-						signerId: contractName,
+						signerId: accountId as string,
 					})
 				}
 			}
@@ -122,12 +118,12 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 										nft_contract_id: nft.contract_id,
 										nft_token_id: nft.token_id,
 									},
-									deposit: getAmount('1') as unknown as string,
-									gas: getAmount(GAS_FEE[200]) as unknown as string,
+									deposit: '1',
+									gas: GAS_FEE[200],
 								},
 							},
 						],
-						signerId: CONTRACT.FARM,
+						signerId: accountId as string,
 					})
 				})
 			} else {
@@ -143,12 +139,12 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 									nft_contract_id: contractId,
 									nft_token_id: tokenId,
 								},
-								deposit: getAmount('1') as unknown as string,
-								gas: getAmount(GAS_FEE[200]) as unknown as string,
+								deposit: '1',
+								gas: GAS_FEE[200],
 							},
 						},
 					],
-					signerId: CONTRACT.FARM,
+					signerId: accountId as string,
 				})
 			}
 

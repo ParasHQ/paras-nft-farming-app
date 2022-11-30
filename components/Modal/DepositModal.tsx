@@ -1,7 +1,7 @@
 import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
 import { GAS_FEE } from 'constants/gasFee'
-import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { CONTRACT } from 'utils/contract'
 
@@ -25,12 +25,12 @@ const DepositModal = ({ show, onClose }: DepositModalProps) => {
 							args: {
 								account_id: accountId,
 							},
-							deposit: parseNearAmount('0.1') as string,
-							gas: getAmount(GAS_FEE[30]) as unknown as string,
+							deposit: parseNearAmount('0.1') || '',
+							gas: GAS_FEE[30],
 						},
 					},
 				],
-				signerId: CONTRACT.FARM,
+				signerId: accountId,
 			})
 		}
 	}

@@ -15,13 +15,13 @@ const PoolReward = ({ contractName, amount, className = '' }: PoolRewardProps) =
 
 	useEffect(() => {
 		const getMetadata = async () => {
-			const metadata = await viewFunction({
+			const metadata = await viewFunction<IFTMetadata>({
 				receiverId: contractName,
 				methodName: `ft_metadata`,
 				args: {},
 			})
 
-			setData(metadata as IFTMetadata)
+			setData(metadata)
 		}
 		getMetadata()
 	}, [])

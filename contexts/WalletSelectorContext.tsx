@@ -43,9 +43,6 @@ const WalletSelectorContext = React.createContext<WalletSelectorContextValue | n
 
 const nearConfig = getConfig(process.env.NEXT_PUBLIC_APP_ENV || 'development')
 
-export const getAmount = (amount: string | null | undefined) =>
-	amount ? new BN(amount) : new BN('0')
-
 export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 	const [isInit, setIsInit] = useState(false)
 	const [hasDeposit, setHasDeposit] = useState(false)

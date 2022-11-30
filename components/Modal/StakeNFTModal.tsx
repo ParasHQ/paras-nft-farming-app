@@ -9,7 +9,7 @@ import IconBack from 'components/Icon/IconBack'
 import IconInfo from 'components/Icon/IconInfo'
 import { apiFarmingURL } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
-import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
@@ -85,12 +85,12 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 										registration_only: true,
 										account_id: accountId,
 									},
-									deposit: getAmount(parseNearAmount('0.00125')) as unknown as string,
-									gas: getAmount(GAS_FEE[30]) as unknown as string,
+									deposit: parseNearAmount('0.00125') || '',
+									gas: GAS_FEE[30],
 								},
 							},
 						],
-						signerId: contractName,
+						signerId: accountId as string,
 					})
 				}
 			}
@@ -110,12 +110,12 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 										token_id: nft.token_id,
 										msg: props.seedId,
 									},
-									deposit: getAmount('1') as unknown as string,
-									gas: getAmount(GAS_FEE[200]) as unknown as string,
+									deposit: '1',
+									gas: GAS_FEE[200],
 								},
 							},
 						],
-						signerId: nft.contract_id,
+						signerId: accountId as string,
 					})
 				})
 			} else {
@@ -131,12 +131,12 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 									token_id: tokenId,
 									msg: props.seedId,
 								},
-								deposit: getAmount('1') as unknown as string,
-								gas: getAmount(GAS_FEE[200]) as unknown as string,
+								deposit: '1',
+								gas: GAS_FEE[200],
 							},
 						},
 					],
-					signerId: contractId,
+					signerId: accountId as string,
 				})
 			}
 

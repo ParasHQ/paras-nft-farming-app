@@ -11,7 +11,7 @@ import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/commo
 import clsx from 'clsx'
 import { trackStakingUnlockedParas } from 'lib/ga'
 import JSBI from 'jsbi'
-import { getAmount, useWalletSelector } from 'contexts/WalletSelectorContext'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { CONTRACT } from 'utils/contract'
 import { Transaction } from '@near-wallet-selector/core'
 
@@ -76,12 +76,12 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 									registration_only: true,
 									account_id: accountId,
 								},
-								deposit: getAmount(parseNearAmount('0.00125')) as unknown as string,
-								gas: getAmount(GAS_FEE[30]) as unknown as string,
+								deposit: parseNearAmount('0.00125') || '',
+								gas: GAS_FEE[30],
 							},
 						},
 					],
-					signerId: CONTRACT.TOKEN,
+					signerId: accountId as string,
 				})
 			}
 			txs.push({
@@ -101,12 +101,12 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 											: parseDurationTestnet,
 								}),
 							},
-							deposit: getAmount('1') as unknown as string,
-							gas: getAmount(GAS_FEE[200]) as unknown as string,
+							deposit: '1',
+							gas: GAS_FEE[200],
 						},
 					},
 				],
-				signerId: CONTRACT.FARM,
+				signerId: accountId as string,
 			})
 			return await signAndSendTransactions({ transactions: txs })
 		} catch (err) {

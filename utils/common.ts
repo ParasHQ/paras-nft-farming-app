@@ -3,7 +3,6 @@ import CID from 'cids'
 import crypto from 'crypto'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 import { PARAS_NOMINATION_EXP } from 'constants/common'
-import { getAmount } from 'services/near'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { Transaction } from '@ref-finance/ref-sdk'
 
@@ -197,23 +196,4 @@ export const currentMemberLevel = (value: number) => {
 	} else if (value >= PLATINUM) {
 		return 'Platinum'
 	}
-}
-
-export const parseTransactionRef = (transactionsRef: Transaction[]) => {
-	const parsedTransactionRef = transactionsRef.map((transaction) => {
-		return {
-			receiverId: transaction.receiverId,
-			functionCalls: transaction.functionCalls.map((t) => {
-				return {
-					contractId: transaction.receiverId,
-					attachedDeposit: getAmount(parseNearAmount(t.amount)),
-					gas: t.gas,
-					args: t.args,
-					methodName: t.methodName,
-				}
-			}),
-		}
-	})
-
-	return parsedTransactionRef
 }

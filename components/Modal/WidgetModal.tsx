@@ -3,7 +3,6 @@ import { init_env, SwapWidget, Transaction, WalletSelectorTransactions } from '@
 import { NotLoginError } from '@ref-finance/ref-sdk'
 import Modal from 'components/Common/Modal'
 import { Theme } from '@ref-finance/ref-sdk/dist/swap-widget/constant'
-import { parseTransactionRef } from 'utils/common'
 import { useState, useEffect } from 'react'
 import { useWalletSelector } from 'contexts/WalletSelectorContext'
 

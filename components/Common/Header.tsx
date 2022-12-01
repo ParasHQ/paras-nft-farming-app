@@ -2,12 +2,12 @@ import axios from 'axios'
 import IconParas from 'components/Icon/IconParas'
 import ProfileModal from 'components/Modal/ProfileModal'
 import { baseURLParas } from 'constants/baseUrl'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { IProfile } from 'interfaces'
 import { trackStakingGetParas, trackStakingLogin } from 'lib/ga'
 import { useEffect, useRef, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
 import { parseImgUrl, prettyBalance, prettyTruncate } from 'utils/common'
+import { CONTRACT } from 'utils/contract'
 import Button from './Button'
 
 const NAV_LINK = [
@@ -27,19 +27,19 @@ const NAV_LINK = [
 
 const Header = () => {
 	const bgRef = useRef<null | HTMLDivElement>(null)
-	const { accountId } = useNearProvider()
 	const [balance, setBalance] = useState('0')
 	const [userProfile, setUserProfile] = useState<IProfile>({})
 	const [showProfileModal, setShowProfileModal] = useState(false)
 	const [showGetParas, setShowGetParas] = useState(false)
+	const { modal, accountId, viewFunction } = useWalletSelector()
 
 	useEffect(() => {
 		const getParasBalance = async () => {
-			const balanceParas = await near.nearViewFunction({
+			const balanceParas = await viewFunction<string>({
+				receiverId: CONTRACT.TOKEN,
 				methodName: 'ft_balance_of',
-				contractName: CONTRACT.TOKEN,
 				args: {
-					account_id: near.wallet.getAccountId(),
+					account_id: accountId,
 				},
 			})
 			setBalance(balanceParas)
@@ -57,8 +57,8 @@ const Header = () => {
 		}
 
 		if (accountId) {
-			getParasBalance()
 			getUserProfile()
+			getParasBalance()
 		}
 	}, [accountId])
 
@@ -197,7 +197,7 @@ const Header = () => {
 								className="px-4"
 								onClick={() => {
 									trackStakingLogin()
-									near.signIn()
+									modal?.show()
 								}}
 							>
 								Login with NEAR
@@ -215,7 +215,7 @@ const Header = () => {
 			) : (
 				<div className="fixed z-10 bottom-0 left-0 right-0 p-4 bg-gray-900 md:hidden">
 					<div className="flex">
-						<Button className="px-4" onClick={() => near.signIn()}>
+						<Button className="px-4" onClick={() => modal?.show()}>
 							Login with NEAR
 						</Button>
 					</div>

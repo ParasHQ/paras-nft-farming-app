@@ -1,7 +1,7 @@
 import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { IProfile } from 'interfaces'
-import near from 'services/near'
 import { parseImgUrl, prettyTruncate } from 'utils/common'
 
 interface ProfileModalProps {
@@ -11,6 +11,20 @@ interface ProfileModalProps {
 }
 
 const ProfileModal = ({ show, profile, onClose }: ProfileModalProps) => {
+	const { selector, modal } = useWalletSelector()
+
+	const handleSwitchWallet = () => {
+		modal?.show()
+		onClose()
+	}
+
+	const handleSignOut = async () => {
+		if (!selector) return
+		const wallet = await selector.wallet()
+		await wallet.signOut()
+		window.location.replace(window.location.origin + window.location.pathname)
+	}
+
 	return (
 		<Modal isShow={show} onClose={onClose}>
 			<div className="bg-parasGrey text-white shadow-xl w-full p-4 rounded-md m-auto max-w-xs text-center">
@@ -28,7 +42,12 @@ const ProfileModal = ({ show, profile, onClose }: ProfileModalProps) => {
 					{prettyTruncate(profile.accountId, 24, 'address')}
 				</p>
 				<div className="flex justify-between items-center mt-4">
-					<Button isFullWidth onClick={() => near.signOut()}>
+					<Button isFullWidth onClick={handleSwitchWallet}>
+						Switch Wallet
+					</Button>
+				</div>
+				<div className="flex justify-between items-center mt-4">
+					<Button isFullWidth onClick={handleSignOut}>
 						Logout
 					</Button>
 				</div>

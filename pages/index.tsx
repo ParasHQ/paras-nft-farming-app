@@ -1,13 +1,13 @@
 import Header from 'components/Common/Header'
-import { useNearProvider } from 'hooks/useNearProvider'
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react'
-import near, { CONTRACT } from 'services/near'
 import { IDataInputDropdown, IPool } from 'interfaces'
 import Head from 'components/Common/Head'
 import MainPool from 'components/MainPool'
 import Loader from 'components/Common/Loader'
 import InputDropdown from 'components/Common/InputDropdown'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
+import { CONTRACT } from 'utils/contract'
 
 interface IUserStaked {
 	[key: string]: string
@@ -29,7 +29,7 @@ interface IContinousFetch {
 }
 
 const Home: NextPage = () => {
-	const { isInit, accountId } = useNearProvider()
+	const { isInit, accountId, viewFunction } = useWalletSelector()
 	const [poolListFT, setPoolListFT] = useState<IPool[]>([])
 	const [poolList, setPoolList] = useState<IPool[]>([])
 	const [userStaked, setUserStaked] = useState<IUserStaked>({})
@@ -39,8 +39,8 @@ const Home: NextPage = () => {
 	useEffect(() => {
 		const continousFetch: IContinousFetch = async (page = 0) => {
 			const fetchLimit = 7
-			const rawPoolList: IPool[] = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
+			const rawPoolList: IPool[] = await viewFunction({
+				receiverId: CONTRACT.FARM,
 				methodName: `list_seeds_info`,
 				args: {
 					from_index: page * fetchLimit,
@@ -71,16 +71,16 @@ const Home: NextPage = () => {
 
 	useEffect(() => {
 		const getUserStaked = async () => {
-			const userStakedToken = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
+			const userStakedToken = await viewFunction<IUserStaked>({
+				receiverId: CONTRACT.FARM,
 				methodName: `list_user_seeds`,
 				args: {
 					account_id: accountId,
 				},
 			})
 
-			const userStakedNFTData = await near.nearViewFunction({
-				contractName: CONTRACT.FARM,
+			const userStakedNFTData = await viewFunction<IUserStakedNFT>({
+				receiverId: CONTRACT.FARM,
 				methodName: `list_user_nft_seeds`,
 				args: {
 					account_id: accountId,
@@ -137,12 +137,14 @@ const Home: NextPage = () => {
 								<p className="text-white text-3xl font-semibold text-center mb-4">NFT Staking</p>
 							)}
 							<div className="md:absolute top-0 right-0 z-50 md:pr-4 flex justify-center mb-4">
-								<InputDropdown
-									fullWidth={false}
-									defaultValue={filterPool.label}
-									selectItem={setFilterPool}
-									data={filterData}
-								/>
+								{poolList.length > 0 && (
+									<InputDropdown
+										fullWidth={false}
+										defaultValue={filterPool.label}
+										selectItem={setFilterPool}
+										data={filterData}
+									/>
+								)}
 							</div>
 						</div>
 						<div className="flex flex-wrap">

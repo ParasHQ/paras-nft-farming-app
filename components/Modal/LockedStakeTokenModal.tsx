@@ -4,20 +4,20 @@ import IconBack from 'components/Icon/IconBack'
 import { IDataInputDropdown } from 'interfaces'
 import { ModalCommonProps } from 'interfaces/modal'
 import React, { useEffect, useState } from 'react'
-import near, { CONTRACT, getAmount } from 'services/near'
 import { currentMemberLevel, parseParasAmount, prettyBalance } from 'utils/common'
 import Slider from 'rc-slider'
 import InputText from 'components/Common/InputText'
 import Button from 'components/Common/Button'
 import ReactTooltip from 'react-tooltip'
-import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
 import { A_DAY_IN_SECONDS } from 'constants/time'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 import clsx from 'clsx'
 import { trackStakingLockedParas, trackStakingTopupParas } from 'lib/ga'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
+import { CONTRACT } from 'utils/contract'
+import { Transaction } from '@near-wallet-selector/core'
 
 interface LockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
@@ -31,7 +31,7 @@ interface LockedStakeModalProps extends ModalCommonProps {
 }
 
 const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
-	const { accountId } = useNearProvider()
+	const { accountId, viewFunction, signAndSendTransactions } = useWalletSelector()
 	const [max, setMax] = useState<number>(0)
 	const [min, setMin] = useState<number>(0)
 	const [inputValue, setInputValue] = useState<string>('')
@@ -48,11 +48,11 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 	})
 
 	const fetchSourceBalance = async (_stakedBalance: number) => {
-		const _flexibleBalance = await near.nearViewFunction({
+		const _flexibleBalance = await viewFunction<string>({
+			receiverId: CONTRACT.TOKEN,
 			methodName: 'ft_balance_of',
-			contractName: CONTRACT.TOKEN,
 			args: {
-				account_id: near.wallet.getAccountId(),
+				account_id: accountId,
 			},
 		})
 		setFlexibleBalance(Math.floor((Number(_flexibleBalance) / 10 ** 18) * 100) / 100)
@@ -149,72 +149,78 @@ const LockedStakeTokenModal = (props: LockedStakeModalProps) => {
 		}
 		setIsSubmitting(true)
 		try {
-			const txs: {
-				receiverId: string
-				functionCalls: FunctionCallOptions[]
-			}[] = []
-			const deposited = await near.nearViewFunction({
-				contractName: CONTRACT.TOKEN,
+			const txs: Transaction[] = []
+			const deposited = await viewFunction({
+				receiverId: CONTRACT.TOKEN,
 				methodName: `storage_balance_of`,
 				args: {
 					account_id: accountId,
 				},
 			})
-			if (deposited === null || (deposited && deposited.total === '0')) {
+			if (deposited === null || (deposited && (deposited as any).total === '0')) {
 				txs.push({
 					receiverId: CONTRACT.TOKEN,
-					functionCalls: [
+					actions: [
 						{
-							methodName: 'storage_deposit',
-							contractId: CONTRACT.TOKEN,
-							args: {
-								registration_only: true,
-								account_id: accountId,
+							type: 'FunctionCall',
+							params: {
+								methodName: 'storage_deposit',
+								args: {
+									registration_only: true,
+									account_id: accountId,
+								},
+								deposit: parseNearAmount('0.00125') || '',
+								gas: GAS_FEE[30],
 							},
-							attachedDeposit: getAmount(parseNearAmount('0.00125')),
-							gas: getAmount(GAS_FEE[30]),
 						},
 					],
+					signerId: accountId as string,
 				})
 			}
 			if (selectedBalance.id === 'flexible_balance') {
 				txs.push({
 					receiverId: CONTRACT.TOKEN,
-					functionCalls: [
+					actions: [
 						{
-							methodName: 'ft_transfer_call',
-							contractId: CONTRACT.TOKEN,
-							args: {
-								receiver_id: CONTRACT.FARM,
-								amount: parseParasAmount(finalAmountValue),
-								msg: '',
+							type: 'FunctionCall',
+							params: {
+								methodName: 'ft_transfer_call',
+								args: {
+									receiver_id: CONTRACT.FARM,
+									amount: parseParasAmount(finalAmountValue),
+									msg: '',
+								},
+								deposit: '1',
+								gas: GAS_FEE[200],
 							},
-							attachedDeposit: getAmount('1'),
-							gas: getAmount(GAS_FEE[200]),
 						},
 					],
+					signerId: accountId as string,
 				})
 			}
 			txs.push({
 				receiverId: CONTRACT.FARM,
-				functionCalls: [
+				actions: [
 					{
-						methodName: 'lock_ft_balance',
-						contractId: CONTRACT.FARM,
-						args: {
-							seed_id: CONTRACT.TOKEN,
-							amount: parseParasAmount(finalAmountValue),
-							duration:
-								process.env.NEXT_PUBLIC_APP_ENV === 'mainnet'
-									? parseDuration
-									: parseDurationTestnet,
+						type: 'FunctionCall',
+						params: {
+							methodName: 'lock_ft_balance',
+							args: {
+								seed_id: CONTRACT.TOKEN,
+								amount: parseParasAmount(finalAmountValue),
+								duration:
+									process.env.NEXT_PUBLIC_APP_ENV === 'mainnet'
+										? parseDuration
+										: parseDurationTestnet,
+							},
+							deposit: '1',
+							gas: GAS_FEE[200],
 						},
-						attachedDeposit: getAmount('1'),
-						gas: getAmount(GAS_FEE[200]),
 					},
 				],
+				signerId: accountId as string,
 			})
-			return await near.executeMultipleTransactions(txs)
+			return await signAndSendTransactions({ transactions: txs })
 		} catch (err) {
 			setIsSubmitting(false)
 		}

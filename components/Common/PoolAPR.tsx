@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { prettyBalance } from 'utils/common'
-import { CONTRACT } from 'services/near'
 import { IReward } from 'interfaces'
 import cachios from 'cachios'
+import { CONTRACT } from 'utils/contract'
 
 interface IFTPriceData {
 	url: string

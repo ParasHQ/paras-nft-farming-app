@@ -1,12 +1,11 @@
 import * as React from 'react'
-import { init_env, SwapWidget, Transaction } from '@ref-finance/ref-sdk'
+import { init_env, SwapWidget, Transaction, WalletSelectorTransactions } from '@ref-finance/ref-sdk'
 import { NotLoginError } from '@ref-finance/ref-sdk'
-import { useNearProvider } from 'hooks/useNearProvider'
-import near from 'services/near'
 import Modal from 'components/Common/Modal'
 import { Theme } from '@ref-finance/ref-sdk/dist/swap-widget/constant'
 import { parseTransactionRef } from 'utils/common'
 import { useState, useEffect } from 'react'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 
 export const defaultDarkModeTheme: Theme = {
 	container: '#26343E',
@@ -33,7 +32,7 @@ interface SwapWidgetProps {
 }
 
 export const Widget = (props: SwapWidgetProps) => {
-	const { accountId } = useNearProvider()
+	const { modal, selector, accountId } = useWalletSelector()
 
 	const [swapState, setSwapState] = useState<'success' | 'fail' | null>(null)
 	const [tx, setTx] = useState<string | undefined>(undefined)
@@ -59,18 +58,18 @@ export const Widget = (props: SwapWidgetProps) => {
 	const onSwap = async (transactionsRef: Transaction[]) => {
 		if (!accountId) throw NotLoginError
 
-		if (transactionsRef && transactionsRef !== null) {
-			const parsedTransactionRef: Transaction[] = parseTransactionRef(transactionsRef)
-			near.executeMultipleTransactions(parsedTransactionRef as any)
-		}
+		const wallet = await selector?.wallet()
+
+		wallet?.signAndSendTransactions(WalletSelectorTransactions(transactionsRef, accountId))
 	}
 
 	const onConnect = () => {
-		near.signIn()
+		modal?.show()
 	}
 
 	const onDisConnect = async () => {
-		near.signOut()
+		const wallet = await selector?.wallet()
+		return await wallet?.signOut()
 	}
 
 	return (
@@ -82,7 +81,7 @@ export const Widget = (props: SwapWidgetProps) => {
 				width={'400px'}
 				connection={{
 					AccountId: accountId || '',
-					isSignedIn: near.wallet.isSignedIn(),
+					isSignedIn: !!accountId,
 				}}
 				transactionState={{
 					state: swapState,

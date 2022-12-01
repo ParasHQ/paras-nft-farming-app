@@ -1,15 +1,16 @@
 import '../styles/globals.css'
 import 'tailwindcss/tailwind.css'
 import 'rc-slider/assets/index.css'
+import '@near-wallet-selector/modal-ui/styles.css'
 import type { AppProps } from 'next/app'
-import { NearProvider, useNearProvider } from 'hooks/useNearProvider'
 import { useRouter } from 'next/dist/client/router'
 import { useEffect } from 'react'
 import * as gtag from '../lib/gtag'
+import { useWalletSelector, WalletSelectorContextProvider } from 'contexts/WalletSelectorContext'
 
 const AnalyticsWrapper = ({ children }: { children: JSX.Element }) => {
 	const router = useRouter()
-	const { accountId } = useNearProvider()
+	const { accountId } = useWalletSelector()
 
 	useEffect(() => {
 		const handleRouteChange = (url: URL) => {
@@ -30,11 +31,11 @@ const AnalyticsWrapper = ({ children }: { children: JSX.Element }) => {
 
 function MyApp({ Component, pageProps }: AppProps) {
 	return (
-		<NearProvider>
+		<WalletSelectorContextProvider>
 			<AnalyticsWrapper>
 				<Component {...pageProps} />
 			</AnalyticsWrapper>
-		</NearProvider>
+		</WalletSelectorContextProvider>
 	)
 }
 

@@ -13,4 +13,10 @@ module.exports = {
 		NEXT_PUBLIC_WRAP_NEAR_CONTRACT: process.env.NEXT_PUBLIC_WRAP_NEAR_CONTRACT,
 		NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
 	},
+	webpack5: true,
+	webpack: (config) => {
+		config.resolve.fallback = { fs: false, os: false }
+
+		return config
+	},
 }

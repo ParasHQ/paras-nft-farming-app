@@ -41,17 +41,17 @@ export const Widget = (props: SwapWidgetProps) => {
 
 		const transactions = new URLSearchParams(window.location.search).get('transactionHashes')
 
+		const from = new URLSearchParams(window.location.search).get('from')
+
 		const lastTX = transactions?.split(',').pop()
 
 		setTx(lastTX)
 
-		if (lastTX) {
+		if (lastTX && from === 'swap') {
 			props.setShowSwapModal(true)
+			setSwapState(errorCode ? 'fail' : lastTX ? 'success' : null)
+			window.history.replaceState({}, '', window.location.origin + window.location.pathname)
 		}
-
-		setSwapState(errorCode ? 'fail' : lastTX ? 'success' : null)
-
-		window.history.replaceState({}, '', window.location.origin + window.location.pathname)
 	}, [])
 
 	const onSwap = async (transactionsRef: Transaction[]) => {
@@ -59,7 +59,10 @@ export const Widget = (props: SwapWidgetProps) => {
 
 		const wallet = await selector?.wallet()
 
-		wallet?.signAndSendTransactions(WalletSelectorTransactions(transactionsRef, accountId))
+		wallet?.signAndSendTransactions({
+			transactions: WalletSelectorTransactions(transactionsRef, accountId).transactions,
+			callbackUrl: window.location.origin + window.location.pathname + '?from=swap',
+		})
 	}
 
 	const onConnect = () => {

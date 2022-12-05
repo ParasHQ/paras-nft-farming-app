@@ -1,8 +1,9 @@
 import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { GAS_FEE } from 'constants/gasFee'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
-import near, { CONTRACT } from 'services/near'
+import { CONTRACT } from 'utils/contract'
 
 interface DepositModalProps {
 	show: boolean
@@ -10,17 +11,26 @@ interface DepositModalProps {
 }
 
 const DepositModal = ({ show, onClose }: DepositModalProps) => {
-	const { accountId } = useNearProvider()
+	const { accountId, signAndSendTransaction } = useWalletSelector()
 
-	const onClickDeposit = () => {
+	const onClickDeposit = async () => {
 		if (accountId) {
-			near.nearFunctionCall({
-				contractName: CONTRACT.FARM,
-				methodName: 'storage_deposit',
-				amount: parseNearAmount('0.1') as string,
-				args: {
-					account_id: accountId,
-				},
+			await signAndSendTransaction({
+				receiverId: CONTRACT.FARM,
+				actions: [
+					{
+						type: 'FunctionCall',
+						params: {
+							methodName: 'storage_deposit',
+							args: {
+								account_id: accountId,
+							},
+							deposit: parseNearAmount('0.1') || '',
+							gas: GAS_FEE[30],
+						},
+					},
+				],
+				signerId: accountId,
 			})
 		}
 	}

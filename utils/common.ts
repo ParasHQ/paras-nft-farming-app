@@ -3,6 +3,8 @@ import CID from 'cids'
 import crypto from 'crypto'
 import { GOLD, PLATINUM, SILVER } from 'constants/royaltyLevel'
 import { PARAS_NOMINATION_EXP } from 'constants/common'
+import { parseNearAmount } from 'near-api-js/lib/utils/format'
+import { Transaction } from '@ref-finance/ref-sdk'
 
 interface IParseImgOpts {
 	useOriginal?: boolean

@@ -1,3 +1,4 @@
+import { Transaction } from '@near-wallet-selector/core'
 import axios from 'axios'
 import Button from 'components/Common/Button'
 import { LogoBounce } from 'components/Common/Loader'
@@ -8,14 +9,13 @@ import IconBack from 'components/Icon/IconBack'
 import IconInfo from 'components/Icon/IconInfo'
 import { apiFarmingURL } from 'constants/apiURL'
 import { GAS_FEE } from 'constants/gasFee'
-import { useNearProvider } from 'hooks/useNearProvider'
+import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { ModalCommonProps } from 'interfaces/modal'
 import { INFToken } from 'interfaces/token'
-import { FunctionCallOptions } from 'near-api-js/lib/account'
 import { parseNearAmount } from 'near-api-js/lib/utils/format'
 import { useEffect, useState } from 'react'
-import near, { CONTRACT, getAmount } from 'services/near'
 import { hasReward, prettyBalance } from 'utils/common'
+import { CONTRACT } from 'utils/contract'
 import InfoModal from './InfoModal'
 
 interface StakeNFTModalProps extends ModalCommonProps {
@@ -36,7 +36,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [showInfoPool, setShowInfoPool] = useState<boolean>(false)
 
-	const { accountId } = useNearProvider()
+	const { accountId, viewFunction, signAndSendTransactions } = useWalletSelector()
 
 	useEffect(() => {
 		const fetchOwnedNFT = async () => {
@@ -63,35 +63,34 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 
 	const stakeNFT = async (tokenId: string, contractId: string, stakeAll = false) => {
 		try {
-			const txs: {
-				receiverId: string
-				functionCalls: FunctionCallOptions[]
-			}[] = []
-
+			const txs: Transaction[] = []
 			for (const contractName of Object.keys(props.claimableRewards || {})) {
-				const deposited = await near.nearViewFunction({
-					contractName: contractName,
+				const deposited = await viewFunction({
+					receiverId: contractName,
 					methodName: `storage_balance_of`,
 					args: {
-						account_id: near.wallet.getAccountId(),
+						account_id: accountId,
 					},
 				})
 
-				if (deposited === null || (deposited && deposited.total === '0')) {
+				if (deposited === null || (deposited && (deposited as any).total === '0')) {
 					txs.push({
 						receiverId: contractName,
-						functionCalls: [
+						actions: [
 							{
-								methodName: 'storage_deposit',
-								contractId: contractName,
-								args: {
-									registration_only: true,
-									account_id: accountId,
+								type: 'FunctionCall',
+								params: {
+									methodName: 'storage_deposit',
+									args: {
+										registration_only: true,
+										account_id: accountId,
+									},
+									deposit: parseNearAmount('0.00125') || '',
+									gas: GAS_FEE[30],
 								},
-								attachedDeposit: getAmount(parseNearAmount('0.00125')),
-								gas: getAmount(GAS_FEE[30]),
 							},
 						],
+						signerId: accountId as string,
 					})
 				}
 			}
@@ -100,41 +99,48 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 				ownedNFT.forEach((nft) => {
 					txs.push({
 						receiverId: nft.contract_id,
-						functionCalls: [
+						actions: [
 							{
-								methodName: 'nft_transfer_call',
-								contractId: nft.contract_id,
-								args: {
-									receiver_id: CONTRACT.FARM,
-									token_id: nft.token_id,
-									msg: props.seedId,
+								type: 'FunctionCall',
+								params: {
+									methodName: 'nft_transfer_call',
+
+									args: {
+										receiver_id: CONTRACT.FARM,
+										token_id: nft.token_id,
+										msg: props.seedId,
+									},
+									deposit: '1',
+									gas: GAS_FEE[200],
 								},
-								attachedDeposit: getAmount('1'),
-								gas: getAmount(GAS_FEE[200]),
 							},
 						],
+						signerId: accountId as string,
 					})
 				})
 			} else {
 				txs.push({
 					receiverId: contractId,
-					functionCalls: [
+					actions: [
 						{
-							methodName: 'nft_transfer_call',
-							contractId: contractId,
-							args: {
-								receiver_id: CONTRACT.FARM,
-								token_id: tokenId,
-								msg: props.seedId,
+							type: 'FunctionCall',
+							params: {
+								methodName: 'nft_transfer_call',
+								args: {
+									receiver_id: CONTRACT.FARM,
+									token_id: tokenId,
+									msg: props.seedId,
+								},
+								deposit: '1',
+								gas: GAS_FEE[200],
 							},
-							attachedDeposit: getAmount('1'),
-							gas: getAmount(GAS_FEE[200]),
 						},
 					],
+					signerId: accountId as string,
 				})
 			}
 
-			return await near.executeMultipleTransactions(txs)
+			return await signAndSendTransactions({ transactions: txs })
 		} catch (err) {
 			console.log(err)
 		}

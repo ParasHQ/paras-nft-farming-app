@@ -58,6 +58,18 @@ export const Widget = (props: SwapWidgetProps) => {
 		if (!accountId) throw NotLoginError
 
 		const wallet = await selector?.wallet()
+		transactionsRef.forEach((tx) => {
+			tx.functionCalls.forEach((x) => {
+				if (x.methodName === 'ft_transfer_call') {
+					const args: any = x.args
+					const parsedMsg = JSON.parse(args.msg)
+					parsedMsg['referral_id'] = 'team.paras.near'
+					const stringifiedMsg = JSON.stringify(parsedMsg)
+					args['msg'] = stringifiedMsg
+					x.args = args
+				}
+			})
+		})
 
 		wallet?.signAndSendTransactions({
 			transactions: WalletSelectorTransactions(transactionsRef, accountId).transactions,

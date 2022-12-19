@@ -5,6 +5,7 @@ import Modal from 'components/Common/Modal'
 import { Theme } from '@ref-finance/ref-sdk/dist/swap-widget/constant'
 import { useState, useEffect } from 'react'
 import { useWalletSelector } from 'contexts/WalletSelectorContext'
+import { GAS_FEE } from 'constants/gasFee'
 
 export const defaultDarkModeTheme: Theme = {
 	container: '#26343E',
@@ -31,7 +32,7 @@ interface SwapWidgetProps {
 }
 
 export const Widget = (props: SwapWidgetProps) => {
-	const { modal, selector, accountId } = useWalletSelector()
+	const { modal, selector, accountId, viewFunction } = useWalletSelector()
 
 	const [swapState, setSwapState] = useState<'success' | 'fail' | null>(null)
 	const [tx, setTx] = useState<string | undefined>(undefined)
@@ -56,20 +57,54 @@ export const Widget = (props: SwapWidgetProps) => {
 
 	const onSwap = async (transactionsRef: Transaction[]) => {
 		if (!accountId) throw NotLoginError
+		const referralId = 'team.paras.near'
 
 		const wallet = await selector?.wallet()
-		transactionsRef.forEach((tx) => {
-			tx.functionCalls.forEach((x) => {
+		for (const tx of transactionsRef) {
+			for (const x of tx.functionCalls) {
 				if (x.methodName === 'ft_transfer_call') {
 					const args: any = x.args
 					const parsedMsg = JSON.parse(args.msg)
-					parsedMsg['referral_id'] = 'team.paras.near'
+
+					if (parsedMsg.actions && parsedMsg.actions.length > 0) {
+						for (const act of parsedMsg.actions) {
+							const poolId = `:${act.pool_id}`
+
+							const hasRegistered = await viewFunction({
+								receiverId: args.receiver_id,
+								methodName: 'mft_has_registered',
+								args: {
+									token_id: poolId,
+									account_id: referralId,
+								},
+							})
+
+							if (!hasRegistered) {
+								transactionsRef.push({
+									receiverId: args.receiver_id,
+									functionCalls: [
+										{
+											methodName: 'mft_register',
+											args: {
+												token_id: poolId,
+												account_id: referralId,
+											},
+											amount: '0.01',
+											gas: GAS_FEE[30],
+										},
+									],
+								})
+							}
+						}
+					}
+
+					parsedMsg['referral_id'] = referralId
 					const stringifiedMsg = JSON.stringify(parsedMsg)
 					args['msg'] = stringifiedMsg
 					x.args = args
 				}
-			})
-		})
+			}
+		}
 
 		wallet?.signAndSendTransactions({
 			transactions: WalletSelectorTransactions(transactionsRef, accountId).transactions,

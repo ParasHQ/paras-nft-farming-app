@@ -79,13 +79,14 @@ const Header = () => {
 							{prettyTruncate(accountId, 16, `address`)}
 						</p>
 						<div className="w-6 h-6 rounded-full bg-parasGrey">
-							{userProfile.imgUrl && (
-								<img
-									className="w-6 h-6 border border-gray-600 rounded-full"
-									src={parseImgUrl(userProfile.imgUrl)}
-									alt="profile-image"
-								/>
-							)}
+							<img
+								className="w-6 h-6 border border-gray-600 rounded-full"
+								src={parseImgUrl(
+									userProfile.imgUrl as string,
+									'https://paras-cdn.imgix.net/bafybeibpj5pz65ghvq7tfwhf2pdqgnjvotxnmg2wj3jrm7wxvq5sqoajwq'
+								)}
+								alt="profile-image"
+							/>
 						</div>
 					</div>
 				</div>

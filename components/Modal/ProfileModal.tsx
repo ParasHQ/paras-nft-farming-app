@@ -30,13 +30,14 @@ const ProfileModal = ({ show, profile, onClose }: ProfileModalProps) => {
 			<div className="bg-parasGrey text-white shadow-xl w-full p-4 rounded-md m-auto max-w-xs text-center">
 				<p className="font-bold text-xl mb-3">Account</p>
 				<div className="w-20 h-20 rounded-full mx-auto">
-					{profile.imgUrl && (
-						<img
-							className="w-20 h-20 border border-gray-600 rounded-full mx-auto"
-							src={parseImgUrl(profile.imgUrl)}
-							alt="profile-image"
-						/>
-					)}
+					<img
+						className="w-20 h-20 border border-gray-600 rounded-full mx-auto"
+						src={parseImgUrl(
+							profile.imgUrl as string,
+							'https://paras-cdn.imgix.net/bafybeibpj5pz65ghvq7tfwhf2pdqgnjvotxnmg2wj3jrm7wxvq5sqoajwq'
+						)}
+						alt="profile-image"
+					/>
 				</div>
 				<p className="mt-4 opacity-90 text-lg font-semibold">
 					{prettyTruncate(profile.accountId, 24, 'address')}

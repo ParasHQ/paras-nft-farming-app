@@ -3,6 +3,7 @@ import IconParas from 'components/Icon/IconParas'
 import ProfileModal from 'components/Modal/ProfileModal'
 import Widget from 'components/Modal/WidgetModal'
 import { baseURLParas } from 'constants/baseUrl'
+import { DEFAULT_IMG } from 'constants/common'
 import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { IProfile } from 'interfaces'
 import { trackStakingGetParas, trackStakingLogin } from 'lib/ga'
@@ -81,10 +82,7 @@ const Header = () => {
 						<div className="w-6 h-6 rounded-full bg-parasGrey">
 							<img
 								className="w-6 h-6 border border-gray-600 rounded-full"
-								src={parseImgUrl(
-									userProfile.imgUrl as string,
-									'https://paras-cdn.imgix.net/bafybeibpj5pz65ghvq7tfwhf2pdqgnjvotxnmg2wj3jrm7wxvq5sqoajwq'
-								)}
+								src={parseImgUrl(userProfile.imgUrl as string, DEFAULT_IMG)}
 								alt="profile-image"
 							/>
 						</div>

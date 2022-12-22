@@ -1,5 +1,6 @@
 import Button from 'components/Common/Button'
 import Modal from 'components/Common/Modal'
+import { DEFAULT_IMG } from 'constants/common'
 import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { IProfile } from 'interfaces'
 import { parseImgUrl, prettyTruncate } from 'utils/common'
@@ -32,10 +33,7 @@ const ProfileModal = ({ show, profile, onClose }: ProfileModalProps) => {
 				<div className="w-20 h-20 rounded-full mx-auto">
 					<img
 						className="w-20 h-20 border border-gray-600 rounded-full mx-auto"
-						src={parseImgUrl(
-							profile.imgUrl as string,
-							'https://paras-cdn.imgix.net/bafybeibpj5pz65ghvq7tfwhf2pdqgnjvotxnmg2wj3jrm7wxvq5sqoajwq'
-						)}
+						src={parseImgUrl(profile.imgUrl as string, DEFAULT_IMG)}
 						alt="profile-image"
 					/>
 				</div>

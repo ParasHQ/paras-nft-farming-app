@@ -60,6 +60,8 @@ export const Widget = (props: SwapWidgetProps) => {
 		const referralId = 'team.paras.near'
 
 		const wallet = await selector?.wallet()
+		const transactionsRegister: Transaction[] = []
+
 		for (const tx of transactionsRef) {
 			for (const x of tx.functionCalls) {
 				if (x.methodName === 'ft_transfer_call') {
@@ -80,7 +82,7 @@ export const Widget = (props: SwapWidgetProps) => {
 							})
 
 							if (!hasRegistered) {
-								transactionsRef.push({
+								transactionsRegister.push({
 									receiverId: args.receiver_id,
 									functionCalls: [
 										{
@@ -106,8 +108,9 @@ export const Widget = (props: SwapWidgetProps) => {
 			}
 		}
 
+		const newTransactionsRef = transactionsRegister.concat(transactionsRef)
 		wallet?.signAndSendTransactions({
-			transactions: WalletSelectorTransactions(transactionsRef, accountId).transactions,
+			transactions: WalletSelectorTransactions(newTransactionsRef, accountId).transactions,
 			callbackUrl: window.location.origin + window.location.pathname + '?from=swap',
 		})
 	}

@@ -3,6 +3,7 @@ import IconParas from 'components/Icon/IconParas'
 import ProfileModal from 'components/Modal/ProfileModal'
 import Widget from 'components/Modal/WidgetModal'
 import { baseURLParas } from 'constants/baseUrl'
+import { DEFAULT_IMG } from 'constants/common'
 import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { IProfile } from 'interfaces'
 import { trackStakingGetParas, trackStakingLogin } from 'lib/ga'
@@ -79,13 +80,11 @@ const Header = () => {
 							{prettyTruncate(accountId, 16, `address`)}
 						</p>
 						<div className="w-6 h-6 rounded-full bg-parasGrey">
-							{userProfile.imgUrl && (
-								<img
-									className="w-6 h-6 border border-gray-600 rounded-full"
-									src={parseImgUrl(userProfile.imgUrl)}
-									alt="profile-image"
-								/>
-							)}
+							<img
+								className="w-6 h-6 border border-gray-600 rounded-full"
+								src={parseImgUrl(userProfile.imgUrl as string, DEFAULT_IMG)}
+								alt="profile-image"
+							/>
 						</div>
 					</div>
 				</div>

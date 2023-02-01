@@ -122,15 +122,6 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 				transformationList.push('w=400')
 			}
 			return `https://paras-cdn.imgix.net/${cid}?${transformationList.join('&')}`
-		} else if (opts.isMediaCdn) {
-			const sha1Url = sha1(url)
-			const transformationList = []
-			if (opts.width) {
-				transformationList.push(`w=${opts.width}`)
-			} else {
-				transformationList.push('w=400')
-			}
-			return `https://paras-cdn.imgix.net/${sha1Url}?${transformationList.join('&')}`
 		}
 		return url
 	} else {

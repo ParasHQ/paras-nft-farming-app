@@ -158,10 +158,17 @@
   resolved "https://registry.yarnpkg.com/@napi-rs/triples/-/triples-1.0.3.tgz#76d6d0c3f4d16013c61e45dfca5ff1e6c31ae53c"
   integrity sha512-jDJTpta+P4p1NZTFVLHJ/TLFVYVcOqv6l8xwOeBKNPMgY/zDYH/YH7SJbvrr/h1RcS9GzbPcLKGzpuK9cV56UA==
 
-"@near-wallet-selector/core@7.2.0", "@near-wallet-selector/core@^7.0.0", "@near-wallet-selector/core@^7.2.0":
+"@near-wallet-selector/core@7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.2.0.tgz#18317b1c3fdf622df07d8d4302c8def15c1c4c35"
   integrity sha512-AfJOoTeQwzF+qNsvwq4MnB2ChJReKhRpf5w5zF5W9f1kl0S0nZB2hbHQr8WZRD2t2dmjHJ96tNvtt3/BpkXp6Q==
+  dependencies:
+    rxjs "^7.5.7"
+
+"@near-wallet-selector/core@^7.0.0", "@near-wallet-selector/core@^7.7.0":
+  version "7.7.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.7.0.tgz#d1be086c3d72fe059e03e97785a5f97b9083bc97"
+  integrity sha512-+J9BV+qtJ0TxzmlO+H8Dyi7qSWv21o96ultjOKoEvixdoT6wLfXznwtwPlAiH8WPtnwBswmQkTs2UelE2vAQbA==
   dependencies:
     rxjs "^7.5.7"
 

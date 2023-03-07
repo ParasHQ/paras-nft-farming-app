@@ -365,6 +365,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 					userStaked={userStaked as string}
 					isTopup={isTopup.current}
 					lockedBalance={Number(lockedData[0]?.balance)}
+					rawLockedBalance={lockedData[0]?.balance}
 					claimableRewards={poolProcessed ? poolProcessed.claimableRewards : {}}
 					isWithinDuration={isWithinDuration[0]}
 					lockedDuration={lockedDuration as number}

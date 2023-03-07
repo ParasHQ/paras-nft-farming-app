@@ -19,6 +19,7 @@ interface UnlockedStakeModalProps extends ModalCommonProps {
 	userStaked: string
 	isTopup: boolean
 	lockedBalance: number
+	rawLockedBalance: string
 	isWithinDuration: boolean
 	lockedDuration: number
 	claimableRewards: {
@@ -164,7 +165,7 @@ const UnlockedStakeTokenModal = (props: UnlockedStakeModalProps) => {
 						<Button
 							onClick={() => {
 								setInputValue(`${maxToUnlock}`)
-								setRawInputStake(JSBI.BigInt(props.lockedBalance))
+								setRawInputStake(props.rawLockedBalance)
 								setDuration(0)
 							}}
 							className="float-none w-16 border border-blueButton"

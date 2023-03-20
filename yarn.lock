@@ -158,12 +158,19 @@
   resolved "https://registry.yarnpkg.com/@napi-rs/triples/-/triples-1.0.3.tgz#76d6d0c3f4d16013c61e45dfca5ff1e6c31ae53c"
   integrity sha512-jDJTpta+P4p1NZTFVLHJ/TLFVYVcOqv6l8xwOeBKNPMgY/zDYH/YH7SJbvrr/h1RcS9GzbPcLKGzpuK9cV56UA==
 
-"@near-wallet-selector/core@7.2.0", "@near-wallet-selector/core@^7.0.0", "@near-wallet-selector/core@^7.2.0":
+"@near-wallet-selector/core@7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.2.0.tgz#18317b1c3fdf622df07d8d4302c8def15c1c4c35"
   integrity sha512-AfJOoTeQwzF+qNsvwq4MnB2ChJReKhRpf5w5zF5W9f1kl0S0nZB2hbHQr8WZRD2t2dmjHJ96tNvtt3/BpkXp6Q==
   dependencies:
     rxjs "^7.5.7"
+
+"@near-wallet-selector/core@7.9.1", "@near-wallet-selector/core@^7.0.0", "@near-wallet-selector/core@^7.2.0":
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.9.1.tgz#d13d20724bd105e85b141bb2c7f35f4c07a37cad"
+  integrity sha512-BJGsTK0snZAU1Je+W9TFJG5KW+jk+Ots9LuxsALZ/wZpqSeGT+w4xw36TZt3QsEm+I84im1+L+PIIW/bM2A9rQ==
+  dependencies:
+    rxjs "^7.8.0"
 
 "@near-wallet-selector/meteor-wallet@^7.2.0":
   version "7.2.0"
@@ -185,21 +192,21 @@
     react "18.2.0"
     react-dom "18.2.0"
 
-"@near-wallet-selector/my-near-wallet@7.2.0", "@near-wallet-selector/my-near-wallet@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/my-near-wallet/-/my-near-wallet-7.2.0.tgz#a13c8e3dc44bc580767b844e9023f382b0e6d4e1"
-  integrity sha512-uxBgePNQLfb6BiyAUlIeGgXU2PKebwzGzGNfxOSCYwom3Mw+Gq5OVL2u0RZfiOjQ59hWTiMo1Z71HWXLRfF+8g==
+"@near-wallet-selector/my-near-wallet@7.9.1", "@near-wallet-selector/my-near-wallet@^7.2.0":
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/my-near-wallet/-/my-near-wallet-7.9.1.tgz#64f74cd97dc7db008011d768b2a2bd3a1bfbe7b1"
+  integrity sha512-tQO7rCaOYWAT1SjuRAM6BcYHESItHLx6ly50Fju3brMo8wFkGJVb8bvm4sNJx0n4oPsaKaL5AjsIO2A3f84+jQ==
   dependencies:
-    "@near-wallet-selector/core" "7.2.0"
-    "@near-wallet-selector/wallet-utils" "7.2.0"
+    "@near-wallet-selector/core" "7.9.1"
+    "@near-wallet-selector/wallet-utils" "7.9.1"
 
-"@near-wallet-selector/near-wallet@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/near-wallet/-/near-wallet-7.2.0.tgz#86e2cb767754f8a47c134ac81f77a27b05dba250"
-  integrity sha512-ToMAM9fndWoFGz5RDfrlAGjsppaUCf3MX1Ng14dtLH0cxLDkgAUp3SmSKS7GA6DlgE/IGip0CKqCrJRmn7Z+kg==
+"@near-wallet-selector/near-wallet@^7.9.1":
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/near-wallet/-/near-wallet-7.9.1.tgz#b392421f9a1428a13cf49305aef8f3bce02ffcd5"
+  integrity sha512-JGgi6WsX0xg81jJahJgk4pSgkAIIhWS33ImtDgx5A35jPVW2PT5pUNwpdOjehaCgT0SUs84lWAMZKZIM9/q8tQ==
   dependencies:
-    "@near-wallet-selector/core" "7.2.0"
-    "@near-wallet-selector/my-near-wallet" "7.2.0"
+    "@near-wallet-selector/core" "7.9.1"
+    "@near-wallet-selector/my-near-wallet" "7.9.1"
 
 "@near-wallet-selector/sender@^7.2.0":
   version "7.2.0"
@@ -215,6 +222,14 @@
   integrity sha512-B8hZO9snqwOr6V8oPbIAGaBLhtibPXc9ebUpHMgWJGpC/hU8RgVOw0XY9d/FOKAOPe1T6h1Wh4ppV/LQRlZbeA==
   dependencies:
     "@near-wallet-selector/core" "7.2.0"
+    bn.js "^5.2.0"
+
+"@near-wallet-selector/wallet-utils@7.9.1":
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-7.9.1.tgz#f6cb831ec9db0b25c9ee2a031eafb27e1b46f99e"
+  integrity sha512-8bO0z7VQH26a5suS0g7XiBUsEZEBduJBY+WWybPJNtYbQUDWkIT9/Jz0rCAIgqqrtJxNufFKYimqY0Upt5Um8Q==
+  dependencies:
+    "@near-wallet-selector/core" "7.9.1"
     bn.js "^5.2.0"
 
 "@next/env@12.0.2":
@@ -3545,6 +3560,13 @@ rxjs@^7.5.7:
   version "7.5.7"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.5.7.tgz#2ec0d57fdc89ece220d2e702730ae8f1e49def39"
   integrity sha512-z9MzKh/UcOqB3i20H6rtrlaE/CgjLOvheWK/9ILrbhROGTweAi1BaFsTT9FbwZi5Trr1qNRs+MXkhmR06awzQA==
+  dependencies:
+    tslib "^2.1.0"
+
+rxjs@^7.8.0:
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.0.tgz#90a938862a82888ff4c7359811a595e14e1e09a4"
+  integrity sha512-F2+gxDshqmIub1KdvZkaEfGDwLNpPvk9Fs6LD/MyQxNgMds/WH9OdDDXOmxUZpME+iSK3rQCctkL0DYyytUqMg==
   dependencies:
     tslib "^2.1.0"
 

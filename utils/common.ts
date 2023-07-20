@@ -121,7 +121,7 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 			} else {
 				transformationList.push('w=400')
 			}
-			return `https://paras-cdn.imgix.net/${cid}?${transformationList.join('&')}`
+			return `https://paras.ipfs.paras.id/${cid}?${transformationList.join('&')}`
 		}
 		return url
 	} else {
@@ -141,7 +141,7 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 			} else {
 				transformationList.push('w=400')
 			}
-			return `https://paras-cdn.imgix.net/${cid}?${transformationList.join('&')}`
+			return `https://paras.ipfs.paras.id/${cid}?${transformationList.join('&')}`
 		} catch (err) {
 			return url
 		}

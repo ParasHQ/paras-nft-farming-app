@@ -165,6 +165,14 @@
   dependencies:
     rxjs "^7.5.7"
 
+"@near-wallet-selector/core@8.2.1":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.2.1.tgz#078e9621c37dfbab3dce107abf48efbf72ca120e"
+  integrity sha512-/0101VcoiFnptQZieZ+qLEWOmOhAauklZF3fE28m2s3e8RxSYKoB84RVnZETPa6U4nX8awLVY5dUuVw0pTg+VQ==
+  dependencies:
+    events "3.3.0"
+    rxjs "7.8.1"
+
 "@near-wallet-selector/meteor-wallet@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/meteor-wallet/-/meteor-wallet-7.2.0.tgz#16b3f7cca5e4aa5e6e41eda343b363402f7abe57"
@@ -174,14 +182,14 @@
     "@near-wallet-selector/core" "7.2.0"
     "@near-wallet-selector/wallet-utils" "7.2.0"
 
-"@near-wallet-selector/modal-ui@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/modal-ui/-/modal-ui-7.2.0.tgz#6b19dfa8d314751ddfde5a77b91e68660036558c"
-  integrity sha512-gnlaVGMyU07pS7UBB5Aalu9oqONGPy7fnksSWBJKRveNmuqkseChZJgh13cSRT1wt0/0ltGo5x7CyOCFOf0O9A==
+"@near-wallet-selector/modal-ui@^8.2.1":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/modal-ui/-/modal-ui-8.2.1.tgz#7da5f4c7b638ea810305c715e8ace4e65ac7b83d"
+  integrity sha512-g3rhnaLiIwiR0DkCpjM/l0KdH3pQx523mp7jJgkIX9/4UtdnvV3zgGuwPm25gE0XWq3pqP8qAQaSSHAt5A1kMQ==
   dependencies:
-    "@near-wallet-selector/core" "7.2.0"
-    copy-to-clipboard "^3.3.2"
-    qrcode "^1.5.1"
+    "@near-wallet-selector/core" "8.2.1"
+    copy-to-clipboard "3.3.3"
+    qrcode "1.5.3"
     react "18.2.0"
     react-dom "18.2.0"
 
@@ -1159,7 +1167,7 @@ convert-source-map@1.7.0:
   dependencies:
     safe-buffer "~5.1.1"
 
-copy-to-clipboard@^3.3.2:
+copy-to-clipboard@3.3.3:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/copy-to-clipboard/-/copy-to-clipboard-3.3.3.tgz#55ac43a1db8ae639a4bd99511c148cdd1b83a1b0"
   integrity sha512-2KV8NhB5JqC3ky0r9PMCAZKbUHSwtEo4CwCs0KXgruG43gX5PMqDEBbVU4OUzw2MuAWUfsuFmWvEKG5QRfSnJA==
@@ -3256,10 +3264,10 @@ purgecss@^4.0.3:
     postcss "^8.2.1"
     postcss-selector-parser "^6.0.2"
 
-qrcode@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.5.1.tgz#0103f97317409f7bc91772ef30793a54cd59f0cb"
-  integrity sha512-nS8NJ1Z3md8uTjKtP+SGGhfqmTCs5flU/xR623oI0JX+Wepz9R8UrRVCTBTJm3qGw3rH6jJ6MUHjkDx15cxSSg==
+qrcode@1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.5.3.tgz#03afa80912c0dccf12bc93f615a535aad1066170"
+  integrity sha512-puyri6ApkEHYiVl4CFzo1tDkAZ+ATcnbJrJ6RiBM1Fhctdn/ix9MTE3hRph33omisEbC/2fcfemsseiKgBPKZg==
   dependencies:
     dijkstrajs "^1.0.1"
     encode-utf8 "^1.0.3"
@@ -3540,6 +3548,13 @@ run-parallel@^1.1.9:
   integrity sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==
   dependencies:
     queue-microtask "^1.2.2"
+
+rxjs@7.8.1:
+  version "7.8.1"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.1.tgz#6f6f3d99ea8044291efd92e7c7fcf562c4057543"
+  integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==
+  dependencies:
+    tslib "^2.1.0"
 
 rxjs@^7.5.7:
   version "7.5.7"

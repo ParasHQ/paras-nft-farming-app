@@ -11,7 +11,7 @@
     "@ref-finance/ref-sdk": "^1.1.5",
 		"@near-wallet-selector/core": "^7.2.0",
 		"@near-wallet-selector/meteor-wallet": "^7.2.0",
-		"@near-wallet-selector/modal-ui": "^7.2.0",
+		"@near-wallet-selector/modal-ui": "^8.5.2",
 		"@near-wallet-selector/my-near-wallet": "^7.2.0",
 		"@near-wallet-selector/near-wallet": "^7.2.0",
 		"@near-wallet-selector/sender": "^7.2.0",

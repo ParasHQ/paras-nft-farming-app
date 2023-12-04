@@ -2442,10 +2442,10 @@ js-yaml@^4.1.0:
   dependencies:
     argparse "^2.0.1"
 
-jsbi@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/jsbi/-/jsbi-4.0.0.tgz#11ff8b6418e8d0073edcfbe9f7bdf3fca21c31c7"
-  integrity sha512-68RUMweVqu0MevPlF4cjsxTvySzvYx4rMZpH8WhoKJ9yIUd5F4/C4zcrp5ITN9j8ayd8DTH6C/2ZuoW9bsBAEw==
+jsbi@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/jsbi/-/jsbi-4.3.0.tgz#b54ee074fb6fcbc00619559305c8f7e912b04741"
+  integrity sha512-SnZNcinB4RIcnEyZqFPdGPVgrg2AcnykiBy0sHVJQKHYeaLUvi3Exj+iaPpLnFVkDPZIV4U0yvgC9/R4uEAZ9g==
 
 json-parse-even-better-errors@^2.3.0:
   version "2.3.1"

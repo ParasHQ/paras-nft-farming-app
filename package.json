@@ -15,7 +15,7 @@
 		"@near-wallet-selector/my-near-wallet": "^7.2.0",
 		"@near-wallet-selector/near-wallet": "^7.2.0",
 		"@near-wallet-selector/sender": "^7.2.0",
-		"axios": "^0.24.0",
+		"axios": "^1.6.5",
 		"bn.js": "^5.2.0",
 		"borsh": "^0.7.0",
 		"cachios": "^3.1.1",

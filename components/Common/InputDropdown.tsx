@@ -54,9 +54,9 @@ const InputDropdown = ({
 				<div
 					className={`right-0 ${
 						fullWidth ? `w-full md:w-full` : `w-48 md:w-36`
-					} py-2 mt-2 bg-[#1E2431] shadow-lg rounded-lg absolute z-20 overflow-hidden`}
-				>
-					<div className="overflow-y-scroll max-h-60">
+					} py-2 mt-2 bg-[#1E2431] shadow-lg rounded-lg absolute z-50 `}
+					>
+						<div className="max-h-60">
 						<ul className="text-white w-full">
 							{data.map((item, index) => {
 								return (

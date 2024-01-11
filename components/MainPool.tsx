@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { currentMemberLevel, prettyBalance, toHumanReadableNumbers } from 'utils/common'
+import { currentMemberLevel, parseImgUrl, prettyBalance, toHumanReadableNumbers } from 'utils/common'
 import Button from './Common/Button'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import StakeTokenModal from './Modal/StakeTokenModal'
@@ -638,7 +638,7 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 								<img
 									className="w-full h-full"
 									alt={poolProcessed.title}
-									src={poolProcessed.media}
+									src={parseImgUrl(poolProcessed.media)}
 								/>
 							)}
 						</div>

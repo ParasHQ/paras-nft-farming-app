@@ -103,6 +103,10 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 	if (!url) {
 		return defaultValue
 	}
+
+	if (url.includes('paras-cdn.imgix.net')) {
+    url = url.replace('paras-cdn.imgix.net', 'paras-ipfs.paras.id');
+  }
 	if (url.includes('://')) {
 		const [protocol, path] = url.split('://')
 		if (protocol === 'ipfs') {

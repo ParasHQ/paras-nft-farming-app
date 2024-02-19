@@ -16,7 +16,7 @@
 		"@near-wallet-selector/near-wallet": "^7.2.0",
 		"@near-wallet-selector/sender": "^7.2.0",
 		"axios": "^0.24.0",
-		"bn.js": "^5.2.0",
+		"bn.js": "^5.2.1",
 		"borsh": "^0.7.0",
 		"cachios": "^3.1.1",
 		"cids": "^1.1.9",
@@ -36,7 +36,7 @@
 		"zustand": "^3.7.1"
 	},
 	"devDependencies": {
-		"@types/bn.js": "^5.1.0",
+		"@types/bn.js": "^5.1.5",
 		"@types/gtag.js": "^0.0.11",
 		"@types/node": "16.11.6",
 		"@types/react": "17.0.34",

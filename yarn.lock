@@ -337,10 +337,10 @@
   resolved "https://registry.yarnpkg.com/@react-icons/all-files/-/all-files-4.1.0.tgz#477284873a0821928224b6fc84c62d2534d6650b"
   integrity sha512-hxBI2UOuVaI3O/BhQfhtb4kcGn9ft12RWAFVMUeNjqqhLsHvFtzIkFaptBJpFDANTKoDfdVoHTKZDlwKCACbMQ==
 
-"@ref-finance/ref-sdk@^1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@ref-finance/ref-sdk/-/ref-sdk-1.1.5.tgz#792f5745b820a039c1b5ac256d4ea243a3fb51d0"
-  integrity sha512-FLrGTLEVyS2siJNDBWvwvdEtzAgz3ZxXkvBPwb2oY5n+Pn2VKzk/bUSMNJZz8f6I5XkMJDwfr05gRqDBJmLmWg==
+"@ref-finance/ref-sdk@^1.3.2":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@ref-finance/ref-sdk/-/ref-sdk-1.3.2.tgz#56dee753472a014baeaa9f6d1208e1c0d8e04078"
+  integrity sha512-j7p/fa6q+nZLc4pykaL1I4JKU+CybIPc7AqhmSCB83eugj8VoYJUg27L7g3lYLtk+dmyiLKsNazQ3s8blo/OhA==
   dependencies:
     "@near-wallet-selector/core" "^7.0.0"
     "@react-icons/all-files" "^4.1.0"
@@ -364,14 +364,7 @@
   resolved "https://registry.yarnpkg.com/@types/big.js/-/big.js-6.1.6.tgz#3d417e758483d55345a03a087f7e0c87137ca444"
   integrity sha512-0r9J+Zz9rYm2hOTwiMAVkm3XFQ4u5uTK37xrQMhc9bysn/sf/okzovWMYYIBMFTn/yrEZ11pusgLEaoarTlQbA==
 
-"@types/bn.js@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@types/bn.js/-/bn.js-5.1.0.tgz#32c5d271503a12653c62cf4d2b45e6eab8cebc68"
-  integrity sha512-QSSVYj7pYFN49kW77o2s9xTCwZ8F2xLbjLLSEVh8D2F4JUhZtPAGOFLTD+ffqksBx/u4cE/KImFjyhqCjn/LIA==
-  dependencies:
-    "@types/node" "*"
-
-"@types/bn.js@^5.1.1":
+"@types/bn.js@^5.1.0", "@types/bn.js@^5.1.1":
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/@types/bn.js/-/bn.js-5.1.1.tgz#b51e1b55920a4ca26e9285ff79936bbdec910682"
   integrity sha512-qNrYbZqMx0uJAfKnKclPh+dTwK33KfLHYqtyODwd5HnXOjnkhc4qgn3BrK6RWyGZm5+sIFE7Q7Vz6QQtJB7w7g==

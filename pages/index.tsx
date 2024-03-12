@@ -8,6 +8,7 @@ import Loader from 'components/Common/Loader'
 import InputDropdown from 'components/Common/InputDropdown'
 import { useWalletSelector } from 'contexts/WalletSelectorContext'
 import { CONTRACT } from 'utils/contract'
+import CommonBanner from 'components/Banner/CommonBanner'
 
 interface IUserStaked {
 	[key: string]: string
@@ -108,6 +109,7 @@ const Home: NextPage = () => {
 		<>
 			<Head />
 			<div className="bg-gray-900 min-h-screen pb-52">
+				<CommonBanner />
 				<Header />
 				<div className="mt-4 max-w-6xl mx-auto">
 					<div className="md:max-w-md mx-auto p-4">

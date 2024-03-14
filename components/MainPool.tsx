@@ -1,11 +1,16 @@
 import dayjs from 'dayjs'
-import { currentMemberLevel, parseImgUrl, prettyBalance, toHumanReadableNumbers } from 'utils/common'
+import {
+	currentMemberLevel,
+	parseImgUrl,
+	prettyBalance,
+	toHumanReadableNumbers,
+} from 'utils/common'
 import Button from './Common/Button'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import StakeTokenModal from './Modal/StakeTokenModal'
 import UnstakeTokenModal from './Modal/UnstakeTokenModal'
 import { GAS_FEE } from 'constants/gasFee'
-import { IFarm, IPool, IReward } from 'interfaces'
+import { IFTMetadata, IFarm, IPool, IReward } from 'interfaces'
 import PoolLoader from './Common/PoolLoader'
 import JSBI from 'jsbi'
 import PoolReward from './Common/PoolReward'
@@ -54,6 +59,7 @@ export interface IPoolProcessed {
 	comingSoon: boolean
 	expired: boolean
 	totalPoolReward: number
+	rewardSymbol?: string
 }
 
 interface PoolProps {
@@ -122,7 +128,8 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 		let allTotalRewardPerYearInUSD = 0
 
 		// sum all rewards from the pool
-		let allTotalRewardsPoolInUSD = 0
+		let allTotalRewardsPool = 0
+		let rewardSymbol = ''
 
 		const totalRewards: {
 			[key: string]: IReward
@@ -222,16 +229,18 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 				totalRewardPerYearInUSD += farmTotalRewardPerYearInUSD
 
 				const ftTokenDetail = contractPriceMap[farmDetails.reward_token]
-				const ftTokenPriceInUSD = await getPrice(ftTokenDetail.url, ftTokenDetail.symbol)
+				const ftMetadata = await viewFunction<IFTMetadata>({
+					receiverId: farmDetails.reward_token,
+					methodName: `ft_metadata`,
+					args: {},
+				})
+				const ftTokenPriceInUSD = await getPrice(ftTokenDetail?.url, ftTokenDetail?.symbol)
 				const ftTokenRewardFormatted = JSBI.toNumber(
-					JSBI.divide(
-						JSBI.BigInt(farmDetails.total_reward),
-						JSBI.BigInt(10 ** ftTokenDetail.decimals)
-					)
+					JSBI.divide(JSBI.BigInt(farmDetails.total_reward), JSBI.BigInt(10 ** ftMetadata.decimals))
 				)
 
-				const rewardFarm = ftTokenPriceInUSD * ftTokenRewardFormatted
-				allTotalRewardsPoolInUSD += rewardFarm
+				rewardSymbol = ftMetadata.symbol
+				allTotalRewardsPool = ftTokenRewardFormatted
 
 				if (totalRewards[farmDetails.reward_token]) {
 					totalRewards[farmDetails.reward_token] = {
@@ -313,7 +322,8 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 			nftPoints: (seedDetails as any).nft_balance,
 			comingSoon: poolStartDate < new Date().getTime() ? false : true,
 			expired: poolEndDate > new Date().getTime() ? false : true,
-			totalPoolReward: allTotalRewardsPoolInUSD,
+			totalPoolReward: allTotalRewardsPool,
+			rewardSymbol: rewardSymbol,
 		}
 
 		setPoolProcessed(poolData)
@@ -678,7 +688,8 @@ const MainPool = ({ data, staked, stakedNFT, type, filterType = 'all', className
 									<>
 										<p className="opacity-75">Total Reward</p>
 										<p className="text-4xl font-semibold">
-											${toHumanReadableNumbers(poolProcessed.totalPoolReward.toString())}
+											{toHumanReadableNumbers(poolProcessed.totalPoolReward.toString())}{' '}
+											{poolProcessed.rewardSymbol}
 										</p>
 									</>
 								)}

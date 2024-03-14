@@ -57,9 +57,9 @@ const PoolAPR = ({ rewardsPerWeek, totalStakedInUSD }: PoolAPRProps) => {
 			const apr: { [key: string]: number } = {}
 			for (const ftContract of Object.keys(rewardsPerWeek)) {
 				const currPrice = await getPrice(
-					contractPriceMap[ftContract].url,
-					contractPriceMap[ftContract].symbol,
-					contractPriceMap[ftContract].decimals
+					contractPriceMap[ftContract]?.url,
+					contractPriceMap[ftContract]?.symbol,
+					contractPriceMap[ftContract]?.decimals
 				)
 				if (currPrice === -1) {
 					setData(-1)

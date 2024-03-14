@@ -19,7 +19,7 @@ export const toHumanReadableNumbers = (val: string) => {
 		'18': 'E',
 		'15': 'P',
 		'12': 'T',
-		'9': 'G',
+		'9': 'B',
 		'6': 'M',
 		'3': 'k',
 		'0': '',
@@ -104,7 +104,7 @@ export const parseImgUrl = (url: string, defaultValue = '', opts: IParseImgOpts 
 		return defaultValue
 	}
 	if (url.includes('paras-cdn.imgix.net')) {
-		url = url.replace('paras-cdn.imgix.net', 'paras-ipfs.paras.id');
+		url = url.replace('paras-cdn.imgix.net', 'paras-ipfs.paras.id')
 	}
 	if (url.includes('://')) {
 		const [protocol, path] = url.split('://')

@@ -47,7 +47,7 @@ const ClaimModal = ({
 		if (type === 'ft') {
 			setActiveOption('claim-and-stake')
 		} else {
-			setActiveOption(null)
+			setActiveOption('claim-and-withdraw')
 		}
 	}, [show])
 
@@ -187,19 +187,22 @@ const ClaimModal = ({
 			<div className="max-w-sm w-full bg-parasGrey text-white p-4 rounded-lg mx-4 sm:m-auto shadow-xl">
 				<p className="font-semibold text-xl mb-2 text-center">Reward</p>
 				<div className="-mx-2 rounded-md">
-					<div
-						className={`${
-							activeOption === 'claim-and-stake' && 'bg-gray-100 bg-opacity-10'
-						} px-3 py-2 rounded-md ${
-							hasNoParasRewardFromPool ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-						}`}
-						onClick={() => !hasNoParasRewardFromPool && setActiveOption('claim-and-stake')}
-					>
-						<p className="font-semibold">Claim and Stake PARAS</p>
-						<p className="text-xs text-gray-400">
-							Claim your {poolname} reward and deposit your $PARAS to the $PARAS pool (compounding)
-						</p>
-					</div>
+					{type === 'ft' && (
+						<div
+							className={`${
+								activeOption === 'claim-and-stake' && 'bg-gray-100 bg-opacity-10'
+							} px-3 py-2 rounded-md ${
+								hasNoParasRewardFromPool ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+							}`}
+							onClick={() => !hasNoParasRewardFromPool && setActiveOption('claim-and-stake')}
+						>
+							<p className="font-semibold">Claim and Stake PARAS</p>
+							<p className="text-xs text-gray-400">
+								Claim your {poolname} reward and deposit your $PARAS to the $PARAS pool
+								(compounding)
+							</p>
+						</div>
+					)}
 					<div
 						className={`${
 							activeOption === 'claim-and-withdraw' && 'bg-gray-100 bg-opacity-10'

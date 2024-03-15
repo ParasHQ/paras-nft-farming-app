@@ -96,7 +96,7 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 			}
 
 			if (stakeAll) {
-				ownedNFT.forEach((nft) => {
+				for (const nft of ownedNFT) {
 					txs.push({
 						receiverId: nft.contract_id,
 						actions: [
@@ -117,7 +117,11 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 						],
 						signerId: accountId as string,
 					})
-				})
+
+					if (txs.length == 10) {
+						break
+					}
+				}
 			} else {
 				txs.push({
 					receiverId: contractId,
@@ -217,11 +221,13 @@ const StakeNFTModal = (props: StakeNFTModalProps) => {
 							)}
 						</div>
 					)}
-					{ownedNFT.length >= 2 && (
-						<div className="text-right">
-							<Button className="mt-4 px-8" onClick={() => stakeNFT('', '', true)}>
-								Stake all NFT
-							</Button>
+					{ownedNFT.length >= 1 && (
+						<div>
+							<div className="text-right">
+								<Button className="mt-4 px-8" onClick={() => stakeNFT('', '', true)}>
+									Stake all NFT (max. 10)
+								</Button>
+							</div>
 						</div>
 					)}
 				</div>

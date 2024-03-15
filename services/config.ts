@@ -6,7 +6,7 @@ export default function getConfig(env: string) {
 		case 'mainnet':
 			return {
 				networkId: 'mainnet',
-				nodeUrl: 'https://rpc.mainnet.near.org',
+				nodeUrl: 'https://near.lava.build',
 				contractName: CONTRACT_NAME,
 				walletUrl: 'https://wallet.near.org',
 				helperUrl: 'https://helper.mainnet.near.org',

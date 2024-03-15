@@ -54,7 +54,13 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 
 	const init = useCallback(async () => {
 		const _selector = await setupWalletSelector({
-			network: nearConfig.networkId as unknown as NetworkId,
+			network: {
+				networkId: nearConfig.networkId,
+				nodeUrl: nearConfig.nodeUrl,
+				helperUrl: nearConfig.helperUrl as string,
+				explorerUrl: nearConfig.explorerUrl as string,
+				indexerUrl: nearConfig.indexerUrl as string,
+			},
 			debug: true,
 			modules: [setupNearWallet(), setupMyNearWallet(), setupSender(), setupMeteorWallet()],
 		})

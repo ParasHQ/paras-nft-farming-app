@@ -105,7 +105,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 			}
 
 			if (unstakeAll) {
-				stakedNFT.forEach((nft) => {
+				for (const nft of stakedNFT) {
 					txs.push({
 						receiverId: CONTRACT.FARM,
 						actions: [
@@ -125,7 +125,11 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 						],
 						signerId: accountId as string,
 					})
-				})
+
+					if (txs.length === 10) {
+						break
+					}
+				}
 			} else {
 				txs.push({
 					receiverId: CONTRACT.FARM,
@@ -222,7 +226,7 @@ const UnstakeNFTModal = (props: UnstakeNFTModalProps) => {
 							color="blue-gray"
 							onClick={() => unstakeNFT('', '', true)}
 						>
-							Unstake all NFT
+							Unstake all NFT (max. 10)
 						</Button>
 					</div>
 				)}

@@ -118,7 +118,9 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 					account_id: userId,
 				},
 			})
-			deposited && setHasDeposit(true)
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			deposited && deposited.available !== '0' && setHasDeposit(true)
 		}
 	}
 

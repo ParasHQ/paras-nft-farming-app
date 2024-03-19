@@ -13,6 +13,7 @@ import DepositModal from 'components/Modal/DepositModal'
 import { CONTRACT } from 'utils/contract'
 import { TSignAndSendTransaction, TSignAndSendTransactions, TViewFunction } from 'interfaces/wallet'
 import { providers } from 'near-api-js'
+import { formatNearAmount } from 'near-api-js/lib/utils/format'
 import getConfig from 'services/config'
 import { BN } from 'bn.js'
 
@@ -120,7 +121,8 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 			})
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-ignore
-			deposited && deposited.available !== '0' && setHasDeposit(true)
+			const depositedTotal = parseFloat(formatNearAmount(deposited.total))
+			deposited && depositedTotal >= 0.1 && setHasDeposit(true)
 		}
 	}
 

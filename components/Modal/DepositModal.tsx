@@ -25,7 +25,7 @@ const DepositModal = ({ show, onClose }: DepositModalProps) => {
 							args: {
 								account_id: accountId,
 							},
-							deposit: parseNearAmount('0.01852') || '',
+							deposit: parseNearAmount('0.1') || '',
 							gas: GAS_FEE[30],
 						},
 					},
@@ -38,7 +38,7 @@ const DepositModal = ({ show, onClose }: DepositModalProps) => {
 	return (
 		<Modal isShow={show} onClose={onClose}>
 			<div className="bg-parasGrey text-white shadow-xl w-full p-4 rounded-md mx-4 md:m-auto max-w-sm">
-				<p>In order to Stake Paras, you need to deposit 0.01852 NEAR for storage</p>
+				<p>In order to Stake Paras, you need to deposit 0.1 NEAR for storage</p>
 
 				<div className="flex justify-between items-center mt-4">
 					<Button className="px-4" onClick={onClickDeposit}>
